@@ -22,6 +22,9 @@ import { storageService } from '@/services/storageService';
 import { cn } from '@/lib/utils';
 import { useAutoUpdater } from '@/hooks/useAutoUpdater';
 import { UpdateDialog } from '@/components/UpdateDialog';
+import packageJson from '../package.json';
+
+const APP_VERSION = packageJson.version;
 
 // QueryClient 인스턴스 생성
 const queryClient = new QueryClient({
@@ -73,9 +76,9 @@ function AppContent() {
         <header className="relative flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">IconMaker</h1>
-            <p className="text-sm text-muted-foreground">
-              Iconify 아이콘 검색 및 내보내기 도구
-            </p>
+            <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground">
+              v{APP_VERSION}
+            </span>
           </div>
           <div className="flex items-center gap-4">
             {/* 검색 / 에디터 뷰 전환 토글 (화면 중앙 배치) */}
@@ -221,7 +224,7 @@ function AppContent() {
           downloading={updater.downloading}
           installing={updater.installing}
           error={updater.error}
-          currentVersion="0.1.1"
+          currentVersion={APP_VERSION}
           newVersion={updater.update?.version ?? null}
           releaseNotes={updater.update?.body}
           progress={updater.progress}

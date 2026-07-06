@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-07-07
+
+### Fixed
+- 검색 그리드가 넓은 화면에서 카드 크기만 커지고 행 간격이 따라가지 않아 카드가 겹치던 문제 수정
+
+### Changed
+- 헤더 설명 문구를 제거하고 `package.json` 기준 현재 버전을 표시하도록 변경
+
 ## [0.3.1] - 2026-06-30
 
 ### Fixed
@@ -79,7 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 설정 관리 (기본 폴더, 내보내기 옵션)
 - 다크 모드 지원
 
-[unreleased]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.1...HEAD
+[unreleased]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.1.2...v0.2.0
