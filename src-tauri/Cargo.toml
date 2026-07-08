@@ -1,6 +1,6 @@
 [package]
 name = "iconmaker"
-version = "0.3.2"
+version = "0.3.3"
 description = "Iconify 아이콘 검색 및 내보내기 도구"
 authors = ["IconMaker Team"]
 edition = "2021"
