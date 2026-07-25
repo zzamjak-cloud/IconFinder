@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { check, Update } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { flushSvgWorkspaceSave } from '@/lib/svgIcon/svgWorkspaceSaver';
+import { I18N_ERROR_PREFIX } from '@/i18n/errorMessage';
 
 interface UpdateProgress {
   downloaded: number;
@@ -60,7 +61,8 @@ export function useAutoUpdater() {
       setState(prev => ({
         ...prev,
         checking: false,
-        checkError: error instanceof Error ? error.message : '업데이트 확인 실패',
+        // 원인 메시지가 없을 때만 번역 가능한 코드로 대체한다(UI에서 resolveErrorMessage로 해석).
+        checkError: error instanceof Error ? error.message : `${I18N_ERROR_PREFIX}update.checkFailed`,
       }));
     }
   };
@@ -119,7 +121,7 @@ export function useAutoUpdater() {
         ...prev,
         downloading: false,
         installing: false,
-        error: error instanceof Error ? error.message : '업데이트 실패',
+        error: error instanceof Error ? error.message : `${I18N_ERROR_PREFIX}update.failed`,
       }));
     }
   };

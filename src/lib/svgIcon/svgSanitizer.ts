@@ -1,3 +1,5 @@
+import { I18N_ERROR_PREFIX } from '@/i18n/errorMessage';
+
 export interface SanitizedSvgResult {
   ok: boolean;
   svg: string;
@@ -111,12 +113,13 @@ function parseSvgRoot(svgSource: string): Element | null {
 export function sanitizeSvg(rawSvg: string, fallbackViewBox = '0 0 64 64'): SanitizedSvgResult {
   const svgSource = extractSvg(rawSvg);
   if (!svgSource.startsWith('<svg')) {
-    return { ok: false, svg: '', error: 'SVG 루트 태그를 찾을 수 없습니다.' };
+    // error는 문장이 아니라 번역 프로토콜 코드. UI에서 resolveErrorMessage로 현재 언어 문장이 된다.
+    return { ok: false, svg: '', error: `${I18N_ERROR_PREFIX}error.svg.noRoot` };
   }
 
   const root = parseSvgRoot(svgSource);
   if (!root || root.tagName.toLowerCase() !== 'svg') {
-    return { ok: false, svg: '', error: '루트 요소가 svg가 아닙니다.' };
+    return { ok: false, svg: '', error: `${I18N_ERROR_PREFIX}error.svg.notSvg` };
   }
 
   for (const element of Array.from(root.querySelectorAll('*'))) {

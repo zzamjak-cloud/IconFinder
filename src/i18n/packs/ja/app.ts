@@ -1,0 +1,47 @@
+export const jaAppTranslations = {
+  'app.subtitle': 'Iconify アイコンを検索してエクスポート',
+  'app.tab.search': '検索',
+  'app.tab.search.title': 'アイコン検索',
+  'app.tab.editor': 'エディター',
+  'app.tab.editor.title': 'SVG エディター',
+  'app.editorLoading': 'エディターを読み込み中...',
+  'app.favorites': 'お気に入り',
+  'app.favorites.showAll': 'すべてのアイコンを表示',
+  'app.favorites.showOnly': 'お気に入りのみ表示',
+  'app.batchExport': '一括エクスポート',
+  'app.batchExport.title': 'お気に入りを一括エクスポート',
+
+  // 아이콘 검색 결과 그리드 (IconGrid)
+  'search.placeholder': 'アイコンを検索... (例: home, user, settings)',
+  'search.clear': '検索語を消去',
+  'search.searching': 'アイコンを検索中...',
+  'search.error.title': '検索中にエラーが発生しました',
+  'search.minChars': '2文字以上入力してください',
+  'search.empty.inCollection': '選択したコレクションに「{query}」の結果はありません',
+  'search.empty.all': '「{query}」の結果はありません',
+  'search.empty.hint': '別の検索語をお試しください',
+  'search.initial.title': 'アイコンを検索してみましょう',
+  'search.initial.subtitle': '275,000点を超えるオープンソースアイコンを検索',
+  'search.initial.example': '例: home, user, settings, arrow, check',
+  'search.initial.orPick': 'または上のカテゴリからアイコンセットを選択',
+  'search.count.favorites': 'お気に入り {count}件',
+  'search.count.collection': '選択中のコレクション: {count}件のアイコン',
+  'search.count.results': '{total}件中 {shown}件を表示',
+
+  // 컬렉션 드롭다운 (CategoryDropdown)
+  'collection.label': 'カテゴリ',
+  'collection.viewAll': 'すべて表示',
+  'collection.allSets': 'すべてのアイコンセット',
+  'collection.iconCount': '{prefix} • {count}件のアイコン',
+
+  // 아이콘 카드 · 즐겨찾기 패널
+  'icon.loadFailed': '読み込み失敗',
+  'favorites.add': 'お気に入りに追加',
+  'favorites.remove': 'お気に入りから削除',
+  'favorites.title': 'お気に入り',
+  'favorites.gridEmpty': 'お気に入りはまだありません',
+  'favorites.gridEmptyHint': 'アイコンカードの星をクリックするとお気に入りに追加されます',
+  'favorites.panelEmpty': 'お気に入りのアイコンはまだありません',
+  'favorites.panelEmptyHint': 'アイコンの星をクリックして追加してください',
+  'favorites.total': 'お気に入りは全部で {count}件',
+} as const;

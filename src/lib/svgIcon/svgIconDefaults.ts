@@ -1,3 +1,4 @@
+import type { TranslationKey, Translator } from '@/i18n';
 import {
   SvgIconCategory,
   SvgWorkspaceData,
@@ -7,75 +8,180 @@ import {
 
 export interface SvgIconStylePresetInfo {
   id: SvgIconStylePreset;
-  label: string;
-  description: string;
+  labelKey: TranslationKey;
+  descriptionKey: TranslationKey;
 }
 
 export const SVG_ICON_STYLE_PRESETS: SvgIconStylePresetInfo[] = [
   {
     id: 'casual-bold',
-    label: '캐주얼 볼드',
-    description: '굵은 외곽선, 밝은 색, 약한 그림자',
+    labelKey: 'preset.casual-bold.label',
+    descriptionKey: 'preset.casual-bold.desc',
   },
   {
     id: 'flat-ui',
-    label: '플랫 UI',
-    description: '작은 파일 크기와 명확한 실루엣',
+    labelKey: 'preset.flat-ui.label',
+    descriptionKey: 'preset.flat-ui.desc',
   },
   {
     id: 'neon-arcade',
-    label: '네온 아케이드',
-    description: '어두운 게임 UI에 맞는 제한적 glow',
+    labelKey: 'preset.neon-arcade.label',
+    descriptionKey: 'preset.neon-arcade.desc',
   },
   {
     id: 'pixel-ish',
-    label: '픽셀 느낌',
-    description: '격자감 있는 단순 도형 기반 SVG',
+    labelKey: 'preset.pixel-ish.label',
+    descriptionKey: 'preset.pixel-ish.desc',
   },
   {
     id: 'minimal-line',
-    label: '미니멀 라인',
-    description: '설정, 메뉴, HUD에 맞는 선형 아이콘',
+    labelKey: 'preset.minimal-line.label',
+    descriptionKey: 'preset.minimal-line.desc',
   },
 ];
 
+// 기본 카테고리 템플릿의 안정 키. 표시 문구는 언어팩(categoryTemplate.<key>.name/desc)에서 온다.
+export type SvgIconCategoryTemplateKey =
+  | 'combat'
+  | 'skillElement'
+  | 'item'
+  | 'statusEffect'
+  | 'ui'
+  | 'resource'
+  | 'currency'
+  | 'character'
+  | 'petMount'
+  | 'building'
+  | 'food'
+  | 'nature'
+  | 'reward'
+  | 'achievement'
+  | 'social'
+  | 'direction'
+  | 'sound'
+  | 'emotion'
+  | 'tool'
+  | 'exploration';
+
+export interface SvgIconCategoryTemplate {
+  key: SvgIconCategoryTemplateKey;
+  color: string;
+  recommendedQuery: string;
+}
+
 // 캐주얼 게임에 자주 쓰이는 기본 카테고리. recommendedQuery는 영어(검색 정확도가 더 높음).
-const DEFAULT_CATEGORY_TEMPLATES = [
-  { name: '전투', description: '공격, 방어, 치명타, 회피, 타겟', color: '#ef4444', recommendedQuery: 'sword' },
-  { name: '스킬 속성', description: '불, 물, 얼음, 번개, 독, 빛, 어둠', color: '#f59e0b', recommendedQuery: 'fire' },
-  { name: '아이템', description: '검, 방패, 물약, 열쇠, 상자, 보석', color: '#10b981', recommendedQuery: 'potion' },
-  { name: '상태 효과', description: '버프, 디버프, 기절, 회복, 보호막', color: '#8b5cf6', recommendedQuery: 'shield' },
-  { name: 'UI', description: '시작, 설정, 상점, 인벤토리, 지도', color: '#0ea5e9', recommendedQuery: 'settings' },
-  { name: '자원', description: '에너지, 하트, 마나, 경험치, 스태미나', color: '#eab308', recommendedQuery: 'energy' },
-  { name: '재화', description: '코인, 골드, 보석, 다이아, 토큰', color: '#facc15', recommendedQuery: 'coin' },
-  { name: '캐릭터', description: '아바타, 영웅, 적, NPC, 직업', color: '#f472b6', recommendedQuery: 'character' },
-  { name: '펫/탈것', description: '펫, 동물, 탈것, 드래곤', color: '#22c55e', recommendedQuery: 'pet' },
-  { name: '건물/시설', description: '집, 성, 상점, 공장, 농장', color: '#a855f7', recommendedQuery: 'castle' },
-  { name: '음식', description: '과일, 채소, 디저트, 음료', color: '#fb923c', recommendedQuery: 'food' },
-  { name: '자연/환경', description: '나무, 꽃, 물, 바위, 날씨', color: '#34d399', recommendedQuery: 'tree' },
-  { name: '보상/상자', description: '상자, 선물, 보물, 가챠', color: '#e879f9', recommendedQuery: 'chest' },
-  { name: '업적/랭킹', description: '트로피, 메달, 별, 왕관, 리더보드', color: '#fbbf24', recommendedQuery: 'trophy' },
-  { name: '소셜', description: '채팅, 친구, 길드, 좋아요, 공유', color: '#38bdf8', recommendedQuery: 'chat' },
-  { name: '방향/조작', description: '화살표, 이동, 메뉴, 닫기, 재생', color: '#94a3b8', recommendedQuery: 'arrow' },
-  { name: '사운드/설정', description: '소리, 음악, 음량, 알림, 진동', color: '#60a5fa', recommendedQuery: 'sound' },
-  { name: '감정/이모지', description: '표정, 이모지, 하트, 반응', color: '#fda4af', recommendedQuery: 'emoji' },
-  { name: '도구', description: '망치, 곡괭이, 렌치, 제작', color: '#cbd5e1', recommendedQuery: 'hammer' },
-  { name: '탐험/지도', description: '지도, 나침반, 깃발, 위치', color: '#2dd4bf', recommendedQuery: 'map' },
+// 표시용 이름/설명은 key로 번역해서 얻는다(getCategoryDisplayName/Description).
+export const DEFAULT_CATEGORY_TEMPLATES: SvgIconCategoryTemplate[] = [
+  { key: 'combat', color: '#ef4444', recommendedQuery: 'sword' },
+  { key: 'skillElement', color: '#f59e0b', recommendedQuery: 'fire' },
+  { key: 'item', color: '#10b981', recommendedQuery: 'potion' },
+  { key: 'statusEffect', color: '#8b5cf6', recommendedQuery: 'shield' },
+  { key: 'ui', color: '#0ea5e9', recommendedQuery: 'settings' },
+  { key: 'resource', color: '#eab308', recommendedQuery: 'energy' },
+  { key: 'currency', color: '#facc15', recommendedQuery: 'coin' },
+  { key: 'character', color: '#f472b6', recommendedQuery: 'character' },
+  { key: 'petMount', color: '#22c55e', recommendedQuery: 'pet' },
+  { key: 'building', color: '#a855f7', recommendedQuery: 'castle' },
+  { key: 'food', color: '#fb923c', recommendedQuery: 'food' },
+  { key: 'nature', color: '#34d399', recommendedQuery: 'tree' },
+  { key: 'reward', color: '#e879f9', recommendedQuery: 'chest' },
+  { key: 'achievement', color: '#fbbf24', recommendedQuery: 'trophy' },
+  { key: 'social', color: '#38bdf8', recommendedQuery: 'chat' },
+  { key: 'direction', color: '#94a3b8', recommendedQuery: 'arrow' },
+  { key: 'sound', color: '#60a5fa', recommendedQuery: 'sound' },
+  { key: 'emotion', color: '#fda4af', recommendedQuery: 'emoji' },
+  { key: 'tool', color: '#cbd5e1', recommendedQuery: 'hammer' },
+  { key: 'exploration', color: '#2dd4bf', recommendedQuery: 'map' },
 ];
 
-// 카테고리 이름 → 추천 검색어(영어) 조회표. 저장된 카테고리에 recommendedQuery가 없을 때의 폴백.
-export const RECOMMENDED_QUERY_BY_CATEGORY_NAME: Record<string, string> = DEFAULT_CATEGORY_TEMPLATES.reduce(
+// 템플릿 키 → 추천 검색어(영어) 조회표.
+const RECOMMENDED_QUERY_BY_TEMPLATE_KEY: Record<string, string> = DEFAULT_CATEGORY_TEMPLATES.reduce(
   (acc, template) => {
-    acc[template.name] = template.recommendedQuery;
+    acc[template.key] = template.recommendedQuery;
     return acc;
   },
   {} as Record<string, string>
 );
 
-// 카테고리의 추천 검색어를 구한다(저장값 우선, 이름 매칭 폴백).
+// i18n 도입 전에 저장된 워크스페이스 호환용: 한국어 카테고리 이름 → 템플릿 키.
+// 이 문자열들은 표시용이 아니라 과거 저장 데이터의 식별자이므로 절대 번역하지 않는다.
+export const LEGACY_CATEGORY_NAME_TO_TEMPLATE_KEY: Record<string, SvgIconCategoryTemplateKey> = {
+  전투: 'combat',
+  '스킬 속성': 'skillElement',
+  아이템: 'item',
+  '상태 효과': 'statusEffect',
+  UI: 'ui',
+  자원: 'resource',
+  재화: 'currency',
+  캐릭터: 'character',
+  '펫/탈것': 'petMount',
+  '건물/시설': 'building',
+  음식: 'food',
+  '자연/환경': 'nature',
+  '보상/상자': 'reward',
+  '업적/랭킹': 'achievement',
+  소셜: 'social',
+  '방향/조작': 'direction',
+  '사운드/설정': 'sound',
+  '감정/이모지': 'emotion',
+  도구: 'tool',
+  '탐험/지도': 'exploration',
+};
+
+function isTemplateKey(value: string | undefined): value is SvgIconCategoryTemplateKey {
+  return !!value && value in RECOMMENDED_QUERY_BY_TEMPLATE_KEY;
+}
+
+// 카테고리의 템플릿 키를 구한다(저장된 templateKey 우선, 레거시 한국어 이름 폴백).
+function resolveTemplateKey(
+  category: SvgIconCategory | null | undefined
+): SvgIconCategoryTemplateKey | undefined {
+  if (!category) return undefined;
+  if (isTemplateKey(category.templateKey)) return category.templateKey;
+  return LEGACY_CATEGORY_NAME_TO_TEMPLATE_KEY[category.name];
+}
+
+// 카테고리 표시 이름: 기본 템플릿이면 번역문, 사용자가 만든/이름을 바꾼 카테고리는 저장값.
+export function getCategoryDisplayName(category: SvgIconCategory, t: Translator): string {
+  if (isTemplateKey(category.templateKey)) {
+    return t(`categoryTemplate.${category.templateKey}.name` as TranslationKey);
+  }
+  return category.name;
+}
+
+// 카테고리 표시 설명: 규칙은 getCategoryDisplayName과 동일.
+export function getCategoryDisplayDescription(category: SvgIconCategory, t: Translator): string {
+  if (isTemplateKey(category.templateKey)) {
+    return t(`categoryTemplate.${category.templateKey}.desc` as TranslationKey);
+  }
+  return category.description ?? '';
+}
+
+// 카테고리의 추천 검색어를 구한다(저장값 → templateKey → 레거시 이름 매칭).
 export function getRecommendedQueryForCategory(category: SvgIconCategory | null | undefined): string {
   if (!category) return '';
-  return category.recommendedQuery ?? RECOMMENDED_QUERY_BY_CATEGORY_NAME[category.name] ?? '';
+  if (category.recommendedQuery) return category.recommendedQuery;
+  const templateKey = resolveTemplateKey(category);
+  return templateKey ? RECOMMENDED_QUERY_BY_TEMPLATE_KEY[templateKey] ?? '' : '';
+}
+
+/**
+ * 기존 저장 데이터를 templateKey 기반으로 승격한다.
+ * - templateKey가 없고 이름이 레거시 한국어 기본 카테고리와 일치하면 키를 부여하고 name/description을 비운다.
+ * - 사용자가 직접 만든/이름을 바꾼 카테고리는 그대로 둔다.
+ * - 변경이 없으면 같은 참조를 반환해 호출부가 저장을 건너뛸 수 있게 한다.
+ */
+export function migrateSvgWorkspaceCategories(data: SvgWorkspaceData): SvgWorkspaceData {
+  let changed = false;
+  const categories = data.categories.map((category) => {
+    if (isTemplateKey(category.templateKey)) return category;
+    const templateKey = LEGACY_CATEGORY_NAME_TO_TEMPLATE_KEY[category.name];
+    if (!templateKey) return category;
+    changed = true;
+    return { ...category, templateKey, name: '', description: '' };
+  });
+
+  return changed ? { ...data, categories } : data;
 }
 
 // 워크스페이스 첫 진입 시 검색 입력 기본값(영어)
@@ -106,8 +212,10 @@ export function createDefaultSvgWorkspaceData(): SvgWorkspaceData {
   const now = new Date().toISOString();
   const categories: SvgIconCategory[] = DEFAULT_CATEGORY_TEMPLATES.map((template) => ({
     id: createSvgIconId('svg-cat'),
-    name: template.name,
-    description: template.description,
+    templateKey: template.key,
+    // 표시 문구는 templateKey 번역에서 오므로 저장값은 비워 둔다.
+    name: '',
+    description: '',
     color: template.color,
     recommendedQuery: template.recommendedQuery,
     iconIds: [],

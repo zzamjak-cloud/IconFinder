@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { exportService } from '@/services/exportService';
 import { storageService } from '@/services/storageService';
+import { i18nError, resolveErrorMessage } from '@/i18n/errorMessage';
+import { useI18n } from '@/i18n/I18nProvider';
 import { useSettings } from './useSettings';
 
 /**
@@ -11,6 +13,7 @@ import { useSettings } from './useSettings';
  */
 export function useBatchExport() {
   const { settings } = useSettings();
+  const { t } = useI18n();
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [errors, setErrors] = useState<string[]>([]);
@@ -21,12 +24,12 @@ export function useBatchExport() {
    */
   const batchExport = async (iconNames: string[]) => {
     if (iconNames.length === 0) {
-      throw new Error('내보낼 아이콘이 없습니다');
+      throw i18nError('batch.error.noIcons');
     }
 
     // 기본 폴더 확인
     if (!settings.defaultFolder) {
-      throw new Error('먼저 설정에서 기본 저장 폴더를 지정해주세요');
+      throw i18nError('batch.error.noFolder');
     }
 
     setIsExporting(true);
@@ -71,7 +74,7 @@ export function useBatchExport() {
             await new Promise(resolve => setTimeout(resolve, 300));
           }
         } catch (error) {
-          const errorMsg = `${iconName}: ${error instanceof Error ? error.message : '알 수 없는 오류'}`;
+          const errorMsg = `${iconName}: ${resolveErrorMessage(t, error)}`;
           console.error('Export error:', errorMsg);
           exportErrors.push(errorMsg);
         }

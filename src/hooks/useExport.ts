@@ -2,6 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import { exportService } from '@/services/exportService';
 import { ExportOptions } from '@/types/export';
 import { useToast } from '@/components/ui/toast';
+import { resolveErrorMessage } from '@/i18n/errorMessage';
+import { useI18n } from '@/i18n/I18nProvider';
 
 /**
  * 아이콘 내보내기 훅
@@ -10,6 +12,7 @@ import { useToast } from '@/components/ui/toast';
  */
 export function useExport() {
   const { toast } = useToast();
+  const { t } = useI18n();
 
   const exportMutation = useMutation({
     mutationFn: ({
@@ -23,16 +26,16 @@ export function useExport() {
     }) => exportService.exportIcon(prefix, name, options),
     onSuccess: () => {
       toast({
-        title: '내보내기 완료',
-        description: '아이콘이 성공적으로 저장되었습니다.',
+        title: t('export.toast.success.title'),
+        description: t('export.toast.success.body'),
         type: 'success',
       });
     },
     onError: (error) => {
       console.error('Export hook error:', error);
       toast({
-        title: '내보내기 실패',
-        description: error instanceof Error ? error.message : '알 수 없는 오류',
+        title: t('export.toast.failed.title'),
+        description: resolveErrorMessage(t, error),
         type: 'error',
       });
     },

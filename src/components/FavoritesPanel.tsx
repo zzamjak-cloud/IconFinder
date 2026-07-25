@@ -1,6 +1,7 @@
 import { Star, Trash2 } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useIconDetails } from '@/hooks/useIconDetails';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/lib/utils';
 
 /**
@@ -10,6 +11,7 @@ function FavoriteItem({ iconName }: { iconName: string }) {
   const [prefix, name] = iconName.split(':');
   const { data: svg } = useIconDetails(prefix, name);
   const { removeFavorite } = useFavorites();
+  const { t } = useI18n();
 
   return (
     <div
@@ -51,7 +53,7 @@ function FavoriteItem({ iconName }: { iconName: string }) {
           "hover:bg-destructive/10 hover:text-destructive",
           "transition-all"
         )}
-        aria-label="즐겨찾기 제거"
+        aria-label={t('favorites.remove')}
       >
         <Trash2 className="w-4 h-4" />
       </button>
@@ -67,13 +69,14 @@ function FavoriteItem({ iconName }: { iconName: string }) {
  */
 export function FavoritesPanel() {
   const { favorites, isLoading } = useFavorites();
+  const { t } = useI18n();
 
   return (
     <aside className="w-64 border-r border-border p-4 overflow-y-auto bg-background">
       {/* 헤더 */}
       <div className="flex items-center gap-2 mb-4">
         <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-        <h2 className="text-lg font-semibold">즐겨찾기</h2>
+        <h2 className="text-lg font-semibold">{t('favorites.title')}</h2>
       </div>
 
       {/* 로딩 상태 */}
@@ -81,7 +84,7 @@ export function FavoritesPanel() {
         <div className="text-center py-4">
           <div className="w-8 h-8 mx-auto border-2 border-muted border-t-primary rounded-full animate-spin" />
           <p className="text-sm text-muted-foreground mt-2">
-            로딩 중...
+            {t('common.loading')}
           </p>
         </div>
       )}
@@ -100,10 +103,10 @@ export function FavoritesPanel() {
         <div className="text-center py-8">
           <Star className="w-12 h-12 mx-auto text-muted-foreground/30 mb-2" />
           <p className="text-sm text-muted-foreground">
-            아직 즐겨찾기한 아이콘이 없습니다
+            {t('favorites.panelEmpty')}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            아이콘의 별 아이콘을 클릭하여 추가하세요
+            {t('favorites.panelEmptyHint')}
           </p>
         </div>
       )}
@@ -112,7 +115,7 @@ export function FavoritesPanel() {
       {!isLoading && favorites.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground text-center">
-            총 {favorites.length}개의 즐겨찾기
+            {t('favorites.total', { count: favorites.length })}
           </p>
         </div>
       )}

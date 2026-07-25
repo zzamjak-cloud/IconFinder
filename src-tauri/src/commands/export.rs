@@ -1,5 +1,21 @@
 use tauri::command;
+use std::fmt::Display;
 use std::fs;
+
+/// 번역 가능한 에러 코드를 만든다 (세부 내용 없음).
+///
+/// UI는 `src/i18n/errorMessage.ts`의 프로토콜(`i18n:<번역키>`)에 따라
+/// 이 문자열을 현재 언어 문장으로 변환한다.
+fn i18n_err(key: &str) -> String {
+    format!("i18n:{}", key)
+}
+
+/// 번역 가능한 에러 코드를 만든다 (`i18n:<번역키>|<세부내용>`).
+///
+/// 세부 내용은 번역 문장의 `{detail}` 자리에 들어간다.
+fn i18n_err_detail(key: &str, detail: impl Display) -> String {
+    format!("i18n:{}|{}", key, detail)
+}
 
 /// SVG 문자열을 PNG로 변환
 ///
@@ -28,14 +44,14 @@ pub async fn svg_to_png(svg_content: String, size: u32) -> Result<Vec<u8>, Strin
 
     // 테스트 SVG 파싱
     let test_tree = usvg::Tree::from_data(test_svg.as_bytes(), &opt)
-        .map_err(|e| format!("테스트 SVG 파싱 실패: {}", e))?;
+        .map_err(|e| i18n_err_detail("error.rust.testSvgParse", e))?;
     println!("Test SVG parsed successfully");
 
     // 실제 SVG 파싱
     let tree = usvg::Tree::from_data(svg_content.as_bytes(), &opt)
         .map_err(|e| {
             eprintln!("SVG 파싱 실패: {}", e);
-            format!("SVG 파싱 실패: {}", e)
+            i18n_err_detail("error.rust.svgParse", e)
         })?;
 
     println!("SVG parsed successfully");
@@ -50,7 +66,7 @@ pub async fn svg_to_png(svg_content: String, size: u32) -> Result<Vec<u8>, Strin
     println!("Tree viewBox: {:?}", tree.view_box);
 
     if tree_size.width() == 0.0 || tree_size.height() == 0.0 {
-        return Err("SVG 크기가 0입니다".to_string());
+        return Err(i18n_err("error.rust.zeroSize"));
     }
 
     let scale = size_f32 / tree_size.width().max(tree_size.height());
@@ -60,7 +76,7 @@ pub async fn svg_to_png(svg_content: String, size: u32) -> Result<Vec<u8>, Strin
     let mut pixmap = Pixmap::new(size, size)
         .ok_or_else(|| {
             eprintln!("Pixmap 생성 실패");
-            "Pixmap 생성 실패".to_string()
+            i18n_err("error.rust.pixmap")
         })?;
 
     println!("Pixmap created: {}x{}", pixmap.width(), pixmap.height());
@@ -110,14 +126,14 @@ pub async fn svg_to_png(svg_content: String, size: u32) -> Result<Vec<u8>, Strin
 
     if non_transparent_pixels == 0 {
         eprintln!("WARNING: Rendered image has no visible pixels!");
-        return Err("렌더링된 이미지에 픽셀이 없습니다".to_string());
+        return Err(i18n_err("error.rust.noPixels"));
     }
 
     // PNG 인코딩
     let png_data = pixmap.encode_png()
         .map_err(|e| {
             eprintln!("PNG 인코딩 실패: {}", e);
-            format!("PNG 인코딩 실패: {}", e)
+            i18n_err_detail("error.rust.pngEncode", e)
         })?;
 
     println!("PNG encoding completed, data size: {} bytes", png_data.len());
@@ -135,7 +151,7 @@ pub async fn save_icon_file(file_path: String, content: Vec<u8>) -> Result<(), S
     use std::fs;
 
     fs::write(&file_path, content)
-        .map_err(|e| format!("파일 저장 실패: {}", e))?;
+        .map_err(|e| i18n_err_detail("error.rust.fileSave", e))?;
 
     Ok(())
 }
@@ -146,7 +162,7 @@ pub async fn read_text_file(file_path: String) -> Result<String, String> {
     use std::fs;
 
     fs::read_to_string(&file_path)
-        .map_err(|e| format!("파일 읽기 실패: {}", e))
+        .map_err(|e| i18n_err_detail("error.rust.fileRead", e))
 }
 
 /// SVG의 currentColor를 지정된 색상으로 변경
@@ -186,7 +202,7 @@ pub fn change_svg_color(svg_content: String, new_color: String) -> Result<String
 pub fn setup_default_folder() -> Result<String, String> {
     // 다운로드 폴더 경로 가져오기
     let download_dir = dirs::download_dir()
-        .ok_or_else(|| "다운로드 폴더를 찾을 수 없습니다".to_string())?;
+        .ok_or_else(|| i18n_err("error.rust.noDownloadDir"))?;
 
     // Download_Icon 폴더 경로
     let icon_folder = download_dir.join("Download_Icon");
@@ -194,7 +210,7 @@ pub fn setup_default_folder() -> Result<String, String> {
     // 폴더가 없으면 생성
     if !icon_folder.exists() {
         fs::create_dir_all(&icon_folder)
-            .map_err(|e| format!("폴더 생성 실패: {}", e))?;
+            .map_err(|e| i18n_err_detail("error.rust.createDir", e))?;
         println!("Created Download_Icon folder at: {:?}", icon_folder);
     } else {
         println!("Download_Icon folder already exists at: {:?}", icon_folder);
@@ -204,5 +220,5 @@ pub fn setup_default_folder() -> Result<String, String> {
     icon_folder
         .to_str()
         .map(|s| s.to_string())
-        .ok_or_else(|| "경로를 문자열로 변환할 수 없습니다".to_string())
+        .ok_or_else(|| i18n_err("error.rust.pathConvert"))
 }

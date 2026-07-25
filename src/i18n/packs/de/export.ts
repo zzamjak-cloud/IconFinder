@@ -1,0 +1,32 @@
+export const deExportTranslations = {
+  'export.title': 'Icon exportieren',
+  'export.format': 'Format',
+  'export.size': 'Größe (Pixel)',
+  'export.color': 'Farbe',
+  'export.saveAsDefault': 'Diese Einstellungen als Standard speichern',
+  'export.success': 'Export abgeschlossen!',
+  'export.failed': 'Export fehlgeschlagen',
+  'export.exporting': 'Wird exportiert...',
+  'export.action': 'Exportieren',
+  'export.toast.success.title': 'Export abgeschlossen',
+  'export.toast.success.body': 'Das Icon wurde erfolgreich gespeichert.',
+  'export.toast.failed.title': 'Export fehlgeschlagen',
+
+  'batch.title': 'Stapelexport',
+  'batch.summary': '{count} Icons werden exportiert',
+  'batch.detail.format': '• Format: {format}',
+  'batch.detail.size': '• Größe: {size}x{size}',
+  'batch.detail.color': '• Farbe: {color}',
+  'batch.detail.folder': '• Speichern in: {folder}',
+  'batch.noFolder.title': 'Kein Standard-Speicherordner festgelegt',
+  'batch.noFolder.body':
+    'Bitte wählen Sie zuerst in den Einstellungen einen Standard-Speicherordner aus.',
+  'batch.exporting': 'Wird exportiert...',
+  'batch.done': '{count} Icons exportiert!',
+  'batch.partial': '{success} erfolgreich, {failed} fehlgeschlagen',
+  'batch.errorList': 'Fehlgeschlagene Icons:',
+  'batch.start': 'Export starten',
+  'batch.error.noIcons': 'Es gibt keine Icons zum Exportieren',
+  'batch.error.noFolder':
+    'Bitte wählen Sie zuerst in den Einstellungen einen Standard-Speicherordner aus',
+} as const;

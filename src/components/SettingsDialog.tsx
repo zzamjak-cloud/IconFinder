@@ -10,6 +10,9 @@ import { Select, SelectContent, SelectItem } from '@/components/ui/select';
 import { useSettings } from '@/hooks/useSettings';
 import { ExportFormat } from '@/types/export';
 import { storageService, SettingsBackup } from '@/services/storageService';
+import { useI18n } from '@/i18n/I18nProvider';
+import { LANGUAGE_OPTIONS, type AppLanguage } from '@/i18n/languageOptions';
+import { i18nError, resolveErrorMessage } from '@/i18n/errorMessage';
 
 interface SettingsDialogProps {
   isOpen: boolean;
@@ -24,6 +27,7 @@ interface SettingsDialogProps {
  */
 export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
   const { settings, updateSettings, isUpdating } = useSettings();
+  const { t, language, setLanguage } = useI18n();
 
   // 로컬 상태
   const [defaultFolder, setDefaultFolder] = useState(settings.defaultFolder);
@@ -49,7 +53,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
     const selected = await open({
       directory: true,
       defaultPath: defaultFolder,
-      title: '기본 저장 폴더 선택',
+      title: t('settings.defaultFolder.dialogTitle'),
     });
 
     if (selected && typeof selected === 'string') {
@@ -86,16 +90,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       const path = await save({
         defaultPath: `iconmaker-backup-${dateTag}.json`,
         filters: [{ name: 'JSON', extensions: ['json'] }],
-        title: '설정 백업 저장',
+        title: t('settings.backup.saveDialogTitle'),
       });
       if (!path) return; // 사용자가 취소
       // 임의 경로 쓰기는 검증된 Rust 커맨드 재사용 (plugin-fs 스코프 제약 회피)
       const bytes = Array.from(new TextEncoder().encode(JSON.stringify(backup, null, 2)));
       await invoke('save_icon_file', { filePath: path, content: bytes });
       const count = backup.data.svgWorkspace?.icons.length ?? 0;
-      setBackupStatus(`백업을 저장했습니다. (저장 아이콘 ${count}개 포함)`);
+      setBackupStatus(t('settings.backup.saved', { count }));
     } catch (error) {
-      setBackupStatus(`백업 실패: ${error}`);
+      setBackupStatus(t('settings.backup.failed', { error: resolveErrorMessage(t, error) }));
     }
   };
 
@@ -106,18 +110,18 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       const selected = await open({
         multiple: false,
         filters: [{ name: 'JSON', extensions: ['json'] }],
-        title: '복원할 백업 파일 선택',
+        title: t('settings.backup.openDialogTitle'),
       });
       if (!selected || typeof selected !== 'string') return;
       const text = await invoke<string>('read_text_file', { filePath: selected });
       const parsed = JSON.parse(text) as SettingsBackup;
       if (!parsed || typeof parsed !== 'object' || !parsed.data) {
-        throw new Error('형식이 올바르지 않습니다.');
+        throw i18nError('error.backupInvalidFormat');
       }
       setPendingRestore(parsed);
       setRestoreFileName(selected.split(/[\\/]/).pop() || selected);
     } catch (error) {
-      setBackupStatus(`복원 파일 읽기 실패: ${error}`);
+      setBackupStatus(t('settings.backup.readFailed', { error: resolveErrorMessage(t, error) }));
     }
   };
 
@@ -128,7 +132,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       await storageService.importAllSettings(pendingRestore);
       window.location.reload();
     } catch (error) {
-      setBackupStatus(`복원 실패: ${error}`);
+      setBackupStatus(t('settings.backup.restoreFailed', { error: resolveErrorMessage(t, error) }));
       setPendingRestore(null);
     }
   };
@@ -139,28 +143,54 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
-            설정
+            {t('settings.title')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* 일반 */}
+          <div className="space-y-4">
+            <h3 className="font-semibold">{t('settings.general')}</h3>
+
+            {/* 언어 선택: 저장 버튼과 무관하게 선택 즉시 적용된다 */}
+            <div className="space-y-2">
+              <Label>{t('language.title')}</Label>
+              <Select
+                value={language}
+                onValueChange={(v) => setLanguage(v as AppLanguage)}
+              >
+                <SelectContent>
+                  {LANGUAGE_OPTIONS.map((option) => (
+                    <SelectItem key={option.code} value={option.code}>
+                      {`${option.flag} ${option.nativeName}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{t('language.help')}</p>
+            </div>
+          </div>
+
+          {/* 구분선 */}
+          <div className="border-t border-border" />
+
           {/* 기본 저장 폴더 */}
           <div className="space-y-2">
-            <Label>기본 저장 폴더</Label>
+            <Label>{t('settings.defaultFolder')}</Label>
             <div className="flex gap-2">
               <Input
                 value={defaultFolder}
                 readOnly
-                placeholder="선택되지 않음"
+                placeholder={t('settings.defaultFolder.placeholder')}
                 className="flex-1"
               />
               <Button onClick={handleSelectFolder} variant="outline">
                 <Folder className="w-4 h-4 mr-2" />
-                선택
+                {t('common.select')}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              아이콘을 저장할 기본 폴더를 지정합니다. 기본 폴더가 설정되면 내보내기 시 자동으로 저장됩니다.
+              {t('settings.defaultFolder.help')}
             </p>
           </div>
 
@@ -169,25 +199,25 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 
           {/* 기본 내보내기 설정 */}
           <div className="space-y-4">
-            <h3 className="font-semibold">기본 내보내기 설정</h3>
+            <h3 className="font-semibold">{t('settings.exportDefaults')}</h3>
 
             {/* 기본 포맷 */}
             <div className="space-y-2">
-              <Label>기본 포맷</Label>
+              <Label>{t('settings.format')}</Label>
               <Select
                 value={defaultFormat}
                 onValueChange={(v) => setDefaultFormat(v as ExportFormat)}
               >
                 <SelectContent>
-                  <SelectItem value="svg">SVG (벡터)</SelectItem>
-                  <SelectItem value="png">PNG (래스터)</SelectItem>
+                  <SelectItem value="svg">{t('format.svg')}</SelectItem>
+                  <SelectItem value="png">{t('format.png')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* 기본 PNG 크기 */}
             <div className="space-y-2">
-              <Label>기본 PNG 크기</Label>
+              <Label>{t('settings.pngSize')}</Label>
               <Select
                 value={String(defaultSize)}
                 onValueChange={(v) => setDefaultSize(Number(v))}
@@ -204,7 +234,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 
             {/* 기본 색상 */}
             <div className="space-y-2">
-              <Label>기본 색상</Label>
+              <Label>{t('settings.color')}</Label>
               <div className="flex gap-2">
                 <Input
                   type="color"
@@ -228,19 +258,18 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 
           {/* 백업 및 복원 */}
           <div className="space-y-3">
-            <h3 className="font-semibold">백업 및 복원</h3>
+            <h3 className="font-semibold">{t('settings.backup')}</h3>
             <p className="text-xs text-muted-foreground">
-              즐겨찾기, 내보내기 설정, SVG 워크스페이스(카테고리·저장 아이콘)를 하나의 파일로 백업합니다.
-              설정은 앱 업데이트 후에도 자동 보관되며, 백업 파일로 다른 기기로 옮기거나 복구할 수 있습니다.
+              {t('settings.backup.help')}
             </p>
             <div className="flex gap-2">
               <Button onClick={handleBackupExport} variant="outline" className="flex-1">
                 <Download className="w-4 h-4 mr-2" />
-                백업 내보내기
+                {t('settings.backup.export')}
               </Button>
               <Button onClick={handlePickRestoreFile} variant="outline" className="flex-1">
                 <Upload className="w-4 h-4 mr-2" />
-                백업 복원
+                {t('settings.backup.import')}
               </Button>
             </div>
 
@@ -250,13 +279,12 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 mt-0.5 text-yellow-600 shrink-0" />
                   <div className="space-y-2 text-sm">
-                    <p className="text-yellow-800 dark:text-yellow-300">
-                      <span className="font-semibold">{restoreFileName}</span> 으로 복원하면 현재 설정이 모두 덮어쓰여집니다.
-                      복원 후 앱이 새로고침됩니다.
+                    <p className="font-semibold text-yellow-800 dark:text-yellow-300">
+                      {t('settings.backup.restoreWarning', { fileName: restoreFileName })}
                     </p>
                     <div className="flex gap-2">
                       <Button onClick={handleConfirmRestore} size="sm">
-                        복원 적용
+                        {t('settings.backup.restoreApply')}
                       </Button>
                       <Button
                         onClick={() => {
@@ -266,7 +294,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         variant="outline"
                         size="sm"
                       >
-                        취소
+                        {t('common.cancel')}
                       </Button>
                     </div>
                   </div>
@@ -282,10 +310,10 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           {/* 버튼 */}
           <div className="flex gap-2 justify-end pt-4 border-t border-border">
             <Button onClick={handleReset} variant="outline">
-              초기화
+              {t('common.reset')}
             </Button>
             <Button onClick={handleSave} disabled={isUpdating}>
-              {isUpdating ? '저장 중...' : '저장'}
+              {isUpdating ? t('common.saving') : t('common.save')}
             </Button>
           </div>
         </div>
@@ -298,6 +326,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
  * 설정 버튼 컴포넌트 (헤더에 표시)
  */
 export function SettingsButton() {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -306,7 +335,7 @@ export function SettingsButton() {
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(true)}
-        aria-label="설정"
+        aria-label={t('settings.button.aria')}
       >
         <Settings className="w-5 h-5" />
       </Button>

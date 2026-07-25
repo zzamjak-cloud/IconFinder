@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { useSearchStore } from '@/stores/searchStore';
 import { iconifyApi } from '@/services/iconifyApi';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/lib/utils';
 
 interface Collection {
@@ -21,6 +22,7 @@ interface Collection {
  */
 export function CategoryDropdown() {
   const { selectedPrefix, setSelectedPrefix, clearSearch } = useSearchStore();
+  const { t, language } = useI18n();
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -80,12 +82,12 @@ export function CategoryDropdown() {
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span className="text-sm">로딩 중...</span>
+            <span className="text-sm">{t('common.loading')}</span>
           </>
         ) : (
           <>
             <span className="text-sm font-medium">
-              {selectedCollection ? selectedCollection.name : '카테고리'}
+              {selectedCollection ? selectedCollection.name : t('collection.label')}
             </span>
             <ChevronDown className={cn(
               "w-4 h-4 transition-transform",
@@ -117,9 +119,9 @@ export function CategoryDropdown() {
                 !selectedPrefix && "bg-muted"
               )}
             >
-              <div className="font-medium text-sm">전체 보기</div>
+              <div className="font-medium text-sm">{t('collection.viewAll')}</div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                모든 아이콘 세트
+                {t('collection.allSets')}
               </div>
             </button>
 
@@ -139,7 +141,10 @@ export function CategoryDropdown() {
                       {collection.name}
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {collection.prefix} • {collection.total.toLocaleString()} 아이콘
+                      {t('collection.iconCount', {
+                        prefix: collection.prefix,
+                        count: collection.total.toLocaleString(language),
+                      })}
                       {collection.author && ` • ${collection.author.name}`}
                     </div>
                   </div>

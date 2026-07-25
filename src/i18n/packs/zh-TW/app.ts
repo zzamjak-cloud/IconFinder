@@ -1,0 +1,47 @@
+export const zhTWAppTranslations = {
+  'app.subtitle': '搜尋並匯出 Iconify 圖示',
+  'app.tab.search': '搜尋',
+  'app.tab.search.title': '圖示搜尋',
+  'app.tab.editor': '編輯器',
+  'app.tab.editor.title': 'SVG 編輯器',
+  'app.editorLoading': '正在載入編輯器...',
+  'app.favorites': '收藏',
+  'app.favorites.showAll': '顯示全部圖示',
+  'app.favorites.showOnly': '僅顯示收藏',
+  'app.batchExport': '批次匯出',
+  'app.batchExport.title': '批次匯出收藏',
+
+  // 아이콘 검색 결과 그리드 (IconGrid)
+  'search.placeholder': '搜尋圖示...（例如 home、user、settings）',
+  'search.clear': '清除搜尋關鍵字',
+  'search.searching': '正在搜尋圖示...',
+  'search.error.title': '搜尋時發生錯誤',
+  'search.minChars': '請至少輸入 2 個字元',
+  'search.empty.inCollection': '在所選集合中找不到「{query}」的結果',
+  'search.empty.all': '找不到「{query}」的結果',
+  'search.empty.hint': '請試試其他關鍵字',
+  'search.initial.title': '開始搜尋圖示',
+  'search.initial.subtitle': '搜尋超過 275,000 個開源圖示',
+  'search.initial.example': '範例：home, user, settings, arrow, check',
+  'search.initial.orPick': '或從上方分類中選擇圖示集',
+  'search.count.favorites': '{count} 個收藏',
+  'search.count.collection': '所選集合：{count} 個圖示',
+  'search.count.results': '顯示 {total} 筆結果中的 {shown} 筆',
+
+  // 컬렉션 드롭다운 (CategoryDropdown)
+  'collection.label': '分類',
+  'collection.viewAll': '檢視全部',
+  'collection.allSets': '所有圖示集',
+  'collection.iconCount': '{prefix} • {count} 個圖示',
+
+  // 아이콘 카드 · 즐겨찾기 패널
+  'icon.loadFailed': '載入失敗',
+  'favorites.add': '加入收藏',
+  'favorites.remove': '移除收藏',
+  'favorites.title': '收藏',
+  'favorites.gridEmpty': '尚未收藏任何圖示',
+  'favorites.gridEmptyHint': '點擊圖示卡片上的星號即可加入收藏',
+  'favorites.panelEmpty': '尚無收藏的圖示',
+  'favorites.panelEmptyHint': '點擊圖示上的星號即可加入',
+  'favorites.total': '共 {count} 個收藏',
+} as const;

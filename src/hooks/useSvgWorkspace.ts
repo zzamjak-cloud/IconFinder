@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { storageService } from '@/services/storageService';
 import { SvgWorkspaceData } from '@/types/svgIcon';
-import { createDefaultSvgWorkspaceData } from '@/lib/svgIcon/svgIconDefaults';
+import {
+  createDefaultSvgWorkspaceData,
+  migrateSvgWorkspaceCategories,
+} from '@/lib/svgIcon/svgIconDefaults';
 import { scheduleSvgWorkspaceSave, flushSvgWorkspaceSave } from '@/lib/svgIcon/svgWorkspaceSaver';
 
 // 디바운스 저장 지연(ms)
@@ -29,9 +32,19 @@ export function useSvgWorkspace() {
       try {
         const stored = await storageService.getSvgWorkspace();
         if (cancelled) return;
-        setWorkspace(stored ?? createDefaultSvgWorkspaceData());
         // 정상 로드(데이터 또는 명시적 없음) → 저장 허용
         canPersistRef.current = true;
+        if (!stored) {
+          setWorkspace(createDefaultSvgWorkspaceData());
+        } else {
+          // 기본 카테고리를 templateKey 기반으로 승격(구버전 저장 데이터 호환).
+          const migrated = migrateSvgWorkspaceCategories(stored);
+          setWorkspace(migrated);
+          // 실제로 바뀐 경우에만 디스크에 반영(디바운스 저장 경로 재사용).
+          if (migrated !== stored) {
+            scheduleSvgWorkspaceSave(migrated, SAVE_DEBOUNCE_MS);
+          }
+        }
       } catch {
         if (!cancelled) {
           // 로드 실패 시: 디스크 데이터 보호를 위해 이번 세션에는 저장하지 않는다.

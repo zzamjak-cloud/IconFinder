@@ -69,6 +69,8 @@ export interface SvgIconSearchResult {
 
 export interface SvgIconCategory {
   id: string;
+  // 기본 카테고리 템플릿 키. 있으면 표시 문구를 언어팩에서 가져온다(사용자 생성 카테고리는 없음).
+  templateKey?: string;
   name: string;
   description?: string;
   color: string;

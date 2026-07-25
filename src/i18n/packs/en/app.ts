@@ -1,0 +1,47 @@
+export const enAppTranslations = {
+  'app.subtitle': 'Search and export Iconify icons',
+  'app.tab.search': 'Search',
+  'app.tab.search.title': 'Icon search',
+  'app.tab.editor': 'Editor',
+  'app.tab.editor.title': 'SVG editor',
+  'app.editorLoading': 'Loading editor...',
+  'app.favorites': 'Favorites',
+  'app.favorites.showAll': 'Show all icons',
+  'app.favorites.showOnly': 'Show favorites only',
+  'app.batchExport': 'Batch export',
+  'app.batchExport.title': 'Batch export favorites',
+
+  // 아이콘 검색 결과 그리드 (IconGrid)
+  'search.placeholder': 'Search icons... (e.g. home, user, settings)',
+  'search.clear': 'Clear search term',
+  'search.searching': 'Searching icons...',
+  'search.error.title': 'An error occurred while searching',
+  'search.minChars': 'Please enter at least 2 characters',
+  'search.empty.inCollection': 'No results for "{query}" in the selected collection',
+  'search.empty.all': 'No results for "{query}"',
+  'search.empty.hint': 'Try a different search term',
+  'search.initial.title': 'Start searching for icons',
+  'search.initial.subtitle': 'Search more than 275,000 open-source icons',
+  'search.initial.example': 'Examples: home, user, settings, arrow, check',
+  'search.initial.orPick': 'Or pick an icon set from the categories above',
+  'search.count.favorites': '{count} favorites',
+  'search.count.collection': 'Selected collection: {count} icons',
+  'search.count.results': 'Showing {shown} of {total} results',
+
+  // 컬렉션 드롭다운 (CategoryDropdown)
+  'collection.label': 'Category',
+  'collection.viewAll': 'View all',
+  'collection.allSets': 'All icon sets',
+  'collection.iconCount': '{prefix} • {count} icons',
+
+  // 아이콘 카드 · 즐겨찾기 패널
+  'icon.loadFailed': 'Failed to load',
+  'favorites.add': 'Add to favorites',
+  'favorites.remove': 'Remove from favorites',
+  'favorites.title': 'Favorites',
+  'favorites.gridEmpty': 'You have no favorites yet',
+  'favorites.gridEmptyHint': 'Click the star on an icon card to add it to favorites',
+  'favorites.panelEmpty': 'No favorite icons yet',
+  'favorites.panelEmptyHint': 'Click the star on an icon to add it',
+  'favorites.total': '{count} favorites in total',
+} as const;

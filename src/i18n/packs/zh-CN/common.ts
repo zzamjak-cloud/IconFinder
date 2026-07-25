@@ -1,0 +1,25 @@
+export const zhCNCommonTranslations = {
+  'common.cancel': '取消',
+  'common.close': '关闭',
+  'common.save': '保存',
+  'common.saving': '保存中...',
+  'common.select': '选择',
+  'common.add': '添加',
+  'common.delete': '删除',
+  'common.reset': '重置',
+  'common.loading': '加载中...',
+  'common.notSet': '未设置',
+  'common.none': '无',
+  'common.selectAll': '全选',
+  'common.clearSelection': '取消选择',
+  'common.previous': '上一页',
+  'common.next': '下一页',
+  'common.viewOriginal': '查看原始页面',
+  'common.gridColumns': 'Grid 列数：{count}',
+
+  'format.svg': 'SVG（矢量）',
+  'format.png': 'PNG（位图）',
+
+  'language.title': '语言',
+  'language.help': '设置应用界面显示的语言。修改后立即生效。',
+} as const;

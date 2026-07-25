@@ -1,0 +1,32 @@
+export const frExportTranslations = {
+  'export.title': "Exporter l'icône",
+  'export.format': 'Format',
+  'export.size': 'Taille (pixels)',
+  'export.color': 'Couleur',
+  'export.saveAsDefault': 'Enregistrer ces paramètres par défaut',
+  'export.success': 'Export terminé !',
+  'export.failed': "Échec de l'export",
+  'export.exporting': 'Export en cours...',
+  'export.action': 'Exporter',
+  'export.toast.success.title': 'Export terminé',
+  'export.toast.success.body': "L'icône a été enregistrée avec succès.",
+  'export.toast.failed.title': "Échec de l'export",
+
+  'batch.title': 'Export par lot',
+  'batch.summary': 'Export de {count} icônes',
+  'batch.detail.format': '• Format : {format}',
+  'batch.detail.size': '• Taille : {size}x{size}',
+  'batch.detail.color': '• Couleur : {color}',
+  'batch.detail.folder': '• Enregistrer dans : {folder}',
+  'batch.noFolder.title': "Aucun dossier de sauvegarde par défaut n'est défini",
+  'batch.noFolder.body':
+    "Veuillez d'abord choisir un dossier de sauvegarde par défaut dans les Paramètres.",
+  'batch.exporting': 'Export en cours...',
+  'batch.done': '{count} icônes exportées !',
+  'batch.partial': '{success} réussies, {failed} échouées',
+  'batch.errorList': 'Icônes en échec :',
+  'batch.start': "Lancer l'export",
+  'batch.error.noIcons': "Il n'y a aucune icône à exporter",
+  'batch.error.noFolder':
+    "Veuillez d'abord choisir un dossier de sauvegarde par défaut dans les Paramètres",
+} as const;

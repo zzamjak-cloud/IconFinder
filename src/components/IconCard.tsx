@@ -1,6 +1,7 @@
 import { Star } from 'lucide-react';
 import { useIconDetails } from '@/hooks/useIconDetails';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/lib/utils';
 
 interface IconCardProps {
@@ -18,6 +19,7 @@ interface IconCardProps {
 export function IconCard({ iconName, onClick }: IconCardProps) {
   // "mdi:home" 형식을 "mdi"와 "home"으로 분리
   const [prefix, name] = iconName.split(':');
+  const { t } = useI18n();
 
   // SVG 데이터 가져오기
   const { data: svg, isLoading, error } = useIconDetails(prefix, name);
@@ -47,7 +49,7 @@ export function IconCard({ iconName, onClick }: IconCardProps) {
           "hover:bg-muted transition-colors z-10",
           favorite && "text-yellow-500"
         )}
-        aria-label={favorite ? "즐겨찾기 제거" : "즐겨찾기 추가"}
+        aria-label={favorite ? t('favorites.remove') : t('favorites.add')}
       >
         <Star
           className={cn(
@@ -64,7 +66,7 @@ export function IconCard({ iconName, onClick }: IconCardProps) {
         )}
         {error && (
           <div className="text-xs text-destructive text-center">
-            로드 실패
+            {t('icon.loadFailed')}
           </div>
         )}
         {svg && (

@@ -1,46 +1,48 @@
 # IconMaker
 
-Iconify 라이브러리를 활용해 아이콘 SVG/PNG를 검색·스타일링·내보내는 데스크톱 앱입니다.
+**English** · [한국어](README.ko.md)
 
-## 주요 기능
+A desktop app for searching, styling, and exporting icons as SVG/PNG, powered by the Iconify library.
 
-### 🔍 아이콘 검색 (검색 탭)
-- Iconify API 기반 275,000+ 아이콘 검색
-- 즐겨찾기 및 캐싱
-- SVG / PNG 내보내기, 일괄 내보내기
-- 그리드 컬럼 수 조절 (이미지 비율 연동)
+## Features
 
-### 🎨 SVG 워크스페이스 (에디터 탭)
-- 카테고리별 아이콘 수집·관리 (캐주얼 게임용 기본 카테고리 20종)
-- 카테고리 선택 시 영어 추천 검색어 자동 입력
-- **스타일링**: 색상 모드(원본/단색/투톤)·그레디언트·입체를 단일 스타일 셀렉터로 통합
-- **효과**(SVG 필터, HTML·PNG 호환): 그림자 · 외부/내부 발광 · 베벨(양각/음각) · 외곽선
-  - 각 효과 색상·강도 조절, 그림자는 외곽선 포함 / 내부 발광은 콘텐츠 기준
-- **커스텀 색상 선택기**: 108색 팔레트 + 직접 선택 / HEX 입력
-- 내보내기: 개별 SVG/PNG, 스프라이트, HTML 스니펫 / 복사: SVG·HTML·CSS
+### 🔍 Icon Search (Search tab)
+- Search 275,000+ icons through the Iconify API
+- Favorites and caching
+- Export as SVG / PNG, plus batch export
+- Adjustable grid column count (image scale follows the column ratio)
 
-### ⚙️ 설정 · 백업
-- 기본 저장 폴더, 자동 저장
-- 전체 설정 백업/복원 (즐겨찾기·내보내기 설정·SVG 워크스페이스를 JSON으로)
-- 데이터는 앱 업데이트 후에도 유지 (Tauri Store)
+### 🎨 SVG Workspace (Editor tab)
+- Collect and organize icons by category (20 built-in categories aimed at casual games)
+- Selecting a category auto-fills a recommended English search term
+- **Styling**: color mode (original / solid / duotone), gradient, and 3D combined into a single style selector
+- **Effects** (SVG filters, compatible with HTML and PNG): drop shadow · outer/inner glow · bevel (embossed/engraved) · outline
+  - Per-effect color and intensity control; shadows include the outline, while inner glow is based on the content
+- **Custom color picker**: 108-color palette plus direct selection / HEX input
+- Export: individual SVG/PNG, sprite sheet, HTML snippet / Copy: SVG, HTML, CSS
 
-## 기술 스택
+### ⚙️ Settings · Backup
+- Default save folder and auto-save
+- Full settings backup/restore (favorites, export settings, and the SVG workspace as JSON)
+- Data survives app updates (Tauri Store)
+
+## Tech Stack
 
 - **Frontend**: Tauri 2.0 + React + TypeScript + Vite
 - **UI**: Tailwind CSS + shadcn/ui + Lucide
 - **State**: TanStack Query + Zustand
 - **Backend**: Rust + resvg (SVG→PNG)
-- **영속성**: Tauri Store Plugin
+- **Persistence**: Tauri Store Plugin
 
-## 개발
+## Development
 
 ```bash
 npm install
-npm run tauri dev      # 개발 실행
-npm run tauri build    # 프로덕션 빌드
-npx tsc --noEmit       # 타입체크
+npm run tauri dev      # run in development
+npm run tauri build    # production build
+npx tsc --noEmit       # type check
 ```
 
-## 라이선스
+## License
 
-각 아이콘의 라이선스는 해당 아이콘 세트(Iconify 컬렉션)의 정책을 따릅니다.
+Each icon is licensed under the policy of its own icon set (Iconify collection).

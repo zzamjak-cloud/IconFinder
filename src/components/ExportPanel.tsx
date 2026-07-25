@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useExport } from '@/hooks/useExport';
 import { useSettings } from '@/hooks/useSettings';
 import { useIconDetails } from '@/hooks/useIconDetails';
+import { useI18n } from '@/i18n/I18nProvider';
 import { ExportFormat } from '@/types/export';
 
 interface ExportPanelProps {
@@ -26,6 +27,7 @@ interface ExportPanelProps {
 export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
   const { exportIcon, isExporting, isSuccess, isError, reset } = useExport();
   const { settings, updateSettings } = useSettings();
+  const { t } = useI18n();
 
   // 아이콘 정보 파싱
   const [prefix, name] = iconName?.split(':') || ['', ''];
@@ -87,7 +89,7 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>아이콘 내보내기</span>
+            <span>{t('export.title')}</span>
             <button
               onClick={onClose}
               className="p-1 hover:bg-muted rounded transition-colors"
@@ -115,11 +117,11 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
 
           {/* 포맷 선택 */}
           <div className="space-y-2">
-            <Label>포맷</Label>
+            <Label>{t('export.format')}</Label>
             <Select value={format} onValueChange={(v) => setFormat(v as ExportFormat)}>
               <SelectContent>
-                <SelectItem value="svg">SVG (벡터)</SelectItem>
-                <SelectItem value="png">PNG (래스터)</SelectItem>
+                <SelectItem value="svg">{t('format.svg')}</SelectItem>
+                <SelectItem value="png">{t('format.png')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -127,7 +129,7 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
           {/* PNG 크기 (PNG 선택 시) */}
           {format === 'png' && (
             <div className="space-y-2">
-              <Label>크기 (픽셀)</Label>
+              <Label>{t('export.size')}</Label>
               <Select value={String(size)} onValueChange={(v) => setSize(Number(v))}>
                 <SelectContent>
                   <SelectItem value="64">64x64</SelectItem>
@@ -142,7 +144,7 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
 
           {/* 색상 선택 */}
           <div className="space-y-2">
-            <Label>색상</Label>
+            <Label>{t('export.color')}</Label>
             <div className="flex gap-2">
               <Input
                 type="color"
@@ -170,7 +172,7 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
               className="w-4 h-4 rounded border-input"
             />
             <Label htmlFor="save-settings" className="cursor-pointer">
-              이 설정을 기본값으로 저장
+              {t('export.saveAsDefault')}
             </Label>
           </div>
 
@@ -178,14 +180,14 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
           {isSuccess && (
             <div className="flex items-center gap-2 p-3 bg-green-500/10 text-green-600 rounded-lg">
               <Check className="w-5 h-5" />
-              <span className="text-sm">내보내기 완료!</span>
+              <span className="text-sm">{t('export.success')}</span>
             </div>
           )}
 
           {isError && (
             <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg">
               <XIcon className="w-5 h-5" />
-              <span className="text-sm">내보내기 실패</span>
+              <span className="text-sm">{t('export.failed')}</span>
             </div>
           )}
 
@@ -196,7 +198,7 @@ export function ExportPanel({ iconName, onClose }: ExportPanelProps) {
             className="w-full"
           >
             <Download className="w-4 h-4 mr-2" />
-            {isExporting ? '내보내는 중...' : '내보내기'}
+            {isExporting ? t('export.exporting') : t('export.action')}
           </Button>
         </div>
       </DialogContent>

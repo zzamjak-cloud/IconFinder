@@ -1,0 +1,25 @@
+export const koCommonTranslations = {
+  'common.cancel': '취소',
+  'common.close': '닫기',
+  'common.save': '저장',
+  'common.saving': '저장 중...',
+  'common.select': '선택',
+  'common.add': '추가',
+  'common.delete': '삭제',
+  'common.reset': '초기화',
+  'common.loading': '로딩 중...',
+  'common.notSet': '설정되지 않음',
+  'common.none': '없음',
+  'common.selectAll': '전체 선택',
+  'common.clearSelection': '선택 해제',
+  'common.previous': '이전',
+  'common.next': '다음',
+  'common.viewOriginal': '원본 보기',
+  'common.gridColumns': 'Grid 컬럼: {count}',
+
+  'format.svg': 'SVG (벡터)',
+  'format.png': 'PNG (래스터)',
+
+  'language.title': '언어',
+  'language.help': '앱에 표시되는 언어를 설정합니다. 변경하면 즉시 적용됩니다.',
+} as const;

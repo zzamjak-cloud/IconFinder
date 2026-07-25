@@ -1,0 +1,25 @@
+export const ptCommonTranslations = {
+  'common.cancel': 'Cancelar',
+  'common.close': 'Fechar',
+  'common.save': 'Salvar',
+  'common.saving': 'Salvando...',
+  'common.select': 'Selecionar',
+  'common.add': 'Adicionar',
+  'common.delete': 'Excluir',
+  'common.reset': 'Redefinir',
+  'common.loading': 'Carregando...',
+  'common.notSet': 'Não definido',
+  'common.none': 'Nenhum',
+  'common.selectAll': 'Selecionar tudo',
+  'common.clearSelection': 'Limpar seleção',
+  'common.previous': 'Anterior',
+  'common.next': 'Próximo',
+  'common.viewOriginal': 'Ver original',
+  'common.gridColumns': 'Colunas do Grid: {count}',
+
+  'format.svg': 'SVG (vetor)',
+  'format.png': 'PNG (raster)',
+
+  'language.title': 'Idioma',
+  'language.help': 'Define o idioma exibido no aplicativo. As alterações são aplicadas imediatamente.',
+} as const;

@@ -1,0 +1,25 @@
+export const zhTWCommonTranslations = {
+  'common.cancel': '取消',
+  'common.close': '關閉',
+  'common.save': '儲存',
+  'common.saving': '儲存中...',
+  'common.select': '選取',
+  'common.add': '新增',
+  'common.delete': '刪除',
+  'common.reset': '重設',
+  'common.loading': '載入中...',
+  'common.notSet': '未設定',
+  'common.none': '無',
+  'common.selectAll': '全選',
+  'common.clearSelection': '取消選取',
+  'common.previous': '上一頁',
+  'common.next': '下一頁',
+  'common.viewOriginal': '檢視原始頁面',
+  'common.gridColumns': 'Grid 欄數：{count}',
+
+  'format.svg': 'SVG（向量）',
+  'format.png': 'PNG（點陣）',
+
+  'language.title': '語言',
+  'language.help': '設定應用程式顯示的語言。變更後立即生效。',
+} as const;

@@ -1,0 +1,25 @@
+export const esCommonTranslations = {
+  'common.cancel': 'Cancelar',
+  'common.close': 'Cerrar',
+  'common.save': 'Guardar',
+  'common.saving': 'Guardando...',
+  'common.select': 'Seleccionar',
+  'common.add': 'Añadir',
+  'common.delete': 'Eliminar',
+  'common.reset': 'Restablecer',
+  'common.loading': 'Cargando...',
+  'common.notSet': 'Sin definir',
+  'common.none': 'Ninguno',
+  'common.selectAll': 'Seleccionar todo',
+  'common.clearSelection': 'Quitar selección',
+  'common.previous': 'Anterior',
+  'common.next': 'Siguiente',
+  'common.viewOriginal': 'Ver original',
+  'common.gridColumns': 'Columnas de Grid: {count}',
+
+  'format.svg': 'SVG (vectorial)',
+  'format.png': 'PNG (rasterizado)',
+
+  'language.title': 'Idioma',
+  'language.help': 'Define el idioma de la interfaz de la aplicación. Los cambios se aplican de inmediato.',
+} as const;

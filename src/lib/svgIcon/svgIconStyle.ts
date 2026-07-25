@@ -1,3 +1,4 @@
+import type { TranslationKey } from '@/i18n';
 import {
   SvgIconBevelMode,
   SvgIconColorMode,
@@ -55,17 +56,25 @@ function hasAnyEffect(e: SvgIconEffects): boolean {
   return e.dropShadow.enabled || e.outerGlow.enabled || e.innerGlow.enabled || e.bevel.mode !== 'none';
 }
 
-export const SVG_ICON_COLOR_PRESETS = [
-  { id: 'emerald', label: '에메랄드', primary: '#10b981', accent: '#fbbf24' },
-  { id: 'crimson', label: '크림슨', primary: '#ef4444', accent: '#f97316' },
-  { id: 'arcane', label: '아케인', primary: '#8b5cf6', accent: '#38bdf8' },
-  { id: 'gold', label: '골드', primary: '#f59e0b', accent: '#fde68a' },
-  { id: 'slate', label: '슬레이트', primary: '#334155', accent: '#94a3b8' },
-  { id: 'ocean', label: '오션', primary: '#0ea5e9', accent: '#67e8f9' },
-  { id: 'violet', label: '바이올렛', primary: '#7c3aed', accent: '#f0abfc' },
-  { id: 'poison', label: '포이즌', primary: '#65a30d', accent: '#bef264' },
-  { id: 'ice', label: '아이스', primary: '#38bdf8', accent: '#e0f2fe' },
-  { id: 'shadow', label: '섀도우', primary: '#111827', accent: '#a78bfa' },
+// 내장 컬러 프리셋. 표시 이름은 labelKey로 번역한다(id는 저장/식별용이므로 고정).
+export interface SvgIconColorPresetInfo {
+  id: string;
+  labelKey: TranslationKey;
+  primary: string;
+  accent: string;
+}
+
+export const SVG_ICON_COLOR_PRESETS: SvgIconColorPresetInfo[] = [
+  { id: 'emerald', labelKey: 'color.emerald', primary: '#10b981', accent: '#fbbf24' },
+  { id: 'crimson', labelKey: 'color.crimson', primary: '#ef4444', accent: '#f97316' },
+  { id: 'arcane', labelKey: 'color.arcane', primary: '#8b5cf6', accent: '#38bdf8' },
+  { id: 'gold', labelKey: 'color.gold', primary: '#f59e0b', accent: '#fde68a' },
+  { id: 'slate', labelKey: 'color.slate', primary: '#334155', accent: '#94a3b8' },
+  { id: 'ocean', labelKey: 'color.ocean', primary: '#0ea5e9', accent: '#67e8f9' },
+  { id: 'violet', labelKey: 'color.violet', primary: '#7c3aed', accent: '#f0abfc' },
+  { id: 'poison', labelKey: 'color.poison', primary: '#65a30d', accent: '#bef264' },
+  { id: 'ice', labelKey: 'color.ice', primary: '#38bdf8', accent: '#e0f2fe' },
+  { id: 'shadow', labelKey: 'color.shadow', primary: '#111827', accent: '#a78bfa' },
 ];
 
 const GRAPHIC_TAGS = new Set(['path', 'rect', 'circle', 'ellipse', 'polygon', 'polyline', 'line']);

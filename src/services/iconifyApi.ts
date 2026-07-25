@@ -1,4 +1,5 @@
 import { IconSearchResult, SearchOptions } from '@/types/icon';
+import { i18nError } from '@/i18n/errorMessage';
 
 const API_BASE = 'https://api.iconify.design';
 
@@ -39,7 +40,7 @@ export class IconifyApiService {
       );
 
       if (!response.ok) {
-        throw new Error('아이콘 검색 실패');
+        throw i18nError('error.iconSearchFailed');
       }
 
       return await response.json();
@@ -64,7 +65,7 @@ export class IconifyApiService {
 
     if (!response.ok) {
       console.error(`SVG download failed with status: ${response.status}`);
-      throw new Error('SVG 다운로드 실패');
+      throw i18nError('error.svgDownloadFailed');
     }
 
     const svgContent = await response.text();
@@ -82,7 +83,7 @@ export class IconifyApiService {
     const response = await fetch(`${API_BASE}/collections`);
 
     if (!response.ok) {
-      throw new Error('컬렉션 목록 가져오기 실패');
+      throw i18nError('error.collectionsFailed');
     }
 
     return await response.json();

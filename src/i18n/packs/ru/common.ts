@@ -1,0 +1,25 @@
+export const ruCommonTranslations = {
+  'common.cancel': 'Отмена',
+  'common.close': 'Закрыть',
+  'common.save': 'Сохранить',
+  'common.saving': 'Сохранение...',
+  'common.select': 'Выбрать',
+  'common.add': 'Добавить',
+  'common.delete': 'Удалить',
+  'common.reset': 'Сбросить',
+  'common.loading': 'Загрузка...',
+  'common.notSet': 'Не задано',
+  'common.none': 'Нет',
+  'common.selectAll': 'Выбрать все',
+  'common.clearSelection': 'Снять выделение',
+  'common.previous': 'Назад',
+  'common.next': 'Вперёд',
+  'common.viewOriginal': 'Открыть оригинал',
+  'common.gridColumns': 'Столбцов Grid: {count}',
+
+  'format.svg': 'SVG (вектор)',
+  'format.png': 'PNG (растр)',
+
+  'language.title': 'Язык',
+  'language.help': 'Задаёт язык интерфейса приложения. Изменения применяются сразу.',
+} as const;

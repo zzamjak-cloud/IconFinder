@@ -3,6 +3,8 @@ import { useRef, useState, useEffect } from 'react';
 import { Grid3x3 } from 'lucide-react';
 import { useIconSearch } from '@/hooks/useIconSearch';
 import { useSearchStore } from '@/stores/searchStore';
+import { useI18n } from '@/i18n/I18nProvider';
+import { resolveErrorMessage } from '@/i18n/errorMessage';
 import { IconCard } from './IconCard';
 
 interface IconGridProps {
@@ -22,6 +24,7 @@ interface IconGridProps {
  */
 export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [], columns = 5, onColumnsChange }: IconGridProps) {
   const { query, selectedPrefix } = useSearchStore();
+  const { t } = useI18n();
 
   // 아이콘 검색
   const { data, isLoading, error } = useIconSearch(query, {
@@ -77,7 +80,7 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-muted border-t-primary rounded-full animate-spin" />
-          <p className="text-muted-foreground">아이콘 검색 중...</p>
+          <p className="text-muted-foreground">{t('search.searching')}</p>
         </div>
       </div>
     );
@@ -88,9 +91,9 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <p className="text-destructive mb-2">검색 중 오류가 발생했습니다</p>
+          <p className="text-destructive mb-2">{t('search.error.title')}</p>
           <p className="text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : '알 수 없는 오류'}
+            {resolveErrorMessage(t, error)}
           </p>
         </div>
       </div>
@@ -102,7 +105,7 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-muted-foreground">
-          최소 2글자 이상 입력해주세요
+          {t('search.minChars')}
         </p>
       </div>
     );
@@ -115,12 +118,12 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
         <div className="text-center">
           <p className="text-muted-foreground mb-2">
             {selectedPrefix
-              ? `선택한 컬렉션에서 "${query}"에 대한 검색 결과가 없습니다`
-              : `"${query}"에 대한 검색 결과가 없습니다`
+              ? t('search.empty.inCollection', { query })
+              : t('search.empty.all', { query })
             }
           </p>
           <p className="text-sm text-muted-foreground">
-            다른 검색어로 시도해보세요
+            {t('search.empty.hint')}
           </p>
         </div>
       </div>
@@ -134,10 +137,10 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
         <div className="flex items-center justify-center h-full">
           <div className="text-center max-w-md">
             <h3 className="text-lg font-semibold mb-2">
-              즐겨찾기가 비어있습니다
+              {t('favorites.gridEmpty')}
             </h3>
             <p className="text-muted-foreground">
-              아이콘 카드의 별 아이콘을 클릭하여 즐겨찾기에 추가하세요
+              {t('favorites.gridEmptyHint')}
             </p>
           </div>
         </div>
@@ -151,14 +154,14 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
       <div className="flex items-center justify-center h-full">
         <div className="text-center max-w-md">
           <h3 className="text-lg font-semibold mb-2">
-            아이콘 검색을 시작하세요
+            {t('search.initial.title')}
           </h3>
           <p className="text-muted-foreground mb-4">
-            275,000개 이상의 오픈소스 아이콘을 검색할 수 있습니다
+            {t('search.initial.subtitle')}
           </p>
           <div className="text-sm text-muted-foreground space-y-1">
-            <p>예시: home, user, settings, arrow, check</p>
-            <p className="mt-2">또는 상단의 카테고리에서 아이콘 세트를 선택하세요</p>
+            <p>{t('search.initial.example')}</p>
+            <p className="mt-2">{t('search.initial.orPick')}</p>
           </div>
         </div>
       </div>
@@ -175,11 +178,11 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="text-sm text-muted-foreground">
           {showOnlyFavorites ? (
-            `즐겨찾기 ${displayIcons.length}개`
+            t('search.count.favorites', { count: displayIcons.length })
           ) : selectedPrefix && !query ? (
-            `선택한 컬렉션: ${displayIcons.length}개 아이콘`
+            t('search.count.collection', { count: displayIcons.length })
           ) : (
-            `${data?.total}개 결과 중 ${displayIcons.length}개 표시`
+            t('search.count.results', { shown: displayIcons.length, total: data?.total ?? 0 })
           )}
         </div>
         {onColumnsChange && (
@@ -192,7 +195,7 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
               value={columns}
               onChange={(e) => onColumnsChange(Number(e.target.value))}
               className="w-24 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-              title={`Grid 컬럼: ${columns}`}
+              title={t('common.gridColumns', { count: columns })}
             />
             <span className="text-sm font-medium text-muted-foreground min-w-[2ch]">
               {columns}

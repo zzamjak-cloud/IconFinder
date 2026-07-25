@@ -22,6 +22,7 @@ import { storageService } from '@/services/storageService';
 import { cn } from '@/lib/utils';
 import { useAutoUpdater } from '@/hooks/useAutoUpdater';
 import { UpdateDialog } from '@/components/UpdateDialog';
+import { useI18n } from '@/i18n';
 
 // QueryClient 인스턴스 생성
 const queryClient = new QueryClient({
@@ -52,11 +53,16 @@ function AppContent() {
   // Grid 컬럼 수 상태 (5~10)
   const [gridColumns, setGridColumns] = useState(10);
 
+  // 업데이트 다이얼로그를 사용자가 닫았는지 여부
+  const [updateDismissed, setUpdateDismissed] = useState(false);
+
   // 즐겨찾기 데이터
   const { favorites } = useFavorites();
 
   // 자동 업데이트
   const updater = useAutoUpdater();
+
+  const { t } = useI18n();
 
   // 키보드 단축키
   useKeyboardShortcuts();
@@ -74,7 +80,7 @@ function AppContent() {
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">IconMaker</h1>
             <p className="text-sm text-muted-foreground">
-              Iconify 아이콘 검색 및 내보내기 도구
+              {t('app.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -89,10 +95,10 @@ function AppContent() {
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="아이콘 검색"
+                title={t('app.tab.search.title')}
               >
                 <SearchIcon className="w-4 h-4" />
-                검색
+                {t('app.tab.search')}
               </button>
               <button
                 onClick={() => setMainView('svgWorkspace')}
@@ -102,10 +108,10 @@ function AppContent() {
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="SVG 에디터"
+                title={t('app.tab.editor.title')}
               >
                 <Palette className="w-4 h-4" />
-                에디터
+                {t('app.tab.editor')}
               </button>
               </div>
             </div>
@@ -129,7 +135,7 @@ function AppContent() {
                     "hover:bg-muted",
                     showOnlyFavorites && "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
                   )}
-                  title={showOnlyFavorites ? "전체 아이콘 보기" : "즐겨찾기만 보기"}
+                  title={showOnlyFavorites ? t('app.favorites.showAll') : t('app.favorites.showOnly')}
                 >
                   <Star
                     className={cn(
@@ -138,7 +144,7 @@ function AppContent() {
                     )}
                   />
                   <span className="text-sm font-medium">
-                    즐겨찾기 {showOnlyFavorites && `(${favorites.length})`}
+                    {t('app.favorites')} {showOnlyFavorites && `(${favorites.length})`}
                   </span>
                 </button>
 
@@ -151,11 +157,11 @@ function AppContent() {
                       "hover:bg-muted",
                       "bg-primary text-primary-foreground hover:bg-primary/90"
                     )}
-                    title="즐겨찾기 일괄 내보내기"
+                    title={t('app.batchExport.title')}
                   >
                     <Download className="w-5 h-5" />
                     <span className="text-sm font-medium">
-                      일괄 내보내기
+                      {t('app.batchExport')}
                     </span>
                   </button>
                 )}
@@ -193,7 +199,7 @@ function AppContent() {
               fallback={
                 <div className="flex flex-1 items-center justify-center text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  에디터 로딩 중...
+                  {t('app.editorLoading')}
                 </div>
               }
             >
@@ -217,16 +223,13 @@ function AppContent() {
 
         {/* 업데이트 다이얼로그 */}
         <UpdateDialog
-          available={updater.available}
+          available={updater.available && !updateDismissed}
           downloading={updater.downloading}
           installing={updater.installing}
-          error={updater.error}
-          currentVersion="0.1.1"
-          newVersion={updater.update?.version ?? null}
-          releaseNotes={updater.update?.body}
+          error={updateDismissed ? null : updater.error}
           progress={updater.progress}
           onDownload={updater.downloadAndInstall}
-          onClose={() => {}}
+          onClose={() => setUpdateDismissed(true)}
         />
       </div>
     </ToastProvider>

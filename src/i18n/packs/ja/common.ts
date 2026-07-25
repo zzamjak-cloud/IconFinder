@@ -1,0 +1,25 @@
+export const jaCommonTranslations = {
+  'common.cancel': 'キャンセル',
+  'common.close': '閉じる',
+  'common.save': '保存',
+  'common.saving': '保存中...',
+  'common.select': '選択',
+  'common.add': '追加',
+  'common.delete': '削除',
+  'common.reset': 'リセット',
+  'common.loading': '読み込み中...',
+  'common.notSet': '未設定',
+  'common.none': 'なし',
+  'common.selectAll': 'すべて選択',
+  'common.clearSelection': '選択を解除',
+  'common.previous': '前へ',
+  'common.next': '次へ',
+  'common.viewOriginal': '原本を表示',
+  'common.gridColumns': 'Grid 列数: {count}',
+
+  'format.svg': 'SVG (ベクター)',
+  'format.png': 'PNG (ラスター)',
+
+  'language.title': '言語',
+  'language.help': 'アプリに表示される言語を設定します。変更するとすぐに適用されます。',
+} as const;

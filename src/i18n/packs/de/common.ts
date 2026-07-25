@@ -1,0 +1,25 @@
+export const deCommonTranslations = {
+  'common.cancel': 'Abbrechen',
+  'common.close': 'Schließen',
+  'common.save': 'Speichern',
+  'common.saving': 'Speichern...',
+  'common.select': 'Auswählen',
+  'common.add': 'Hinzufügen',
+  'common.delete': 'Löschen',
+  'common.reset': 'Zurücksetzen',
+  'common.loading': 'Wird geladen...',
+  'common.notSet': 'Nicht festgelegt',
+  'common.none': 'Keine',
+  'common.selectAll': 'Alle auswählen',
+  'common.clearSelection': 'Auswahl aufheben',
+  'common.previous': 'Zurück',
+  'common.next': 'Weiter',
+  'common.viewOriginal': 'Original ansehen',
+  'common.gridColumns': 'Grid-Spalten: {count}',
+
+  'format.svg': 'SVG (Vektor)',
+  'format.png': 'PNG (Raster)',
+
+  'language.title': 'Sprache',
+  'language.help': 'Legt die Anzeigesprache der App fest. Änderungen werden sofort übernommen.',
+} as const;

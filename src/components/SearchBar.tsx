@@ -1,5 +1,6 @@
 import { Search, X } from 'lucide-react';
 import { useSearchStore } from '@/stores/searchStore';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/lib/utils';
 
 /**
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils';
  */
 export function SearchBar() {
   const { query, setQuery, clearSearch } = useSearchStore();
+  const { t } = useI18n();
 
   return (
     <div className="relative w-full">
@@ -19,7 +21,7 @@ export function SearchBar() {
       {/* 검색 입력 */}
       <input
         type="text"
-        placeholder="아이콘 검색... (예: home, user, settings)"
+        placeholder={t('search.placeholder')}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className={cn(
@@ -40,7 +42,7 @@ export function SearchBar() {
             "hover:bg-muted",
             "transition-colors"
           )}
-          aria-label="검색어 지우기"
+          aria-label={t('search.clear')}
         >
           <X className="h-4 w-4 text-muted-foreground" />
         </button>

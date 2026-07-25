@@ -1,14 +1,17 @@
-import { Download, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Download, AlertCircle, CheckCircle2, ExternalLink } from 'lucide-react';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n';
+import { resolveErrorMessage } from '@/i18n/errorMessage';
+
+// 변경 내역은 앱 안에 복제하지 않고 GitHub의 CHANGELOG 원본으로 바로 보낸다.
+const CHANGELOG_URL = 'https://github.com/zzamjak-cloud/IconMaker/blob/main/CHANGELOG.md';
 
 interface UpdateDialogProps {
   available: boolean;
   downloading: boolean;
   installing: boolean;
   error: string | null;
-  currentVersion: string;
-  newVersion: string | null;
-  releaseNotes?: string;
   progress: {
     downloaded: number;
     total: number;
@@ -23,14 +26,21 @@ export function UpdateDialog({
   downloading,
   installing,
   error,
-  currentVersion,
-  newVersion,
-  releaseNotes,
   progress,
   onDownload,
   onClose,
 }: UpdateDialogProps) {
+  const { t } = useI18n();
+
   if (!available && !error) return null;
+
+  const title = error
+    ? t('update.title.error')
+    : installing
+      ? t('update.title.installing')
+      : downloading
+        ? t('update.title.downloading')
+        : t('update.title.available');
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -44,26 +54,18 @@ export function UpdateDialog({
           ) : (
             <Download className="w-6 h-6 text-primary" />
           )}
-          <h3 className="text-lg font-semibold">
-            {error
-              ? '업데이트 실패'
-              : installing
-              ? '설치 중...'
-              : downloading
-              ? '다운로드 중...'
-              : '업데이트 사용 가능'}
-          </h3>
+          <h3 className="text-lg font-semibold">{title}</h3>
         </div>
 
         {/* 본문 */}
         <div className="mb-6 text-sm text-muted-foreground">
           {error ? (
-            <p className="text-destructive">{error}</p>
+            <p className="text-destructive">{resolveErrorMessage(t, error)}</p>
           ) : installing ? (
-            <p>업데이트를 설치하고 있습니다. 잠시만 기다려주세요...</p>
+            <p>{t('update.installing.body')}</p>
           ) : downloading ? (
             <>
-              <p className="mb-2">업데이트를 다운로드하고 있습니다...</p>
+              <p className="mb-2">{t('update.downloading.body')}</p>
               {progress && (
                 <div className="space-y-2">
                   <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
@@ -82,23 +84,15 @@ export function UpdateDialog({
               )}
             </>
           ) : (
-            <>
-              <p className="mb-2">새로운 버전이 출시되었습니다!</p>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="font-medium">현재 버전:</span>
-                <span className="font-mono">{currentVersion}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="font-medium">새 버전:</span>
-                <span className="font-mono text-primary">{newVersion}</span>
-              </div>
-              {releaseNotes && (
-                <div className="mt-3 p-3 bg-muted rounded text-xs">
-                  <p className="font-medium mb-1">변경 사항:</p>
-                  <p className="whitespace-pre-line">{releaseNotes}</p>
-                </div>
-              )}
-            </>
+            // 업데이트 대기 상태에서는 부가 정보 없이 CHANGELOG 링크만 노출한다.
+            <button
+              type="button"
+              onClick={() => void openUrl(CHANGELOG_URL)}
+              className="inline-flex items-center gap-1.5 text-primary hover:underline"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              {t('update.changelog')}
+            </button>
           )}
         </div>
 
@@ -108,22 +102,19 @@ export function UpdateDialog({
             <>
               <button
                 onClick={onClose}
-                className={cn(
-                  "px-4 py-2 rounded-md transition-colors",
-                  "hover:bg-muted"
-                )}
+                className={cn('px-4 py-2 rounded-md transition-colors', 'hover:bg-muted')}
               >
-                {error ? '닫기' : '나중에'}
+                {error ? t('common.close') : t('update.later')}
               </button>
               {!error && (
                 <button
                   onClick={onDownload}
                   className={cn(
-                    "px-4 py-2 rounded-md transition-colors",
-                    "bg-primary text-primary-foreground hover:bg-primary/90"
+                    'px-4 py-2 rounded-md transition-colors',
+                    'bg-primary text-primary-foreground hover:bg-primary/90'
                   )}
                 >
-                  지금 업데이트
+                  {t('update.now')}
                 </button>
               )}
             </>

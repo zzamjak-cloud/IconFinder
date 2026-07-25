@@ -3,6 +3,7 @@ import { save } from '@tauri-apps/plugin-dialog';
 import { iconifyApi } from './iconifyApi';
 import { storageService } from './storageService';
 import { ExportOptions } from '@/types/export';
+import { i18nError } from '@/i18n/errorMessage';
 
 /**
  * 아이콘 내보내기 서비스
@@ -40,7 +41,7 @@ export class ExportService {
       let svgContent = await iconifyApi.getIconSvg(prefix, name);
       console.log('SVG content length:', svgContent?.length);
       if (!svgContent) {
-        throw new Error('SVG 다운로드 실패');
+        throw i18nError('error.svgDownloadFailed');
       }
 
       // SVG 크기 속성 정리 (1em 같은 상대 단위 제거)
@@ -63,7 +64,7 @@ export class ExportService {
       const filePath = await this.getFilePath(exportOptions, settings);
       console.log('File path:', filePath);
       if (!filePath) {
-        throw new Error('파일 경로를 선택하지 않았습니다');
+        throw i18nError('error.noFilePath');
       }
 
       // 포맷에 따라 저장

@@ -1,3 +1,4 @@
+import type { TranslationKey } from '@/i18n';
 import { SvgIconSearchResult, SvgIconStylePreset } from '../../types/svgIcon';
 import { sanitizeSvg } from './svgSanitizer';
 
@@ -19,19 +20,21 @@ export type SvgIconSourcePackId = 'all' | 'game' | 'ui' | 'pixel' | 'material' |
 
 export interface SvgIconSourcePack {
   id: SvgIconSourcePackId;
-  label: string;
+  labelKey: TranslationKey;
   prefixes?: string[];
 }
 
 export const SVG_ICON_SOURCE_PACKS: SvgIconSourcePack[] = [
-  { id: 'all', label: '통합', prefixes: undefined },
-  { id: 'game', label: '게임', prefixes: ['game-icons'] },
-  { id: 'ui', label: 'UI/HUD', prefixes: ['lucide', 'tabler', 'iconoir'] },
-  { id: 'pixel', label: '픽셀', prefixes: ['pixelarticons'] },
-  { id: 'material', label: '시스템', prefixes: ['mdi', 'material-symbols'] },
-  { id: 'emoji', label: '이모지', prefixes: ['openmoji', 'noto'] },
+  { id: 'all', labelKey: 'sourcePack.all', prefixes: undefined },
+  { id: 'game', labelKey: 'sourcePack.game', prefixes: ['game-icons'] },
+  { id: 'ui', labelKey: 'sourcePack.ui', prefixes: ['lucide', 'tabler', 'iconoir'] },
+  { id: 'pixel', labelKey: 'sourcePack.pixel', prefixes: ['pixelarticons'] },
+  { id: 'material', labelKey: 'sourcePack.material', prefixes: ['mdi', 'material-symbols'] },
+  { id: 'emoji', labelKey: 'sourcePack.emoji', prefixes: ['openmoji', 'noto'] },
 ];
 
+// 아래 한국어 문자열은 화면 표시 문구가 아니라 "입력 매칭"용이다.
+// 사용자가 한국어로 검색해도 Iconify의 영어 태그를 찾도록 확장하는 규칙이므로 번역·삭제하지 말 것.
 const QUERY_EXPANSIONS: Array<{ pattern: RegExp; terms: string[] }> = [
   { pattern: /검|칼|sword|blade/i, terms: ['sword', 'blade', 'weapon'] },
   { pattern: /방패|shield|guard|armor/i, terms: ['shield', 'guard', 'armor'] },

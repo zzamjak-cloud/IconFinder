@@ -1,0 +1,25 @@
+export const enCommonTranslations = {
+  'common.cancel': 'Cancel',
+  'common.close': 'Close',
+  'common.save': 'Save',
+  'common.saving': 'Saving...',
+  'common.select': 'Select',
+  'common.add': 'Add',
+  'common.delete': 'Delete',
+  'common.reset': 'Reset',
+  'common.loading': 'Loading...',
+  'common.notSet': 'Not set',
+  'common.none': 'None',
+  'common.selectAll': 'Select all',
+  'common.clearSelection': 'Clear selection',
+  'common.previous': 'Previous',
+  'common.next': 'Next',
+  'common.viewOriginal': 'View original',
+  'common.gridColumns': 'Grid columns: {count}',
+
+  'format.svg': 'SVG (vector)',
+  'format.png': 'PNG (raster)',
+
+  'language.title': 'Language',
+  'language.help': 'Sets the display language for the app. Changes apply immediately.',
+} as const;

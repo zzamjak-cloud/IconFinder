@@ -1,0 +1,47 @@
+export const esAppTranslations = {
+  'app.subtitle': 'Busca y exporta iconos de Iconify',
+  'app.tab.search': 'Buscar',
+  'app.tab.search.title': 'Búsqueda de iconos',
+  'app.tab.editor': 'Editor',
+  'app.tab.editor.title': 'Editor SVG',
+  'app.editorLoading': 'Cargando el editor...',
+  'app.favorites': 'Favoritos',
+  'app.favorites.showAll': 'Mostrar todos los iconos',
+  'app.favorites.showOnly': 'Mostrar solo favoritos',
+  'app.batchExport': 'Exportación por lotes',
+  'app.batchExport.title': 'Exportar favoritos por lotes',
+
+  // 아이콘 검색 결과 그리드 (IconGrid)
+  'search.placeholder': 'Buscar iconos... (p. ej. home, user, settings)',
+  'search.clear': 'Borrar el término de búsqueda',
+  'search.searching': 'Buscando iconos...',
+  'search.error.title': 'Se ha producido un error durante la búsqueda',
+  'search.minChars': 'Introduzca al menos 2 caracteres',
+  'search.empty.inCollection': 'Sin resultados para "{query}" en la colección seleccionada',
+  'search.empty.all': 'Sin resultados para "{query}"',
+  'search.empty.hint': 'Pruebe con otro término de búsqueda',
+  'search.initial.title': 'Empiece a buscar iconos',
+  'search.initial.subtitle': 'Busque entre más de 275.000 iconos de código abierto',
+  'search.initial.example': 'Ejemplos: home, user, settings, arrow, check',
+  'search.initial.orPick': 'O elija un conjunto de iconos en las categorías de arriba',
+  'search.count.favorites': '{count} favoritos',
+  'search.count.collection': 'Colección seleccionada: {count} iconos',
+  'search.count.results': 'Mostrando {shown} de {total} resultados',
+
+  // 컬렉션 드롭다운 (CategoryDropdown)
+  'collection.label': 'Categoría',
+  'collection.viewAll': 'Ver todo',
+  'collection.allSets': 'Todos los conjuntos de iconos',
+  'collection.iconCount': '{prefix} • {count} iconos',
+
+  // 아이콘 카드 · 즐겨찾기 패널
+  'icon.loadFailed': 'Error al cargar',
+  'favorites.add': 'Añadir a favoritos',
+  'favorites.remove': 'Quitar de favoritos',
+  'favorites.title': 'Favoritos',
+  'favorites.gridEmpty': 'Todavía no tiene favoritos',
+  'favorites.gridEmptyHint': 'Pulse la estrella de una tarjeta de icono para añadirlo a favoritos',
+  'favorites.panelEmpty': 'Aún no hay iconos favoritos',
+  'favorites.panelEmptyHint': 'Pulse la estrella de un icono para añadirlo',
+  'favorites.total': '{count} favoritos en total',
+} as const;
