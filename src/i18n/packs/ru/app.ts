@@ -1,5 +1,4 @@
 export const ruAppTranslations = {
-  'app.subtitle': 'Поиск и экспорт иконок Iconify',
   'app.tab.search': 'Поиск',
   'app.tab.search.title': 'Поиск иконок',
   'app.tab.editor': 'Редактор',

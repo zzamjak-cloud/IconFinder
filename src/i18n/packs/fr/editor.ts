@@ -24,12 +24,18 @@ export const frEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': 'Enregistrées {saved} · Résultats {results}',
   'editor.results.title': 'Résultats de recherche',
+  'editor.results.meta': '{category} · Page {page}/{totalPages} · Affichage {shown}/{total}',
+  'editor.results.loading': 'Chargement des résultats de recherche...',
+  'editor.results.emptyHint': "Saisissez un terme et lancez la recherche d'icônes.",
   'editor.results.saveSelected': 'Enregistrer les {count} sélectionnées',
   'editor.results.selected': '{count} résultats de recherche sélectionnés',
   'editor.results.deselected': 'Sélection des résultats de recherche effacée',
   'editor.saved.title': 'Icônes enregistrées',
   'editor.saved.count': '{count} SVG enregistrés',
   'editor.saved.selectedHint': '{count} sélectionnées · faites-les glisser sur une catégorie',
+  'editor.saved.counts': '{count} icônes · {selected} sélectionnées',
+  'editor.saved.dragToCategory': 'Glisser sur une catégorie pour déplacer',
+  'editor.saved.resizeHandle': "Ajuster la hauteur du panneau d'icônes enregistrées",
   'editor.saved.dragHint':
     'Faites glisser les icônes sur une catégorie pour les déplacer',
   'editor.saved.empty': 'Enregistrez les SVG dont vous avez besoin depuis les résultats.',

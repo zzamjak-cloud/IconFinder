@@ -1,5 +1,4 @@
 export const deAppTranslations = {
-  'app.subtitle': 'Iconify-Icons suchen und exportieren',
   'app.tab.search': 'Suche',
   'app.tab.search.title': 'Icon-Suche',
   'app.tab.editor': 'Editor',

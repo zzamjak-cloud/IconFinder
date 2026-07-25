@@ -1,5 +1,4 @@
 export const frAppTranslations = {
-  'app.subtitle': 'Rechercher et exporter des icônes Iconify',
   'app.tab.search': 'Recherche',
   'app.tab.search.title': "Recherche d'icônes",
   'app.tab.editor': 'Éditeur',

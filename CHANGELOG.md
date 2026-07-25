@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The auto-update dialog no longer shows inline release notes; it links to the CHANGELOG on GitHub instead
 - English is now the primary language for the README and CHANGELOG, with Korean available as `README.ko.md` / `CHANGELOG.ko.md`
 
+## [0.3.3] - 2026-07-08
+
+### Fixed
+- Fixed the split-view drag handle in the Editor tab jumping upward the moment it was clicked
+- Reduced excessive re-rendering of the whole icon grid while typing in or clearing the top search box
+
+### Changed
+- Rearranged the Editor's search results and saved icons into a vertically split view
+- Virtualized the search-result and saved-icon grids, and set the number of search results shown to 48
+- Added a clear button to the top search box for instantly removing the search term
+
+## [0.3.2] - 2026-07-07
+
+### Fixed
+- Fixed cards overlapping in the search grid on wide screens, where card size grew but row spacing did not follow
+
+### Changed
+- Removed the header description text and now display the current version from `package.json` instead
+
 ## [0.3.1] - 2026-06-30
 
 ### Fixed
@@ -90,7 +109,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings management (default folder, export options)
 - Dark mode support
 
-[unreleased]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.1...HEAD
+[unreleased]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.1.2...v0.2.0

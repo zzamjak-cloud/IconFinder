@@ -1,5 +1,4 @@
 export const zhCNAppTranslations = {
-  'app.subtitle': '搜索并导出 Iconify 图标',
   'app.tab.search': '搜索',
   'app.tab.search.title': '图标搜索',
   'app.tab.editor': '编辑器',

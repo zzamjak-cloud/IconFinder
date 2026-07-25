@@ -1,5 +1,4 @@
 export const enAppTranslations = {
-  'app.subtitle': 'Search and export Iconify icons',
   'app.tab.search': 'Search',
   'app.tab.search.title': 'Icon search',
   'app.tab.editor': 'Editor',

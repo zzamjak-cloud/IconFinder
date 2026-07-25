@@ -1,10 +1,12 @@
 {
   "name": "iconmaker",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.3.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test:icon-grid": "node scripts/test-icon-grid-layout.mjs",
+    "test:svg-panel": "node scripts/test-svg-icon-panel-layout.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",

@@ -1,5 +1,4 @@
 export const ptAppTranslations = {
-  'app.subtitle': 'Pesquise e exporte ícones do Iconify',
   'app.tab.search': 'Pesquisar',
   'app.tab.search.title': 'Pesquisa de ícones',
   'app.tab.editor': 'Editor',

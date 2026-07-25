@@ -1,5 +1,4 @@
 export const koAppTranslations = {
-  'app.subtitle': 'Iconify 아이콘 검색 및 내보내기 도구',
   'app.tab.search': '검색',
   'app.tab.search.title': '아이콘 검색',
   'app.tab.editor': '에디터',

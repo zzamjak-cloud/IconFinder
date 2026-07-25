@@ -1,11 +1,17 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { Grid3x3 } from 'lucide-react';
 import { useIconSearch } from '@/hooks/useIconSearch';
 import { useSearchStore } from '@/stores/searchStore';
 import { useI18n } from '@/i18n/I18nProvider';
 import { resolveErrorMessage } from '@/i18n/errorMessage';
 import { IconCard } from './IconCard';
+import {
+  getIconGridMetrics,
+  getIconGridRowStyle,
+  getIconGridTotalHeight,
+  getIconGridVirtualizerKey,
+} from './iconGridLayout';
 
 interface IconGridProps {
   onIconClick?: (iconName: string) => void;
@@ -31,48 +37,54 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
     prefix: selectedPrefix || undefined,
   });
 
-  const parentRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement | null>(null);
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
+  const setParentElement = useCallback((node: HTMLDivElement | null) => {
+    parentRef.current = node;
+    setScrollElement(node);
+  }, []);
 
   // 컨테이너 폭 측정 (컬럼 수에 비례해 카드/행 높이를 계산하기 위함)
   const [containerWidth, setContainerWidth] = useState(0);
   useEffect(() => {
-    const el = parentRef.current;
+    const el = scrollElement;
     if (!el) return;
     const update = () => setContainerWidth(el.clientWidth);
     update();
     const observer = new ResizeObserver(update);
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [scrollElement]);
 
   // 표시할 아이콘 목록 결정 (즐겨찾기 필터 적용)
   const displayIcons = showOnlyFavorites ? favorites : (data?.icons || []);
 
   // 그리드 설정
-  const columnCount = columns; // 사용자 정의 컬럼 수
+  const columnCount = Math.max(1, Math.floor(columns)); // 사용자 정의 컬럼 수
   const rowCount = Math.ceil(displayIcons.length / columnCount);
 
   // 셀 너비에 비례한 카드/행 높이 — 컬럼이 줄면 셀이 커지고 이미지도 함께 커진다
-  const GRID_GAP = 16; // 1rem
-  const LABEL_ALLOWANCE = 52; // 아이콘 이름/prefix 영역
-  const cellWidth =
-    containerWidth > 0 ? (containerWidth - GRID_GAP * (columnCount - 1)) / columnCount : 0;
-  const cardHeight = cellWidth > 0 ? cellWidth + LABEL_ALLOWANCE : 140;
-  const rowPitch = cardHeight + GRID_GAP; // 행 간격 포함 높이
+  const gridMetrics = getIconGridMetrics(containerWidth, columnCount);
+  const rowPitch = gridMetrics.rowPitch; // 행 간격 포함 높이
+  const gridGap = gridMetrics.gridGap;
+  const getVirtualizerItemKey = useCallback(
+    (index: number) => getIconGridVirtualizerKey(columnCount, rowPitch, index),
+    [columnCount, rowPitch]
+  );
 
   // 가상화 설정
   const virtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => rowPitch,
+    getItemKey: getVirtualizerItemKey,
     overscan: 5, // 뷰포트 외부에 미리 렌더링할 행 수
   });
 
   // 컬럼 수/컨테이너 폭 변경 시 행 높이 재측정
   useEffect(() => {
     virtualizer.measure();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowPitch]);
+  }, [columnCount, rowPitch, virtualizer]);
 
   // 로딩 상태
   if (query.length >= 2 && isLoading) {
@@ -171,7 +183,7 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
   // 가상화된 그리드 렌더링
   return (
     <div
-      ref={parentRef}
+      ref={setParentElement}
       className="h-full overflow-auto"
     >
       {/* 검색 결과 정보 + 그리드 컬럼 슬라이더 (우측 상단) */}
@@ -207,7 +219,7 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
       {/* 가상화된 그리드 */}
       <div
         style={{
-          height: `${virtualizer.getTotalSize()}px`,
+          height: `${getIconGridTotalHeight(rowCount, rowPitch)}px`,
           width: '100%',
           position: 'relative',
         }}
@@ -220,19 +232,12 @@ export function IconGrid({ onIconClick, showOnlyFavorites = false, favorites = [
             <div
               key={virtualRow.key}
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start}px)`,
-                display: 'grid',
-                gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-                columnGap: `${GRID_GAP}px`,
-                // 행 간격(GRID_GAP)을 아래 여백으로 두어 카드 자체는 cardHeight를 채운다
-                paddingBottom: `${GRID_GAP}px`,
-                boxSizing: 'border-box',
-                alignItems: 'stretch',
+                ...getIconGridRowStyle({
+                  columnCount,
+                  gridGap,
+                  rowPitch,
+                  rowIndex: virtualRow.index,
+                }),
               }}
             >
               {rowIcons.map((iconName) => (

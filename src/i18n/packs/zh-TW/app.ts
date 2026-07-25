@@ -1,5 +1,4 @@
 export const zhTWAppTranslations = {
-  'app.subtitle': '搜尋並匯出 Iconify 圖示',
   'app.tab.search': '搜尋',
   'app.tab.search.title': '圖示搜尋',
   'app.tab.editor': '編輯器',

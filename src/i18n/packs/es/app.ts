@@ -1,5 +1,4 @@
 export const esAppTranslations = {
-  'app.subtitle': 'Busca y exporta iconos de Iconify',
   'app.tab.search': 'Buscar',
   'app.tab.search.title': 'Búsqueda de iconos',
   'app.tab.editor': 'Editor',

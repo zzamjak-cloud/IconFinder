@@ -1,4 +1,15 @@
-import { type MouseEvent as ReactMouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   Check,
   Code2,
@@ -16,6 +27,8 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { useI18n, type TranslationKey } from '@/i18n';
+import { resolveErrorMessage } from '@/i18n/errorMessage';
 import {
   SvgGameIcon,
   SvgIconCategory,
@@ -56,12 +69,20 @@ import {
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { exportService } from '@/services/exportService';
-import { useI18n, type TranslationKey } from '@/i18n';
-import { resolveErrorMessage } from '@/i18n/errorMessage';
 import { ColorSwatchPicker } from './ColorSwatchPicker';
+import {
+  SVG_ICON_SAVED_PANE_DEFAULT_HEIGHT,
+  SVG_ICON_SEARCH_PAGE_SIZE,
+  clampSvgIconSavedPaneHeight,
+  getSvgIconGridMetrics,
+  getSvgIconGridRowStyle,
+  getSvgIconGridTotalHeight,
+  getSvgIconSavedPaneHeightFromDrag,
+  getSvgIconSearchPageSlice,
+  type SvgIconGridKind,
+} from './svgIconPanelLayout';
 
 const CATEGORY_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#0ea5e9', '#8b5cf6', '#eab308', '#ec4899'];
-const SEARCH_PAGE_SIZE = 100; // 검색 페이지당 표시 개수(고정)
 const OUTLINE_WIDTH_MAX = 64;
 const OUTLINE_WIDTH_PERCEIVED_RATIO = 4;
 // 색상 모드(원본/단색/투톤)와 마감(그레디언트/입체)을 하나로 통합한 스타일 종류.
@@ -122,13 +143,339 @@ async function copyText(text: string): Promise<void> {
   textarea.remove();
 }
 
+interface EditorSearchToolbarProps {
+  initialQuery: string;
+  isSearching: boolean;
+  selectedSourcePackIds: Set<SvgIconSourcePackId>;
+  onSearch: (query: string) => void;
+  onToggleSourcePack: (sourcePackId: SvgIconSourcePackId) => void;
+}
+
+const EditorSearchToolbar = memo(function EditorSearchToolbar({
+  initialQuery,
+  isSearching,
+  selectedSourcePackIds,
+  onSearch,
+  onToggleSourcePack,
+}: EditorSearchToolbarProps) {
+  const { t } = useI18n();
+  const [draftQuery, setDraftQuery] = useState(initialQuery);
+  const expandedSearchTerms = useMemo(() => expandSvgIconSearchQuery(draftQuery), [draftQuery]);
+
+  useEffect(() => {
+    setDraftQuery(initialQuery);
+  }, [initialQuery]);
+
+  const submitSearch = () => {
+    onSearch(draftQuery);
+  };
+
+  return (
+    <div className="border-b border-slate-200 bg-white p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-72 flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            value={draftQuery}
+            onChange={(event) => setDraftQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') submitSearch();
+            }}
+            placeholder="sword, potion, shield, heart..."
+            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-10 text-sm outline-none focus:border-lime-500"
+          />
+          {draftQuery && (
+            <button
+              type="button"
+              onClick={() => setDraftQuery('')}
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              aria-label={t('search.clear')}
+              title={t('search.clear')}
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={submitSearch}
+          disabled={isSearching}
+          className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+        >
+          {isSearching ? (
+            <span className="flex items-center gap-2">
+              <Loader2 size={16} className="animate-spin" />
+              {t('editor.search.searching')}
+            </span>
+          ) : (
+            t('editor.search.button')
+          )}
+        </button>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {SVG_ICON_SOURCE_PACKS.map((pack) => {
+          const isSelected = selectedSourcePackIds.has(pack.id);
+          return (
+            <button
+              key={pack.id}
+              type="button"
+              onClick={() => onToggleSourcePack(pack.id)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                isSelected
+                  ? 'border-lime-500 bg-lime-100 text-lime-900'
+                  : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              {t(pack.labelKey)}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <ShieldCheck size={14} className="text-lime-600" />
+        <span>{t('editor.search.sources')}</span>
+        {expandedSearchTerms.map((term) => (
+          <span key={term} className="rounded-full bg-slate-100 px-2 py-1">
+            {term}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+interface VirtualizedSvgIconGridProps<T> {
+  items: T[];
+  columns: number;
+  kind: SvgIconGridKind;
+  empty: ReactNode;
+  getItemKey: (item: T) => string;
+  renderItem: (item: T) => ReactNode;
+}
+
+function VirtualizedSvgIconGrid<T>({
+  items,
+  columns,
+  kind,
+  empty,
+  getItemKey,
+  renderItem,
+}: VirtualizedSvgIconGridProps<T>) {
+  const parentRef = useRef<HTMLDivElement | null>(null);
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const columnCount = Math.max(1, Math.floor(columns));
+  const metrics = useMemo(
+    () => getSvgIconGridMetrics(containerWidth, columnCount, kind),
+    [columnCount, containerWidth, kind]
+  );
+  const rowCount = Math.ceil(items.length / columnCount);
+  const virtualizer = useVirtualizer({
+    count: rowCount,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => metrics.rowPitch,
+    getItemKey: (index) => `${kind}:${columnCount}:${metrics.rowPitch.toFixed(3)}:${index}`,
+    overscan: 3,
+  });
+
+  const setParentElement = useCallback((node: HTMLDivElement | null) => {
+    parentRef.current = node;
+    setScrollElement(node);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollElement;
+    if (!el) return;
+    const update = () => setContainerWidth(el.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [scrollElement]);
+
+  useEffect(() => {
+    virtualizer.measure();
+  }, [columnCount, metrics.rowPitch, virtualizer]);
+
+  if (items.length === 0) return <>{empty}</>;
+
+  return (
+    <div ref={setParentElement} className="h-full overflow-auto pr-1">
+      <div
+        style={{
+          height: `${getSvgIconGridTotalHeight(rowCount, metrics.rowPitch)}px`,
+          position: 'relative',
+          width: '100%',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const startIndex = virtualRow.index * columnCount;
+          const rowItems = items.slice(startIndex, startIndex + columnCount);
+          return (
+            <div
+              key={virtualRow.key}
+              style={getSvgIconGridRowStyle({
+                columnCount,
+                gridGap: metrics.gridGap,
+                rowPitch: metrics.rowPitch,
+                rowIndex: virtualRow.index,
+              })}
+            >
+              {rowItems.map((item) => (
+                <div key={getItemKey(item)} className="min-h-0">
+                  {renderItem(item)}
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface SearchResultCardProps {
+  result: SvgIconSearchResult;
+  isSelected: boolean;
+  canSave: boolean;
+  buildPreviewSvg: (result: SvgIconSearchResult) => string;
+  onToggleSelection: (resultId: string) => void;
+  onSaveResult: (result: SvgIconSearchResult) => void;
+}
+
+const SearchResultCard = memo(function SearchResultCard({
+  result,
+  isSelected,
+  canSave,
+  buildPreviewSvg,
+  onToggleSelection,
+  onSaveResult,
+}: SearchResultCardProps) {
+  const { t } = useI18n();
+  const previewSvg = useMemo(() => buildPreviewSvg(result), [buildPreviewSvg, result]);
+
+  return (
+    <div
+      className={`h-full rounded-lg border bg-white p-3 ${
+        isSelected ? 'border-lime-500 ring-2 ring-lime-100' : 'border-slate-200'
+      }`}
+    >
+      <button
+        type="button"
+        onClick={() => onToggleSelection(result.id)}
+        className="mb-2 flex w-full items-center justify-between gap-2 text-left"
+      >
+        <span className="min-w-0 truncate text-xs font-semibold text-slate-600">{result.sourceName}</span>
+        <span
+          className={`flex h-5 w-5 items-center justify-center rounded border ${
+            isSelected ? 'border-lime-500 bg-lime-500 text-white' : 'border-slate-300'
+          }`}
+        >
+          {isSelected && <Check size={13} />}
+        </span>
+      </button>
+      <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
+        <div className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: previewSvg }} />
+      </div>
+      <div className="mt-2 min-h-10">
+        <p className="truncate text-sm font-semibold">{result.name}</p>
+        <p className="truncate text-xs text-slate-500">{result.collection}</p>
+      </div>
+      <div className="mt-2 flex gap-1">
+        <button
+          type="button"
+          onClick={() => onSaveResult(result)}
+          disabled={!canSave}
+          className="flex-1 rounded-md bg-slate-900 px-2 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:bg-slate-200"
+        >
+          {t('common.save')}
+        </button>
+        <a
+          href={result.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50"
+          title={t('common.viewOriginal')}
+        >
+          <ExternalLink size={14} />
+        </a>
+      </div>
+    </div>
+  );
+});
+
+interface SavedIconCardProps {
+  icon: SvgGameIcon;
+  isChecked: boolean;
+  isDragging: boolean;
+  isSelected: boolean;
+  buildPreviewSvg: (icon: SvgGameIcon) => string;
+  onMouseDown: (event: ReactMouseEvent, icon: SvgGameIcon) => void;
+  onToggleSelection: (iconId: string) => void;
+  onSelectIcon: (event: ReactMouseEvent, icon: SvgGameIcon) => void;
+}
+
+const SavedIconCard = memo(function SavedIconCard({
+  icon,
+  isChecked,
+  isDragging,
+  isSelected,
+  buildPreviewSvg,
+  onMouseDown,
+  onToggleSelection,
+  onSelectIcon,
+}: SavedIconCardProps) {
+  const { t } = useI18n();
+  const previewSvg = useMemo(() => buildPreviewSvg(icon), [buildPreviewSvg, icon]);
+
+  return (
+    <div
+      onMouseDown={(event) => onMouseDown(event, icon)}
+      className={`group relative h-full cursor-grab select-none rounded-lg border bg-white p-3 active:cursor-grabbing ${
+        isChecked
+          ? 'border-lime-500 ring-2 ring-lime-100'
+          : isSelected
+          ? 'border-lime-500 ring-2 ring-lime-100'
+          : 'border-slate-200 hover:border-lime-400'
+      } ${isDragging ? 'opacity-40' : ''}`}
+    >
+      <button
+        type="button"
+        onMouseDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleSelection(icon.id);
+        }}
+        className={`absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded border ${
+          isChecked
+            ? 'border-lime-500 bg-lime-500 text-white'
+            : 'border-slate-300 bg-white/80 text-transparent group-hover:border-slate-400'
+        }`}
+        title={isChecked ? t('common.clearSelection') : t('common.select')}
+      >
+        <Check size={13} />
+      </button>
+      <button type="button" onClick={(event) => onSelectIcon(event, icon)} className="block w-full text-left">
+        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
+          <div className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: previewSvg }} />
+        </div>
+        <div className="mt-2 flex items-center gap-1">
+          <p className="min-w-0 flex-1 truncate text-sm font-semibold">{icon.name}</p>
+          {icon.favorite && <Star size={14} className="fill-amber-400 text-amber-400" />}
+        </div>
+        <p className="truncate text-xs text-slate-500">{icon.sourceName ?? 'SVG'}</p>
+      </button>
+    </div>
+  );
+});
+
 export function SvgIconPanel() {
   const { t } = useI18n();
   // SVG 워크스페이스 영속성 훅 (자기완결형: App.tsx 결합 최소화)
   const { workspace, updateWorkspace } = useSvgWorkspace();
 
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [searchQuery, setSearchQuery] = useState(DEFAULT_SVG_ICON_SEARCH_QUERY);
+  const [searchInputSeed, setSearchInputSeed] = useState(DEFAULT_SVG_ICON_SEARCH_QUERY);
   const [searchResults, setSearchResults] = useState<SvgIconSearchResult[]>([]);
   const [resultNames, setResultNames] = useState<string[]>([]); // 전체 검색 이름 풀(페이지네이션용)
   const [searchPage, setSearchPage] = useState(0); // 0-based 현재 페이지
@@ -139,6 +486,7 @@ export function SvgIconPanel() {
     new Set(['all'])
   );
   const [savedSearchQuery, setSavedSearchQuery] = useState('');
+  const [savedPaneHeight, setSavedPaneHeight] = useState(SVG_ICON_SAVED_PANE_DEFAULT_HEIGHT);
   const [selectedIconId, setSelectedIconId] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [pendingDeleteCategoryId, setPendingDeleteCategoryId] = useState<string | null>(null);
@@ -168,6 +516,7 @@ export function SvgIconPanel() {
   }>({ ids: [], startX: 0, startY: 0, active: false, targetCategoryId: null });
   const moveIconsToCategoryRef = useRef<(iconIds: string[], targetCategoryId: string) => void>(() => {});
   const suppressIconClickRef = useRef(false);
+  const splitContainerRef = useRef<HTMLDivElement | null>(null);
 
   const selectedCategoryId = workspace.selectedCategoryId ?? workspace.categories[0]?.id;
   const selectedCategory = workspace.categories.find((category) => category.id === selectedCategoryId) ?? null;
@@ -191,8 +540,6 @@ export function SvgIconPanel() {
     () => searchResults.filter((result) => selectedResultIds.has(result.id)),
     [searchResults, selectedResultIds]
   );
-
-  const expandedSearchTerms = useMemo(() => expandSvgIconSearchQuery(searchQuery), [searchQuery]);
 
   useEffect(() => {
     if (!toast) return;
@@ -369,7 +716,7 @@ export function SvgIconPanel() {
     const movedIds = movedIcons.map((icon) => icon.id);
     const movedIdSet = new Set(movedIds);
     const now = new Date().toISOString();
-    const targetCategory = workspace.categories.find((category) => category.id === targetCategoryId) ?? null;
+    const targetCategory = workspace.categories.find((category) => category.id === targetCategoryId);
     const targetName = targetCategory ? getCategoryDisplayName(targetCategory, t) : '';
 
     updateWorkspace({
@@ -446,7 +793,7 @@ export function SvgIconPanel() {
     // 카테고리 추천 검색어(영어)를 검색 입력에 자동 채움
     const nextCategory = workspace.categories.find((category) => category.id === categoryId) ?? null;
     const recommended = getRecommendedQueryForCategory(nextCategory);
-    if (recommended) setSearchQuery(recommended);
+    if (recommended) setSearchInputSeed(recommended);
   };
 
   const handleCreateCategory = () => {
@@ -531,19 +878,19 @@ export function SvgIconPanel() {
   };
 
   // 페이지네이션: 전체 페이지 수
-  const totalPages = Math.max(1, Math.ceil(resultNames.length / SEARCH_PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(resultNames.length / SVG_ICON_SEARCH_PAGE_SIZE));
 
   // 특정 페이지의 SVG를 로드해 표시
   const loadSearchPage = async (names: string[], page: number, pageSize: number) => {
-    const slice = names.slice(page * pageSize, (page + 1) * pageSize);
+    const slice = getSvgIconSearchPageSlice(names, page, pageSize);
     const results = await fetchSvgIconsByNames(slice);
     setSearchResults(results);
     setSearchPage(page);
     setSelectedResultIds(new Set());
   };
 
-  const handleSearchIcons = async () => {
-    const query = searchQuery.trim();
+  const handleSearchIcons = async (nextQuery: string) => {
+    const query = nextQuery.trim();
     if (!query) {
       setError(t('editor.search.emptyQuery'));
       return;
@@ -567,10 +914,12 @@ export function SvgIconPanel() {
         setToast(t('editor.search.noResults'));
         return;
       }
-      await loadSearchPage(names, 0, SEARCH_PAGE_SIZE);
+      await loadSearchPage(names, 0, SVG_ICON_SEARCH_PAGE_SIZE);
     } catch (searchError) {
       setError(
-        searchError instanceof Error ? resolveErrorMessage(t, searchError) : t('editor.search.failed')
+        searchError instanceof Error
+          ? resolveErrorMessage(t, searchError)
+          : t('editor.search.failed')
       );
     } finally {
       setIsSearching(false);
@@ -583,7 +932,7 @@ export function SvgIconPanel() {
     setError(null);
     setIsSearching(true);
     try {
-      await loadSearchPage(resultNames, page, SEARCH_PAGE_SIZE);
+      await loadSearchPage(resultNames, page, SVG_ICON_SEARCH_PAGE_SIZE);
     } catch (pageError) {
       setError(
         pageError instanceof Error ? resolveErrorMessage(t, pageError) : t('editor.search.pageFailed')
@@ -591,6 +940,48 @@ export function SvgIconPanel() {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  useEffect(() => {
+    const el = splitContainerRef.current;
+    if (!el) return;
+    const updateHeight = () => {
+      setSavedPaneHeight((prev) => clampSvgIconSavedPaneHeight(prev, el.clientHeight));
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleSplitResizePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const el = splitContainerRef.current;
+    if (!el) return;
+    event.preventDefault();
+
+    const startY = event.clientY;
+    const savedPane = event.currentTarget.nextElementSibling;
+    const initialHeight =
+      savedPane instanceof HTMLElement ? savedPane.getBoundingClientRect().height : savedPaneHeight;
+
+    const updateFromPointer = (pointerY: number) => {
+      setSavedPaneHeight(
+        getSvgIconSavedPaneHeightFromDrag({
+          initialHeight,
+          startY,
+          currentY: pointerY,
+          containerHeight: el.clientHeight,
+        })
+      );
+    };
+    const handlePointerMove = (moveEvent: PointerEvent) => updateFromPointer(moveEvent.clientY);
+    const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp, { once: true });
   };
 
   const toggleResultSelection = (resultId: string) => {
@@ -623,7 +1014,7 @@ export function SvgIconPanel() {
       id: createSvgIconId('svg-icon'),
       categoryId: selectedCategory.id,
       name: result.name,
-      prompt: t('editor.search.prompt', { query: savedSearchQuery || searchQuery }),
+      prompt: t('editor.search.prompt', { query: savedSearchQuery }),
       svg: result.svg,
       originalSvg: result.svg,
       tags: result.tags,
@@ -738,7 +1129,9 @@ export function SvgIconPanel() {
       }
     } catch (saveError) {
       setError(
-        saveError instanceof Error ? resolveErrorMessage(t, saveError) : t('editor.saveFail', { label })
+        saveError instanceof Error
+          ? resolveErrorMessage(t, saveError)
+          : t('editor.saveFail', { label })
       );
     }
   };
@@ -750,7 +1143,9 @@ export function SvgIconPanel() {
       if (savedPath) setToast(t('editor.saveOk', { label }));
     } catch (saveError) {
       setError(
-        saveError instanceof Error ? resolveErrorMessage(t, saveError) : t('editor.saveFail', { label })
+        saveError instanceof Error
+          ? resolveErrorMessage(t, saveError)
+          : t('editor.saveFail', { label })
       );
     }
   };
@@ -875,65 +1270,13 @@ export function SvgIconPanel() {
       </aside>
 
       <section className="flex-1 min-w-0 flex flex-col">
-        <div className="border-b border-slate-200 bg-white p-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-72 flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') void handleSearchIcons();
-                }}
-                placeholder="sword, potion, shield, heart..."
-                className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-lime-500"
-              />
-            </div>
-            <button
-              onClick={handleSearchIcons}
-              disabled={isSearching}
-              className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
-            >
-              {isSearching ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 size={16} className="animate-spin" />
-                  {t('editor.search.searching')}
-                </span>
-              ) : (
-                t('editor.search.button')
-              )}
-            </button>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {SVG_ICON_SOURCE_PACKS.map((pack) => {
-              const isSelected = selectedSourcePackIds.has(pack.id);
-              return (
-                <button
-                  key={pack.id}
-                  type="button"
-                  onClick={() => toggleSourcePack(pack.id)}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                    isSelected
-                      ? 'border-lime-500 bg-lime-100 text-lime-900'
-                      : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  {t(pack.labelKey)}
-                </button>
-              );
-            })}
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <ShieldCheck size={14} className="text-lime-600" />
-            <span>{t('editor.search.sources')}</span>
-            {expandedSearchTerms.map((term) => (
-              <span key={term} className="rounded-full bg-slate-100 px-2 py-1">
-                {term}
-              </span>
-            ))}
-          </div>
-        </div>
-
+        <EditorSearchToolbar
+          initialQuery={searchInputSeed}
+          isSearching={isSearching}
+          selectedSourcePackIds={selectedSourcePackIds}
+          onSearch={(query) => void handleSearchIcons(query)}
+          onToggleSourcePack={toggleSourcePack}
+        />
         {error && (
           <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 whitespace-pre-line">
             {error}
@@ -945,129 +1288,96 @@ export function SvgIconPanel() {
           </div>
         )}
 
-        <div className="flex-1 overflow-auto p-4">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="font-bold">
-                {selectedCategory ? getCategoryDisplayName(selectedCategory, t) : t('editor.category.none')}
-              </h3>
-              <p className="text-sm text-slate-500">
-                {t('editor.counts', {
-                  saved: selectedCategoryIcons.length,
-                  results: searchResults.length,
-                })}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {/* 그리드 컬럼 수 조절 슬라이더 (패널 전용) */}
-              <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
-                <Grid3x3 className="h-4 w-4 text-slate-500" />
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  value={gridColumns}
-                  onChange={(event) => setGridColumns(Number(event.target.value))}
-                  className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200"
-                  title={t('common.gridColumns', { count: gridColumns })}
-                />
-                <span className="min-w-[2ch] text-xs font-semibold text-slate-500">{gridColumns}</span>
-              </div>
-              <button
-                onClick={() => handleSaveResults(selectedResults)}
-                disabled={!selectedCategory || selectedResults.length === 0}
-                className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
-              >
-                {t('editor.results.saveSelected', { count: selectedResults.length })}
-              </button>
-            </div>
-          </div>
-
-          {searchResults.length > 0 && (
-            <div className="mb-6">
-              <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-700">{t('editor.results.title')}</h4>
-                <div className="flex items-center gap-3">
+        <div ref={splitContainerRef} className="flex flex-1 min-h-0 flex-col overflow-hidden p-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
+            <div className="border-b border-slate-200 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-bold text-slate-800">{t('editor.results.title')}</h3>
+                  <p className="text-xs text-slate-500">
+                    {t('editor.results.meta', {
+                      category: selectedCategory
+                        ? getCategoryDisplayName(selectedCategory, t)
+                        : t('editor.category.none'),
+                      page: searchPage + 1,
+                      totalPages,
+                      shown: searchResults.length,
+                      total: resultNames.length || searchResults.length,
+                    })}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
+                    <Grid3x3 className="h-4 w-4 text-slate-500" />
+                    <input
+                      type="range"
+                      min="2"
+                      max="10"
+                      value={gridColumns}
+                      onChange={(event) => setGridColumns(Number(event.target.value))}
+                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200"
+                      title={t('common.gridColumns', { count: gridColumns })}
+                    />
+                    <span className="min-w-[2ch] text-xs font-semibold text-slate-500">{gridColumns}</span>
+                  </div>
                   <button
-                    onClick={() => {
-                      setSelectedResultIds(new Set());
-                      setToast(t('editor.results.deselected'));
-                    }}
-                    className="text-xs font-semibold text-slate-500 hover:text-slate-800"
+                    type="button"
+                    onClick={() => setSelectedResultIds(new Set())}
+                    disabled={selectedResultIds.size === 0}
+                    className="rounded-md border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 disabled:opacity-40"
                   >
                     {t('common.clearSelection')}
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       setSelectedResultIds(new Set(searchResults.map((result) => result.id)));
                       setToast(t('editor.results.selected', { count: searchResults.length }));
                     }}
-                    className="text-xs font-semibold text-lime-700 hover:text-lime-900"
+                    disabled={searchResults.length === 0}
+                    className="rounded-md border border-lime-200 px-2 py-1.5 text-xs font-semibold text-lime-700 hover:text-lime-900 disabled:opacity-40"
                   >
                     {t('common.selectAll')}
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveResults(selectedResults)}
+                    disabled={!selectedCategory || selectedResults.length === 0}
+                    className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                  >
+                    {t('editor.results.saveSelected', { count: selectedResults.length })}
+                  </button>
                 </div>
               </div>
-              <div
-                className="grid gap-3"
-                style={{ gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))` }}
-              >
-                {searchResults.map((result) => {
-                  const isSelected = selectedResultIds.has(result.id);
-                  const previewSvg = buildSearchResultPreviewSvg(result);
-                  return (
-                    <div
-                      key={result.id}
-                      className={`rounded-lg border bg-white p-3 ${
-                        isSelected ? 'border-lime-500 ring-2 ring-lime-100' : 'border-slate-200'
-                      }`}
-                    >
-                      <button
-                        onClick={() => toggleResultSelection(result.id)}
-                        className="mb-2 flex w-full items-center justify-between gap-2 text-left"
-                      >
-                        <span className="min-w-0 truncate text-xs font-semibold text-slate-600">{result.sourceName}</span>
-                        <span
-                          className={`flex h-5 w-5 items-center justify-center rounded border ${
-                            isSelected ? 'border-lime-500 bg-lime-500 text-white' : 'border-slate-300'
-                          }`}
-                        >
-                          {isSelected && <Check size={13} />}
-                        </span>
-                      </button>
-                      <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
-                        <div className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: previewSvg }} />
-                      </div>
-                      <div className="mt-2 min-h-10">
-                        <p className="truncate text-sm font-semibold">{result.name}</p>
-                        <p className="truncate text-xs text-slate-500">{result.collection}</p>
-                      </div>
-                      <div className="mt-2 flex gap-1">
-                        <button
-                          onClick={() => handleSaveResults([result])}
-                          disabled={!selectedCategory}
-                          className="flex-1 rounded-md bg-slate-900 px-2 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:bg-slate-200"
-                        >
-                          {t('common.save')}
-                        </button>
-                        <a
-                          href={result.sourceUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50"
-                          title={t('common.viewOriginal')}
-                        >
-                          <ExternalLink size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* 페이지네이션: 이전 · 페이지 번호(생략 포함) · 다음 */}
-              {totalPages > 1 && (
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-1 text-xs">
+            </div>
+            <div className="min-h-0 flex-1 p-3">
+              <VirtualizedSvgIconGrid
+                items={searchResults}
+                columns={gridColumns}
+                kind="search"
+                getItemKey={(result) => result.id}
+                empty={
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
+                    {isSearching ? t('editor.results.loading') : t('editor.results.emptyHint')}
+                  </div>
+                }
+                renderItem={(result) => (
+                  <SearchResultCard
+                    result={result}
+                    isSelected={selectedResultIds.has(result.id)}
+                    canSave={Boolean(selectedCategory)}
+                    buildPreviewSvg={buildSearchResultPreviewSvg}
+                    onToggleSelection={toggleResultSelection}
+                    onSaveResult={(item) => handleSaveResults([item])}
+                  />
+                )}
+              />
+            </div>
+            {totalPages > 1 && (
+              <div className="border-t border-slate-200 px-3 py-2">
+                <div className="flex flex-wrap items-center justify-center gap-1 text-xs">
                   <button
+                    type="button"
                     onClick={() => handleGoToPage(searchPage - 1)}
                     disabled={searchPage === 0 || isSearching}
                     className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40"
@@ -1084,11 +1394,12 @@ export function SvgIconPanel() {
                     .map((i, idx) =>
                       i === -1 ? (
                         <span key={`gap-${idx}`} className="px-1 text-slate-400">
-                          …
+                          ...
                         </span>
                       ) : (
                         <button
                           key={i}
+                          type="button"
                           onClick={() => handleGoToPage(i)}
                           disabled={isSearching}
                           className={`min-w-[28px] rounded-md border px-2 py-1 font-semibold ${
@@ -1102,6 +1413,7 @@ export function SvgIconPanel() {
                       )
                     )}
                   <button
+                    type="button"
                     onClick={() => handleGoToPage(searchPage + 1)}
                     disabled={searchPage >= totalPages - 1 || isSearching}
                     className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40"
@@ -1109,109 +1421,95 @@ export function SvgIconPanel() {
                     {t('common.next')}
                   </button>
                 </div>
-              )}
-            </div>
-          )}
-
-          <div>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <h4 className="text-sm font-bold text-slate-700">{t('editor.saved.title')}</h4>
-              {iconSelection.size > 0 ? (
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="font-semibold text-lime-700">
-                    {t('editor.saved.selectedHint', { count: iconSelection.size })}
-                  </span>
-                  <button
-                    onClick={() => setIconSelection(new Set())}
-                    className="font-semibold text-slate-500 hover:text-slate-800"
-                  >
-                    {t('common.clearSelection')}
-                  </button>
-                </div>
-              ) : (
-                <span className="text-xs text-slate-400">{t('editor.saved.dragHint')}</span>
-              )}
-            </div>
-            {selectedCategoryIcons.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-                {t('editor.saved.empty')}
-              </div>
-            ) : (
-              <div
-                className="grid gap-3"
-                style={{ gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))` }}
-              >
-                {selectedCategoryIcons.map((icon) => {
-                  const isChecked = iconSelection.has(icon.id);
-                  const isDragging = draggingIconIds.includes(icon.id);
-                  return (
-                    <div
-                      key={icon.id}
-                      onMouseDown={(event) => handleIconMouseDown(event, icon)}
-                      className={`group relative cursor-grab select-none rounded-lg border bg-white p-3 active:cursor-grabbing ${
-                        isChecked
-                          ? 'border-lime-500 ring-2 ring-lime-100'
-                          : selectedIconId === icon.id
-                          ? 'border-lime-500 ring-2 ring-lime-100'
-                          : 'border-slate-200 hover:border-lime-400'
-                      } ${isDragging ? 'opacity-40' : ''}`}
-                    >
-                      <button
-                        type="button"
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          toggleIconSelection(icon.id);
-                        }}
-                        className={`absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded border ${
-                          isChecked
-                            ? 'border-lime-500 bg-lime-500 text-white'
-                            : 'border-slate-300 bg-white/80 text-transparent group-hover:border-slate-400'
-                        }`}
-                        title={isChecked ? t('common.clearSelection') : t('editor.select')}
-                      >
-                        <Check size={13} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          if (suppressIconClickRef.current) {
-                            suppressIconClickRef.current = false;
-                            return;
-                          }
-                          if (event.shiftKey) {
-                            handleShiftSelectIcon(icon);
-                            return;
-                          }
-                          if (event.metaKey || event.ctrlKey) {
-                            toggleIconSelection(icon.id);
-                            selectionAnchorRef.current = icon.id;
-                            return;
-                          }
-                          selectionAnchorRef.current = icon.id;
-                          handleSelectSavedIcon(icon);
-                        }}
-                        className="block w-full text-left"
-                      >
-                        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
-                          <div
-                            className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full"
-                            dangerouslySetInnerHTML={{ __html: buildIconPreviewSvg(icon) }}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-center gap-1">
-                          <p className="min-w-0 flex-1 truncate text-sm font-semibold">{icon.name}</p>
-                          {icon.favorite && <Star size={14} className="fill-amber-400 text-amber-400" />}
-                        </div>
-                        <p className="truncate text-xs text-slate-500">{icon.sourceName ?? 'SVG'}</p>
-                      </button>
-                    </div>
-                  );
-                })}
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            onPointerDown={handleSplitResizePointerDown}
+            className="my-1 flex h-4 shrink-0 cursor-row-resize items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+            aria-label={t('editor.saved.resizeHandle')}
+            title={t('editor.saved.resizeHandle')}
+          >
+            <span className="h-1 w-14 rounded-full bg-current" />
+          </button>
+
+          <div
+            className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white"
+            style={{ height: savedPaneHeight }}
+          >
+            <div className="border-b border-slate-200 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <h4 className="truncate text-sm font-bold text-slate-800">{t('editor.saved.title')}</h4>
+                  <p className="text-xs text-slate-500">
+                    {t('editor.saved.counts', {
+                      count: selectedCategoryIcons.length,
+                      selected: iconSelection.size,
+                    })}
+                  </p>
+                </div>
+                {iconSelection.size > 0 ? (
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-semibold text-lime-700">{t('editor.saved.dragToCategory')}</span>
+                    <button
+                      type="button"
+                      onClick={() => setIconSelection(new Set())}
+                      className="font-semibold text-slate-500 hover:text-slate-800"
+                    >
+                      {t('common.clearSelection')}
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-slate-400">{t('editor.saved.dragHint')}</span>
+                )}
+              </div>
+            </div>
+            <div className="min-h-0 flex-1 p-3">
+              <VirtualizedSvgIconGrid
+                items={selectedCategoryIcons}
+                columns={gridColumns}
+                kind="saved"
+                getItemKey={(icon) => icon.id}
+                empty={
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
+                    {t('editor.saved.empty')}
+                  </div>
+                }
+                renderItem={(icon) => (
+                  <SavedIconCard
+                    icon={icon}
+                    isChecked={iconSelection.has(icon.id)}
+                    isDragging={draggingIconIds.includes(icon.id)}
+                    isSelected={selectedIconId === icon.id}
+                    buildPreviewSvg={buildIconPreviewSvg}
+                    onMouseDown={handleIconMouseDown}
+                    onToggleSelection={toggleIconSelection}
+                    onSelectIcon={(event, item) => {
+                      if (suppressIconClickRef.current) {
+                        suppressIconClickRef.current = false;
+                        return;
+                      }
+                      if (event.shiftKey) {
+                        handleShiftSelectIcon(item);
+                        return;
+                      }
+                      if (event.metaKey || event.ctrlKey) {
+                        toggleIconSelection(item.id);
+                        selectionAnchorRef.current = item.id;
+                        return;
+                      }
+                      selectionAnchorRef.current = item.id;
+                      handleSelectSavedIcon(item);
+                    }}
+                  />
+                )}
+              />
+            </div>
+          </div>
         </div>
+
       </section>
 
       <aside className="w-[380px] shrink-0 border-l border-slate-200 bg-white flex flex-col min-h-0">
@@ -1297,19 +1595,11 @@ export function SvgIconPanel() {
           <div className="flex items-end gap-2">
             <div className="flex-1 space-y-1 text-xs font-semibold text-slate-500">
               {t('editor.color.main')}
-              <ColorSwatchPicker
-                value={primaryColor}
-                onChange={setPrimaryColor}
-                label={t('editor.color.main.label')}
-              />
+              <ColorSwatchPicker value={primaryColor} onChange={setPrimaryColor} label={t('editor.color.main.label')} />
             </div>
             <div className="flex-1 space-y-1 text-xs font-semibold text-slate-500">
               {t('editor.color.sub')}
-              <ColorSwatchPicker
-                value={accentColor}
-                onChange={setAccentColor}
-                label={t('editor.color.sub.label')}
-              />
+              <ColorSwatchPicker value={accentColor} onChange={setAccentColor} label={t('editor.color.sub.label')} />
             </div>
             <button
               type="button"
@@ -1359,7 +1649,6 @@ export function SvgIconPanel() {
               { key: 'innerGlow', labelKey: 'effect.innerGlow' },
             ] as Array<{ key: 'dropShadow' | 'outerGlow' | 'innerGlow'; labelKey: TranslationKey }>).map((item) => {
               const effect = effects[item.key];
-              const effectLabel = t(item.labelKey);
               return (
                 <div key={item.key} className="flex items-center gap-2">
                   <button
@@ -1371,7 +1660,7 @@ export function SvgIconPanel() {
                       effect.enabled ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'
                     }`}
                   >
-                    {effectLabel}
+                    {t(item.labelKey)}
                   </button>
                   <ColorSwatchPicker
                     value={effect.color}
@@ -1379,7 +1668,7 @@ export function SvgIconPanel() {
                       setEffects((p) => ({ ...p, [item.key]: { ...p[item.key], color } }))
                     }
                     disabled={!effect.enabled}
-                    label={t('editor.effect.color', { effect: effectLabel })}
+                    label={t('editor.effect.color', { effect: t(item.labelKey) })}
                     className="h-8 w-9 shrink-0"
                   />
                   <input
@@ -1467,9 +1756,7 @@ export function SvgIconPanel() {
             {/* 복사: SVG · HTML · CSS 한 라인 */}
             <div className="grid grid-cols-3 gap-2">
               <button
-                onClick={() =>
-                  handleCopy(t('editor.label.svgFile'), selectedIconExportSvg || selectedIcon.svg)
-                }
+                onClick={() => handleCopy('SVG', selectedIconExportSvg || selectedIcon.svg)}
                 className="rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800"
               >
                 <span className="inline-flex items-center justify-center gap-1">
@@ -1479,10 +1766,7 @@ export function SvgIconPanel() {
               </button>
               <button
                 onClick={() =>
-                  handleCopy(
-                    t('editor.label.html'),
-                    buildHtmlIconSnippet(selectedIconForExport ?? selectedIcon)
-                  )
+                  handleCopy(t('editor.label.html'), buildHtmlIconSnippet(selectedIconForExport ?? selectedIcon))
                 }
                 className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50"
               >
@@ -1490,10 +1774,7 @@ export function SvgIconPanel() {
               </button>
               <button
                 onClick={() =>
-                  handleCopy(
-                    t('editor.label.css'),
-                    buildSvgDataUri(selectedIconForExport ?? selectedIcon)
-                  )
+                  handleCopy(t('editor.label.css'), buildSvgDataUri(selectedIconForExport ?? selectedIcon))
                 }
                 className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50"
               >

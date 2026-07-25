@@ -1,5 +1,4 @@
 export const jaAppTranslations = {
-  'app.subtitle': 'Iconify アイコンを検索してエクスポート',
   'app.tab.search': '検索',
   'app.tab.search.title': 'アイコン検索',
   'app.tab.editor': 'エディター',
