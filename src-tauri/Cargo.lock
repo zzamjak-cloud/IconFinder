@@ -1643,8 +1643,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "iconmaker"
-version = "0.3.3"
+name = "iconfinder"
+version = "1.0.0"
 dependencies = [
  "dirs 5.0.1",
  "resvg",

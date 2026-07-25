@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "IconMaker",
-  "version": "0.3.3",
-  "identifier": "com.iconmaker.app",
+  "productName": "IconFinder",
+  "version": "1.0.0",
+  "identifier": "com.iconfinder.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "IconMaker",
+        "title": "IconFinder",
         "width": 1200,
         "height": 800
       }
@@ -37,7 +37,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU0QTI2OEI1MDIxNThCQkIKUldTN2l4VUN0V2lpNUJYNlowNjdteW16TUZlSCtzUEZaRWR4L2tERVp1Rm00OHl6MnltVS9XQnEK",
       "endpoints": [
-        "https://github.com/zzamjak-cloud/IconMaker/releases/latest/download/latest.json"
+        "https://github.com/zzamjak-cloud/IconFinder/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"

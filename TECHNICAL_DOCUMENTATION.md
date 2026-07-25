@@ -1,8 +1,8 @@
-# IconMaker 기술 문서
+# IconFinder 기술 문서
 
 ## 프로젝트 개요
 
-IconMaker는 Iconify API를 활용한 아이콘 검색, 즐겨찾기, SVG/PNG 내보내기 기능을 제공하는 Tauri 네이티브 데스크톱 애플리케이션입니다.
+IconFinder는 Iconify API를 활용한 아이콘 검색, 즐겨찾기, SVG/PNG 내보내기 기능을 제공하는 Tauri 네이티브 데스크톱 애플리케이션입니다.
 
 ### 주요 기능
 - 🔍 **아이콘 검색**: 275,000개 이상의 오픈소스 아이콘 검색 (999개까지 표시)
@@ -46,7 +46,7 @@ IconMaker는 Iconify API를 활용한 아이콘 검색, 즐겨찾기, SVG/PNG �
 ## 프로젝트 구조
 
 ```
-IconMaker/
+IconFinder/
 ├── src/                              # React 프론트엔드
 │   ├── components/
 │   │   ├── SearchBar.tsx            # 검색 바 (400ms debouncing)
@@ -272,7 +272,7 @@ export class StorageService {
 
   private async getStore(): Promise<Store> {
     if (!this.store) {
-      this.store = await Store.load('iconmaker.json');
+      this.store = await Store.load('iconfinder.json');
     }
     return this.store;
   }
@@ -498,9 +498,9 @@ pub fn change_svg_color(svg_content: String, new_color: String) -> Result<String
 설정은 JSON 파일로 저장되며 앱 재시작 후에도 유지됩니다.
 
 **저장 위치**:
-- macOS: `~/Library/Application Support/com.iconmaker.dev/iconmaker.json`
-- Windows: `%APPDATA%\com.iconmaker.dev\iconmaker.json`
-- Linux: `~/.config/com.iconmaker.dev/iconmaker.json`
+- macOS: `~/Library/Application Support/com.iconfinder.dev/iconfinder.json`
+- Windows: `%APPDATA%\com.iconfinder.dev\iconfinder.json`
+- Linux: `~/.config/com.iconfinder.dev/iconfinder.json`
 
 **저장 구조**:
 ```json
@@ -655,7 +655,7 @@ IconGrid → TanStack Virtual
     ↓
 storageService.addFavorite() or removeFavorite()
     ↓
-Tauri Store 업데이트 (iconmaker.json)
+Tauri Store 업데이트 (iconfinder.json)
     ↓
 TanStack Query 캐시 무효화
     ↓
@@ -858,7 +858,7 @@ private async savePngViaCanvas(...)
 ```typescript
 private async getStore(): Promise<Store> {
   if (!this.store) {
-    this.store = await Store.load('iconmaker.json');
+    this.store = await Store.load('iconfinder.json');
   }
   return this.store;
 }

@@ -18,11 +18,11 @@ import { translate, type Translator } from './translate';
 /**
  * 첫 페인트 전용 동기 캐시 키.
  *
- * 영속 계층은 Tauri Store(iconmaker.json)이고 이 값은 언제 사라져도 무해한 캐시다.
+ * 영속 계층은 Tauri Store(iconfinder.json)이고 이 값은 언제 사라져도 무해한 캐시다.
  * Tauri Store는 비동기라서 최초 렌더에 값을 쓸 수 없고, 그대로 두면 잘못된 언어가 한 프레임 노출된다.
  * 그래서 동기적으로 읽히는 곳에 마지막 선택 언어를 복사해 두고, 마운트 후 Store 값으로 대조·보정한다.
  */
-const LANGUAGE_CACHE_KEY = 'iconmaker.language';
+const LANGUAGE_CACHE_KEY = 'iconfinder.language';
 
 function readCachedLanguage(): AppLanguage | null {
   try {

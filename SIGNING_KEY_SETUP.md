@@ -11,8 +11,8 @@ Claude CLI 환경에서는 대화형 명령어가 작동하지 않으므로, 아
 ### 터미널에서 실행:
 
 ```bash
-cd /Users/woody/Desktop/AI/IconMaker
-npx tauri signer generate -w src-tauri/iconmaker.key
+cd /Users/woody/Desktop/AI/IconFinder
+npx tauri signer generate -w src-tauri/iconfinder.key
 ```
 
 ### 프롬프트 응답:
@@ -30,8 +30,8 @@ npx tauri signer generate -w src-tauri/iconmaker.key
 ```
 Generating new signing key pair...
 Keys generated successfully!
-Public key: src-tauri/iconmaker.key.pub
-Private key: src-tauri/iconmaker.key
+Public key: src-tauri/iconfinder.key.pub
+Private key: src-tauri/iconfinder.key
 ```
 
 ---
@@ -39,7 +39,7 @@ Private key: src-tauri/iconmaker.key
 ## 2. 공개 키 확인 및 복사
 
 ```bash
-cat src-tauri/iconmaker.key.pub
+cat src-tauri/iconfinder.key.pub
 ```
 
 출력된 긴 문자열 전체를 복사하세요 (예: `dW50cnVzdGVkIGNvbW1lbnQ6...`).
@@ -68,12 +68,12 @@ cat src-tauri/iconmaker.key.pub
 ### 개인 키 내용 확인:
 
 ```bash
-cat src-tauri/iconmaker.key
+cat src-tauri/iconfinder.key
 ```
 
 ### GitHub에 등록:
 
-1. 브라우저에서 https://github.com/zzamjak-cloud/IconMaker/settings/secrets/actions 이동
+1. 브라우저에서 https://github.com/zzamjak-cloud/IconFinder/settings/secrets/actions 이동
 2. **"New repository secret"** 클릭
 3. Name: `TAURI_SIGNING_PRIVATE_KEY`
 4. Secret: 위에서 복사한 개인 키 내용 전체 붙여넣기
@@ -115,7 +115,7 @@ git push origin v0.1.1
 ```
 
 GitHub Actions가 자동으로 빌드를 시작합니다:
-👉 https://github.com/zzamjak-cloud/IconMaker/actions
+👉 https://github.com/zzamjak-cloud/IconFinder/actions
 
 ---
 
@@ -123,15 +123,15 @@ GitHub Actions가 자동으로 빌드를 시작합니다:
 
 1. GitHub Actions 페이지에서 빌드 진행 상황 확인
 2. 빌드 완료 후 Releases 페이지에서 v0.1.1 확인:
-   👉 https://github.com/zzamjak-cloud/IconMaker/releases
+   👉 https://github.com/zzamjak-cloud/IconFinder/releases
 
 ---
 
 ## ⚠️ 보안 주의사항
 
-- ❌ **절대로** `iconmaker.key` (개인 키)를 Git에 커밋하지 마세요
+- ❌ **절대로** `iconfinder.key` (개인 키)를 Git에 커밋하지 마세요
 - ✅ `.gitignore`에 `src-tauri/*.key` 패턴이 이미 있습니다
-- ✅ `iconmaker.key.pub` (공개 키)만 커밋하세요 (선택사항)
+- ✅ `iconfinder.key.pub` (공개 키)만 커밋하세요 (선택사항)
 - ✅ GitHub Secrets는 암호화되어 저장됩니다
 
 ---

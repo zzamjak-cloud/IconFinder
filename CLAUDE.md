@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-IconMaker is a tool for generating icon SVG and PNG files using the Iconify library.
+IconFinder is a tool for generating icon SVG and PNG files using the Iconify library.
 
 ## Project Status
 

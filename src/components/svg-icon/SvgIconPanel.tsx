@@ -480,7 +480,7 @@ export function SvgIconPanel() {
   const [resultNames, setResultNames] = useState<string[]>([]); // 전체 검색 이름 풀(페이지네이션용)
   const [searchPage, setSearchPage] = useState(0); // 0-based 현재 페이지
   const [selectedResultIds, setSelectedResultIds] = useState<Set<string>>(new Set());
-  // 그리드 컬럼 수 — IconMaker 검색 뷰와 독립적으로 동작하는 패널 전용 상태
+  // 그리드 컬럼 수 — IconFinder 검색 뷰와 독립적으로 동작하는 패널 전용 상태
   const [gridColumns, setGridColumns] = useState(5);
   const [selectedSourcePackIds, setSelectedSourcePackIds] = useState<Set<SvgIconSourcePackId>>(
     new Set(['all'])
@@ -1120,7 +1120,7 @@ export function SvgIconPanel() {
     setToast(t('editor.copied', { label }));
   };
 
-  // 텍스트 파일 저장(IconMaker 저장 정책: 자동저장 폴더 또는 저장 대화상자). 취소 시 토스트 없음.
+  // 텍스트 파일 저장(IconFinder 저장 정책: 자동저장 폴더 또는 저장 대화상자). 취소 시 토스트 없음.
   const handleSaveTextFile = async (label: string, fileName: string, text: string, extension: string) => {
     try {
       const savedPath = await exportService.saveTextFile(fileName, text, extension);

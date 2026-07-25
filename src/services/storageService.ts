@@ -32,7 +32,7 @@ export class StorageService {
    */
   private async getStore(): Promise<Store> {
     if (!this.store) {
-      this.store = await Store.load('iconmaker.json');
+      this.store = await Store.load('iconfinder.json');
     }
     return this.store;
   }

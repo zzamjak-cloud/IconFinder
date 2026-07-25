@@ -53,15 +53,15 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: 'IconMaker ${{ github.ref_name }}'
+          releaseName: 'IconFinder ${{ github.ref_name }}'
           releaseBody: |
-            IconMaker ${{ github.ref_name }} 릴리스입니다.
+            IconFinder ${{ github.ref_name }} 릴리스입니다.
 
             아래에서 사용 중인 운영체제에 맞는 설치 파일을 다운로드하세요:
             - **Windows**: `.exe` 파일
             - **macOS**: `.dmg` 파일 (Intel/M1+ 모두 지원)
 
-            자세한 변경 사항은 [CHANGELOG](https://github.com/zzamjak-cloud/IconMaker/commits/${{ github.ref_name }})를 참고하세요.
+            자세한 변경 사항은 [CHANGELOG](https://github.com/zzamjak-cloud/IconFinder/commits/${{ github.ref_name }})를 참고하세요.
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: true

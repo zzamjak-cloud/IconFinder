@@ -1,24 +1,24 @@
 # GitHub Secrets 설정 가이드
 
-IconMaker 프로젝트의 자동 빌드 및 업데이트 시스템을 위한 GitHub Secrets 설정 방법입니다.
+IconFinder 프로젝트의 자동 빌드 및 업데이트 시스템을 위한 GitHub Secrets 설정 방법입니다.
 
 ## 필수 Secret
 
 ### 1. TAURI_SIGNING_PRIVATE_KEY
 
-**경로**: https://github.com/zzamjak-cloud/IconMaker/settings/secrets/actions
+**경로**: https://github.com/zzamjak-cloud/IconFinder/settings/secrets/actions
 
-**값**: `src-tauri/iconmaker.key` 파일의 전체 내용
+**값**: `src-tauri/iconfinder.key` 파일의 전체 내용
 
 **설정 방법:**
 
 #### Windows (PowerShell)
 ```powershell
 # 1. 파일 내용 복사
-Get-Content src-tauri\iconmaker.key | Set-Clipboard
+Get-Content src-tauri\iconfinder.key | Set-Clipboard
 
 # 2. GitHub Secrets 페이지로 이동
-# https://github.com/zzamjak-cloud/IconMaker/settings/secrets/actions
+# https://github.com/zzamjak-cloud/IconFinder/settings/secrets/actions
 
 # 3. "New repository secret" 클릭
 
@@ -32,7 +32,7 @@ Get-Content src-tauri\iconmaker.key | Set-Clipboard
 #### Windows (Git Bash)
 ```bash
 # 1. 파일 내용 출력
-cat src-tauri/iconmaker.key
+cat src-tauri/iconfinder.key
 
 # 2. 출력된 내용 전체를 복사 (Ctrl+A, Ctrl+C)
 
@@ -42,8 +42,8 @@ cat src-tauri/iconmaker.key
 #### macOS/Linux
 ```bash
 # 1. 파일 내용 클립보드에 복사
-cat src-tauri/iconmaker.key | pbcopy  # macOS
-cat src-tauri/iconmaker.key | xclip -selection clipboard  # Linux
+cat src-tauri/iconfinder.key | pbcopy  # macOS
+cat src-tauri/iconfinder.key | xclip -selection clipboard  # Linux
 
 # 2. GitHub Secrets 페이지에서 Cmd+V/Ctrl+V로 붙여넣기
 ```
@@ -62,7 +62,7 @@ cat src-tauri/iconmaker.key | xclip -selection clipboard  # Linux
 
 ## GitHub Actions 권한 설정
 
-**경로**: https://github.com/zzamjak-cloud/IconMaker/settings/actions
+**경로**: https://github.com/zzamjak-cloud/IconFinder/settings/actions
 
 ### 설정 항목:
 
@@ -81,7 +81,7 @@ cat src-tauri/iconmaker.key | xclip -selection clipboard  # Linux
 
 ### 1. Secret 설정 확인
 ```
-https://github.com/zzamjak-cloud/IconMaker/settings/secrets/actions
+https://github.com/zzamjak-cloud/IconFinder/settings/secrets/actions
 ```
 
 다음과 같이 표시되어야 합니다:
@@ -96,7 +96,7 @@ git tag v0.1.1-test
 git push --tags
 
 # GitHub Actions 확인
-# https://github.com/zzamjak-cloud/IconMaker/actions
+# https://github.com/zzamjak-cloud/IconFinder/actions
 ```
 
 ### 3. 빌드 성공 확인
@@ -123,7 +123,7 @@ git push --tags
 **원인**: 공개 키와 비밀 키가 일치하지 않음
 
 **해결**:
-1. `src-tauri/iconmaker.key.pub` 내용 확인
+1. `src-tauri/iconfinder.key.pub` 내용 확인
 2. `src-tauri/tauri.conf.json`의 `plugins.updater.pubkey` 값 확인
 3. 두 값이 일치하는지 확인
 
@@ -150,7 +150,7 @@ git push --tags
 
 ## 키 파일 백업
 
-⚠️ **중요**: `src-tauri/iconmaker.key` 파일은 절대 잃어버리면 안 됩니다!
+⚠️ **중요**: `src-tauri/iconfinder.key` 파일은 절대 잃어버리면 안 됩니다!
 
 ### 백업 방법
 
@@ -162,7 +162,7 @@ git push --tags
 2. **백업 검증**
    ```bash
    # 백업한 키와 원본 비교
-   diff src-tauri/iconmaker.key /path/to/backup/iconmaker.key
+   diff src-tauri/iconfinder.key /path/to/backup/iconfinder.key
    ```
 
 3. **복구 테스트**
@@ -189,7 +189,7 @@ git push --tags
 4. ✅ **키 교체 방법**
    ```bash
    # 1. 새 키 생성
-   npm run tauri signer generate -- -w src-tauri/iconmaker-new.key
+   npm run tauri signer generate -- -w src-tauri/iconfinder-new.key
 
    # 2. tauri.conf.json 업데이트
    # 3. GitHub Secret 업데이트

@@ -88,7 +88,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       const backup = await storageService.exportAllSettings();
       const dateTag = new Date().toISOString().slice(0, 10);
       const path = await save({
-        defaultPath: `iconmaker-backup-${dateTag}.json`,
+        defaultPath: `iconfinder-backup-${dateTag}.json`,
         filters: [{ name: 'JSON', extensions: ['json'] }],
         title: t('settings.backup.saveDialogTitle'),
       });

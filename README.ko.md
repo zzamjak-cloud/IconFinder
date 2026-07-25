@@ -1,4 +1,4 @@
-# IconMaker
+# IconFinder
 
 [English](README.md) · **한국어**
 

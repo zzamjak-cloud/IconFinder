@@ -5,7 +5,7 @@ import { useI18n } from '@/i18n';
 import { resolveErrorMessage } from '@/i18n/errorMessage';
 
 // 변경 내역은 앱 안에 복제하지 않고 GitHub의 CHANGELOG 원본으로 바로 보낸다.
-const CHANGELOG_URL = 'https://github.com/zzamjak-cloud/IconMaker/blob/main/CHANGELOG.md';
+const CHANGELOG_URL = 'https://github.com/zzamjak-cloud/IconFinder/blob/main/CHANGELOG.md';
 
 interface UpdateDialogProps {
   available: boolean;

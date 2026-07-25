@@ -7,114 +7,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> IconFinder is the successor to [IconMaker](https://github.com/zzamjak-cloud/IconMaker).
+> It unifies IconMaker's separate Search and Editor tabs into a single icon workspace.
+> For pre-1.0 history, see the IconMaker repository — its full git history is preserved here.
+
 ## [Unreleased]
 
-### Added
-- Multi-language support (i18n) for 11 languages: English, Korean, Japanese, Simplified Chinese, Traditional Chinese, Spanish, French, German, Russian, Portuguese, Italian
-  - The display language is auto-detected from the OS locale on first launch and can be changed from the Settings dialog
-  - The selected language persists via Tauri Store
+## [1.0.0] - 2026-07-26
 
-### Changed
-- The auto-update dialog no longer shows inline release notes; it links to the CHANGELOG on GitHub instead
-- English is now the primary language for the README and CHANGELOG, with Korean available as `README.ko.md` / `CHANGELOG.ko.md`
+First release. Everything below describes the app as a whole.
 
-## [0.3.3] - 2026-07-08
+### The unified workspace
 
-### Fixed
-- Fixed the split-view drag handle in the Editor tab jumping upward the moment it was clicked
-- Reduced excessive re-rendering of the whole icon grid while typing in or clearing the top search box
+IconMaker's two tabs (Search / Editor) — each with its own search, its own way of
+keeping icons, and its own export path — are merged into one three-pane workspace:
 
-### Changed
-- Rearranged the Editor's search results and saved icons into a vertically split view
-- Virtualized the search-result and saved-icon grids, and set the number of search results shown to 48
-- Added a clear button to the top search box for instantly removing the search term
+- **Library** (left): categorized icon vault with a ☆ Favorites smart view
+- **Search** (center): one search across all of Iconify with scope chips
+  (All / curated packs / collection picker), Korean query expansion, pagination,
+  and a virtualized results grid
+- **Detail** (right): preview with quick export (SVG/PNG, size, color) by default,
+  plus an expandable Style section (color modes, gradients, outline, glow, bevel)
 
-## [0.3.2] - 2026-07-07
+### Behavior notes
 
-### Fixed
-- Fixed cards overlapping in the search grid on wide screens, where card size grew but row spacing did not follow
+- Starring a search result saves it into the **Uncategorized** category with the
+  favorite flag set; organize later by dragging onto categories
+- Quick export follows the item's state: search results export the original,
+  library icons export with their saved style
+- Batch export works on any selection or category (no longer favorites-only);
+  sprite export stays per-category
 
-### Changed
-- Removed the header description text and now display the current version from `package.json` instead
+### Inherited from IconMaker (0.x)
 
-## [0.3.1] - 2026-06-30
+- 275,000+ icons via the Iconify API; per-collection license guidance
+- SVG icon styling engine: color modes, gradient, outline, glow, bevel, style presets
+- Multi-language support (i18n) for 11 languages, auto-detected from the OS locale,
+  switchable in Settings, persisted via Tauri Store
+- Settings backup/restore as a single file; default save folder with auto-save
+- Auto-update via GitHub Releases; the update dialog links to this CHANGELOG
 
-### Fixed
-- Fixed saved icons in the Editor tab being lost when the app restarted for an auto-update
-  - Pending workspace writes are now flushed to disk right before the restart
-  - On a failed load, existing data is no longer overwritten with defaults
-  - Saves immediately when the window is hidden, the app exits, or tabs are switched
-
-## [0.3.0] - 2026-06-30
-
-### Added
-- Pagination for search results (full name lookup plus per-page SVG loading, with previous/numbered/next controls)
-- License information dialog and a "License" button in the header (per-collection licenses, with a caveat for unified search)
-- Custom color picker now also applies to effect colors (shadow/glow) and outline color
-
-### Changed
-- Fixed the number of search results shown to 100 (removed the 24/48/72 dropdown)
-- Changed the default search source to "Unified" and moved it to the top of the list
-- Repositioned the custom color picker popup to stay within the viewport (fixes it being cut off)
-- Inner glow is now based on the content (excluding the outline), while shadow and outer glow include the outline
-
-### Removed
-- The "saved icon filter" input (unnecessary)
-- The search-complete toast notification (removed UX jitter)
-
-## [0.2.0] - 2026-06-30
-
-### Added
-- **SVG Workspace (Editor tab)**: ported StyleStudio's SVG session feature into a single panel
-  - Collect and organize icons by category, with 20 built-in categories aimed at casual games
-  - Selecting a category auto-fills a recommended English search term (more accurate than Korean)
-  - Export as SVG/PNG/sprite sheet/HTML snippet, and copy as SVG, HTML, or CSS
-- **Style effects system** (SVG filter based, compatible with HTML and PNG):
-  - Drop shadow, outer/inner glow, bevel (embossed/engraved) — each with color and intensity control
-  - Outline effect (color and width); shadows include the outline, while inner glow is based on the content
-  - Color mode (original/solid/duotone) and finish (gradient/3D) combined into a single style selector
-- **Custom color picker**: 108-color palette popup plus direct selection / HEX input
-- **Full settings backup/restore**: back up and restore favorites, export settings, and the SVG workspace as JSON
-- Search/Editor view toggle, and image scaling that matches the grid column ratio
-
-### Changed
-- Moved the grid slider to the search results row and center-aligned the header tabs
-- Disabled controls that are irrelevant to the active tab (search-only controls are hidden in the Editor tab)
-
-## [0.1.2] - 2026-02-05
-
-### Fixed
-- Fixed a PNG export bug
-
-## [0.1.1] - 2026-02-05
-
-### Added
-- Built out the GitHub Actions CI/CD pipeline
-- Auto-update system via Tauri Updater
-- Version bump automation script (`npm run version:bump`)
-- Update dialog UI component
-
-### Changed
-- Redesigned the app icon and updated the icons for all platforms
-- Improved the development workflow
-
-## [0.1.0] - 2026-02-05
-
-### Added
-- Initial project setup
-- Icon search powered by the Iconify API
-- Favorites
-- SVG/PNG export
-- Batch export
-- Settings management (default folder, export options)
-- Dark mode support
-
-[unreleased]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.3...HEAD
-[0.3.3]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.2...v0.3.3
-[0.3.2]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.1.2...v0.2.0
-[0.1.2]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/zzamjak-cloud/IconMaker/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/zzamjak-cloud/IconMaker/releases/tag/v0.1.0
+[unreleased]: https://github.com/zzamjak-cloud/IconFinder/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/zzamjak-cloud/IconFinder/releases/tag/v1.0.0

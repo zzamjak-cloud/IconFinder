@@ -81,7 +81,7 @@ function AppContent() {
         {/* 헤더 */}
         <header className="relative flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold">IconMaker</h1>
+            <h1 className="text-2xl font-bold">IconFinder</h1>
             {/* v0.3.2에서 설명 문구를 없애고 현재 버전 배지로 대체했다. */}
             <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground">
               v{APP_VERSION}
