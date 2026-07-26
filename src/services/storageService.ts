@@ -21,6 +21,15 @@ import {
 // v2: 즐겨찾기가 보관함 아이콘의 favorite 플래그로 흡수되어 favorites 키가 사라짐
 export const SETTINGS_BACKUP_VERSION = 2;
 
+// UI 상태 (그리드 열 수, 사이드바 폭/접힘) — 손상 대비 모든 필드 옵셔널, 읽는 쪽에서 클램프
+export interface UiPreferences {
+  gridColumns?: number;
+  leftWidth?: number;
+  leftCollapsed?: boolean;
+  rightWidth?: number;
+  rightCollapsed?: boolean;
+}
+
 // 전체 설정 백업 구조 (읽기는 v1/v2 모두 허용, 쓰기는 항상 v2)
 export interface SettingsBackup {
   version: number;
@@ -136,6 +145,23 @@ export class StorageService {
   async clearRecentSearches(): Promise<void> {
     const store = await this.getStore();
     await store.set('recentSearches', []);
+    await store.save();
+  }
+
+  /**
+   * UI 상태(그리드 열 수, 사이드바 폭/접힘) 가져오기
+   */
+  async getUiPreferences(): Promise<UiPreferences | null> {
+    const store = await this.getStore();
+    return (await store.get<UiPreferences>('uiPreferences')) || null;
+  }
+
+  /**
+   * UI 상태 저장
+   */
+  async saveUiPreferences(preferences: UiPreferences): Promise<void> {
+    const store = await this.getStore();
+    await store.set('uiPreferences', preferences);
     await store.save();
   }
 

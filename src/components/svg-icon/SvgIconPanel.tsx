@@ -77,6 +77,7 @@ import {
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { useSettings } from '@/hooks/useSettings';
+import { useUiPreferences } from '@/hooks/useUiPreferences';
 import { WORKSPACE_SEARCH_INPUT_ID, useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
@@ -801,6 +802,36 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const leftWidthBeforeCollapseRef = useRef(LEFT_SIDEBAR_DEFAULT);
   const rightWidthBeforeCollapseRef = useRef(RIGHT_SIDEBAR_DEFAULT);
+
+  // UI 상태 영속화: 로드 완료 시 1회 하이드레이션(클램프) 후, 변경분을 디바운스 저장
+  const { preferences: uiPreferences, isLoaded: uiPrefsLoaded, save: saveUiPreferences } = useUiPreferences();
+  const uiPrefsHydratedRef = useRef(false);
+
+  useEffect(() => {
+    if (!uiPrefsLoaded || uiPrefsHydratedRef.current) return;
+    uiPrefsHydratedRef.current = true;
+    if (!uiPreferences) return;
+    if (typeof uiPreferences.gridColumns === 'number') {
+      setGridColumns(Math.min(10, Math.max(2, Math.round(uiPreferences.gridColumns))));
+    }
+    if (typeof uiPreferences.leftWidth === 'number') {
+      const width = Math.min(LEFT_SIDEBAR_MAX, Math.max(LEFT_SIDEBAR_MIN, uiPreferences.leftWidth));
+      setLeftWidth(width);
+      leftWidthBeforeCollapseRef.current = width;
+    }
+    if (typeof uiPreferences.rightWidth === 'number') {
+      const width = Math.min(RIGHT_SIDEBAR_MAX, Math.max(RIGHT_SIDEBAR_MIN, uiPreferences.rightWidth));
+      setRightWidth(width);
+      rightWidthBeforeCollapseRef.current = width;
+    }
+    if (typeof uiPreferences.leftCollapsed === 'boolean') setLeftCollapsed(uiPreferences.leftCollapsed);
+    if (typeof uiPreferences.rightCollapsed === 'boolean') setRightCollapsed(uiPreferences.rightCollapsed);
+  }, [uiPrefsLoaded, uiPreferences]);
+
+  useEffect(() => {
+    if (!uiPrefsHydratedRef.current) return;
+    saveUiPreferences({ gridColumns, leftWidth, leftCollapsed, rightWidth, rightCollapsed });
+  }, [gridColumns, leftWidth, leftCollapsed, rightWidth, rightCollapsed, saveUiPreferences]);
   const selectionAnchorRef = useRef<string | null>(null);
   // 마우스 기반 드래그 상태(WKWebView에서 HTML5 DnD가 불안정해 기존 사이드바와 동일한 방식 사용).
   const iconDragRef = useRef<{
