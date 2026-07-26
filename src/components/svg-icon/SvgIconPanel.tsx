@@ -266,10 +266,10 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
       : t('workspace.scope.collection');
 
   return (
-    <div className="border-b border-slate-200 bg-white p-4">
+    <div className="border-b border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-72 flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <input
             id={WORKSPACE_SEARCH_INPUT_ID}
             value={draftQuery}
@@ -281,13 +281,13 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
               if (event.key === 'Escape') setIsRecentOpen(false);
             }}
             placeholder="sword, potion, shield, heart..."
-            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-10 text-sm outline-none focus:border-lime-500"
+            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-10 text-sm outline-none focus:border-lime-500 dark:border-slate-800 dark:bg-slate-900"
           />
           {draftQuery && (
             <button
               type="button"
               onClick={() => setDraftQuery('')}
-              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
               aria-label={t('search.clear')}
               title={t('search.clear')}
             >
@@ -296,14 +296,14 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
           )}
           {/* 최근 검색어 드롭다운: mousedown preventDefault로 입력 blur를 막고 click을 살린다 */}
           {isRecentOpen && recentSearches.length > 0 && (
-            <div className="absolute left-0 top-full z-30 mt-1 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+            <div className="absolute left-0 top-full z-30 mt-1 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between px-3 py-1.5">
-                <span className="text-[11px] font-semibold text-slate-400">{t('editor.search.recentTitle')}</span>
+                <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">{t('editor.search.recentTitle')}</span>
                 <button
                   type="button"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={clearRecentSearches}
-                  className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
                 >
                   {t('editor.search.recentClear')}
                 </button>
@@ -314,9 +314,9 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
                   type="button"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => selectRecentSearch(term)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
-                  <Search size={12} className="shrink-0 text-slate-400" />
+                  <Search size={12} className="shrink-0 text-slate-400 dark:text-slate-500" />
                   <span className="truncate">{term}</span>
                 </button>
               ))}
@@ -327,7 +327,7 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
           type="button"
           onClick={submitSearch}
           disabled={isSearching}
-          className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+          className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
         >
           {isSearching ? (
             <span className="flex items-center gap-2">
@@ -351,8 +351,8 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
               onClick={() => selectScope(pack.id === 'all' ? { type: 'all' } : { type: 'pack', packId: pack.id })}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
                 isSelected
-                  ? 'border-lime-500 bg-lime-100 text-lime-900'
-                  : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800'
+                  ? 'border-lime-500 bg-lime-100 text-lime-900 dark:bg-lime-900/40 dark:text-lime-200'
+                  : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
               {t(pack.labelKey)}
@@ -365,8 +365,8 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
             onClick={() => void toggleCollectionList()}
             className={`flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold ${
               scope.type === 'collection'
-                ? 'border-lime-500 bg-lime-100 text-lime-900'
-                : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800'
+                ? 'border-lime-500 bg-lime-100 text-lime-900 dark:bg-lime-900/40 dark:text-lime-200'
+                : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             <span className="max-w-40 truncate">{collectionChipLabel}</span>
@@ -382,9 +382,9 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
                 onClick={() => setIsCollectionListOpen(false)}
                 className="fixed inset-0 z-20 cursor-default"
               />
-              <div className="absolute left-0 top-full z-30 mt-1 max-h-80 w-72 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl">
+              <div className="absolute left-0 top-full z-30 mt-1 max-h-80 w-72 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-800 dark:bg-slate-900">
                 {isLoadingCollections ? (
-                  <div className="flex items-center justify-center gap-2 p-4 text-xs text-slate-500">
+                  <div className="flex items-center justify-center gap-2 p-4 text-xs text-slate-500 dark:text-slate-400">
                     <Loader2 size={14} className="animate-spin" />
                     {t('editor.results.loading')}
                   </div>
@@ -393,7 +393,7 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
                     <button
                       type="button"
                       onClick={() => selectScope({ type: 'all' })}
-                      className="w-full rounded-md px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                      className="w-full rounded-md px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       {t('collection.viewAll')}
                     </button>
@@ -405,11 +405,11 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
                           type="button"
                           onClick={() => selectScope({ type: 'collection', prefix: item.prefix })}
                           className={`w-full rounded-md px-3 py-2 text-left ${
-                            isActive ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
+                            isActive ? 'bg-lime-100 text-lime-950 dark:bg-lime-900/40 dark:text-lime-200' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
                           <span className="block truncate text-xs font-semibold">{item.name}</span>
-                          <span className="block truncate text-[11px] text-slate-500">
+                          <span className="block truncate text-[11px] text-slate-500 dark:text-slate-400">
                             {t('collection.iconCount', { prefix: item.prefix, count: item.total })}
                           </span>
                         </button>
@@ -422,11 +422,11 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
           )}
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-        <ShieldCheck size={14} className="text-lime-600" />
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <ShieldCheck size={14} className="text-lime-600 dark:text-lime-400" />
         <span>{t('editor.search.sources')}</span>
         {expandedSearchTerms.map((term) => (
-          <span key={term} className="rounded-full bg-slate-100 px-2 py-1">
+          <span key={term} className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
             {term}
           </span>
         ))}
@@ -564,8 +564,8 @@ const IconCardShell = memo(function IconCardShell({
   return (
     <div
       onMouseDown={onMouseDown}
-      className={`rounded-lg border bg-white p-3 ${
-        isHighlighted ? 'border-lime-500 ring-2 ring-lime-100' : 'border-slate-200'
+      className={`rounded-lg border bg-white p-3 dark:bg-slate-900 ${
+        isHighlighted ? 'border-lime-500 ring-2 ring-lime-100 dark:ring-lime-900/40' : 'border-slate-200 dark:border-slate-800'
       } ${isDragging ? 'opacity-40' : ''} ${className ?? 'h-full'}`}
     >
       <button
@@ -578,7 +578,7 @@ const IconCardShell = memo(function IconCardShell({
         </div>
         <div className="mt-2 min-h-10 text-left">
           <p className="truncate text-sm font-semibold">{title}</p>
-          <p className="truncate text-xs text-slate-500">{subtitle}</p>
+          <p className="truncate text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
         </div>
       </button>
       <div className="mt-2 flex items-center gap-1">
@@ -591,8 +591,8 @@ const IconCardShell = memo(function IconCardShell({
           }}
           className={`rounded-md border p-1.5 ${
             isFavorite
-              ? 'border-amber-300 bg-amber-50 text-amber-500'
-              : 'border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-amber-500'
+              ? 'border-amber-300 bg-amber-50 text-amber-500 dark:border-amber-700 dark:bg-amber-900/30'
+              : 'border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-amber-500 dark:border-slate-800 dark:text-slate-500 dark:hover:bg-slate-800'
           }`}
           title={isFavorite ? t('favorites.remove') : t('favorites.add')}
           aria-label={isFavorite ? t('favorites.remove') : t('favorites.add')}
@@ -606,7 +606,7 @@ const IconCardShell = memo(function IconCardShell({
             rel="noreferrer"
             onMouseDown={(event) => event.stopPropagation()}
             onClick={(event) => event.stopPropagation()}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50"
+            className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800"
             title={t('common.viewOriginal')}
           >
             <ExternalLink size={14} />
@@ -621,7 +621,7 @@ const IconCardShell = memo(function IconCardShell({
               onToggleCheck?.();
             }}
             className={`ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-              checked ? 'border-lime-500 bg-lime-500 text-white' : 'border-slate-300'
+              checked ? 'border-lime-500 bg-lime-500 text-white' : 'border-slate-300 dark:border-slate-700'
             }`}
             title={checked ? t('common.clearSelection') : t('common.select')}
             aria-label={checked ? t('common.clearSelection') : t('common.select')}
@@ -1687,7 +1687,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     draggingIconIds.length > 0 ? workspace.icons.find((icon) => icon.id === draggingIconIds[0]) ?? null : null;
 
   return (
-    <div className="flex h-full min-h-0 bg-slate-50 text-slate-900">
+    <div className="flex h-full min-h-0 bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {draggingPreviewIcon && dragPosition && (
         <div
           className="pointer-events-none fixed z-50"
@@ -1710,14 +1710,14 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
       <>
       <aside
         style={{ width: displayLeftWidth }}
-        className="shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden transition-[width] duration-200 ease-out"
+        className="shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden transition-[width] duration-200 ease-out dark:border-slate-800 dark:bg-slate-900"
       >
         {leftCollapsed ? (
           <div className="flex flex-1 flex-col items-center py-3">
             <button
               type="button"
               onClick={toggleLeftCollapsed}
-              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               title={t('editor.sidebar.expand')}
               aria-label={t('editor.sidebar.expand')}
             >
@@ -1726,14 +1726,14 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
           </div>
         ) : (
           <>
-        <div className="p-3 border-b border-slate-200">
+        <div className="p-3 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-1.5">
-            <FolderPlus size={14} className="shrink-0 text-lime-600" />
+            <FolderPlus size={14} className="shrink-0 text-lime-600 dark:text-lime-400" />
             <h2 className="min-w-0 flex-1 truncate text-xs font-semibold">{t('editor.vault.title')}</h2>
             <button
               type="button"
               onClick={toggleLeftCollapsed}
-              className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
               title={t('editor.sidebar.collapse')}
               aria-label={t('editor.sidebar.collapse')}
             >
@@ -1748,11 +1748,11 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 if (event.key === 'Enter') handleCreateCategory();
               }}
               placeholder={t('editor.category.new')}
-              className="min-w-0 flex-1 rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-lime-500"
+              className="min-w-0 flex-1 rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-lime-500 dark:border-slate-800 dark:bg-slate-900"
             />
             <button
               onClick={handleCreateCategory}
-              className="rounded-md bg-slate-900 px-2.5 text-xs font-semibold text-white hover:bg-slate-800"
+              className="rounded-md bg-slate-900 px-2.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
             >
               {t('common.add')}
             </button>
@@ -1764,13 +1764,13 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
           <button
             onClick={handleSelectViewAll}
             className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
-              isViewAll ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
+              isViewAll ? 'bg-lime-100 text-lime-950 dark:bg-lime-900/40 dark:text-lime-200' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             <span className="flex items-center gap-1.5">
-              <Grid3x3 size={12} className={isViewAll ? 'text-lime-700' : 'text-slate-400'} />
+              <Grid3x3 size={12} className={isViewAll ? 'text-lime-700 dark:text-lime-400' : 'text-slate-400 dark:text-slate-500'} />
               <span className="min-w-0 flex-1 font-medium">{t('editor.category.viewAll')}</span>
-              <span className="shrink-0 text-[10px] text-slate-500">
+              <span className="shrink-0 text-[10px] text-slate-500 dark:text-slate-400">
                 {workspace.icons.filter((icon) => icon.favorite).length}
               </span>
             </span>
@@ -1792,13 +1792,13 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 <button
                   onClick={() => handleCategorySelect(category.id)}
                   className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
-                    isDropTarget ? 'bg-lime-50' : isActive ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
+                    isDropTarget ? 'bg-lime-50 dark:bg-lime-900/30' : isActive ? 'bg-lime-100 text-lime-950 dark:bg-lime-900/40 dark:text-lime-200' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="flex items-center gap-1.5">
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
                     <span className="min-w-0 flex-1 font-medium">{getCategoryDisplayName(category, t)}</span>
-                    <span className="shrink-0 text-[10px] text-slate-500">{iconCount}</span>
+                    <span className="shrink-0 text-[10px] text-slate-500 dark:text-slate-400">{iconCount}</span>
                   </span>
                 </button>
               </div>
@@ -1839,7 +1839,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 <button
                   onClick={() => handleCategorySelect(category.id)}
                   className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
-                    isDropTarget ? 'bg-lime-50' : isActive ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
+                    isDropTarget ? 'bg-lime-50 dark:bg-lime-900/30' : isActive ? 'bg-lime-100 text-lime-950 dark:bg-lime-900/40 dark:text-lime-200' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="flex items-center gap-1.5 group-hover:pr-5">
@@ -1847,7 +1847,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap group-hover:truncate font-medium">
                       {getCategoryDisplayName(category, t)}
                     </span>
-                    <span className="shrink-0 text-[10px] text-slate-500">{iconCount}</span>
+                    <span className="shrink-0 text-[10px] text-slate-500 dark:text-slate-400">{iconCount}</span>
                   </span>
                 </button>
                 <button
@@ -1855,8 +1855,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   onClick={() => handleDeleteCategory(category)}
                   className={`absolute right-0.5 top-1/2 -translate-y-1/2 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 ${
                     pendingDeleteCategoryId === category.id
-                      ? 'bg-red-100 text-red-700 opacity-100'
-                      : 'text-slate-400 hover:bg-slate-100 hover:text-red-600'
+                      ? 'bg-red-100 text-red-700 opacity-100 dark:bg-red-900/40 dark:text-red-300'
+                      : 'text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-red-400'
                   }`}
                   title={
                     pendingDeleteCategoryId === category.id
@@ -1896,18 +1896,18 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
           />
         )}
         {error && (
-          <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 whitespace-pre-line">
+          <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 whitespace-pre-line dark:border-red-900 dark:bg-red-950 dark:text-red-300">
             {error}
           </div>
         )}
         <div className="flex flex-1 min-h-0 flex-col overflow-hidden p-4">
           {mode === 'search' ? (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <div className="border-b border-slate-200 p-3">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <div className="border-b border-slate-200 p-3 dark:border-slate-800">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="truncate text-sm font-bold text-slate-800">{t('editor.results.title')}</h3>
-                  <p className="text-xs text-slate-500">
+                  <h3 className="truncate text-sm font-bold text-slate-800 dark:text-slate-200">{t('editor.results.title')}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {t('editor.results.meta', {
                       page: searchPage + 1,
                       totalPages,
@@ -1921,22 +1921,22 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     type="button"
                     onClick={() => setSelectedResultIds(new Set())}
                     disabled={selectedResultIds.size === 0}
-                    className="rounded-md border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 disabled:opacity-40"
+                    className="rounded-md border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                   >
                     {t('common.clearSelection')}
                   </button>
-                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
-                    <Grid3x3 className="h-4 w-4 text-slate-500" />
+                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                    <Grid3x3 className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                     <input
                       type="range"
                       min="2"
                       max="10"
                       value={gridColumns}
                       onChange={(event) => setGridColumns(Number(event.target.value))}
-                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200"
+                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200 dark:bg-slate-700"
                       title={t('common.gridColumns', { count: gridColumns })}
                     />
-                    <span className="min-w-[2ch] text-xs font-semibold text-slate-500">{gridColumns}</span>
+                    <span className="min-w-[2ch] text-xs font-semibold text-slate-500 dark:text-slate-400">{gridColumns}</span>
                   </div>
                 </div>
               </div>
@@ -1948,7 +1948,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 kind="search"
                 getItemKey={(result) => result.id}
                 empty={
-                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
                     {isSearching ? t('editor.results.loading') : t('editor.results.emptyHint')}
                   </div>
                 }
@@ -1967,13 +1967,13 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
               />
             </div>
             {totalPages > 1 && (
-              <div className="border-t border-slate-200 px-3 py-2">
+              <div className="border-t border-slate-200 px-3 py-2 dark:border-slate-800">
                 <div className="flex flex-wrap items-center justify-center gap-1 text-xs">
                   <button
                     type="button"
                     onClick={() => handleGoToPage(searchPage - 1)}
                     disabled={searchPage === 0 || isSearching}
-                    className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40"
+                    className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400"
                   >
                     {t('common.previous')}
                   </button>
@@ -1986,7 +1986,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     }, [])
                     .map((i, idx) =>
                       i === -1 ? (
-                        <span key={`gap-${idx}`} className="px-1 text-slate-400">
+                        <span key={`gap-${idx}`} className="px-1 text-slate-400 dark:text-slate-500">
                           ...
                         </span>
                       ) : (
@@ -1997,8 +1997,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                           disabled={isSearching}
                           className={`min-w-[28px] rounded-md border px-2 py-1 font-semibold ${
                             i === searchPage
-                              ? 'border-slate-900 bg-slate-900 text-white'
-                              : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                              : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
                           }`}
                         >
                           {i + 1}
@@ -2009,7 +2009,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     type="button"
                     onClick={() => handleGoToPage(searchPage + 1)}
                     disabled={searchPage >= totalPages - 1 || isSearching}
-                    className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40"
+                    className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400"
                   >
                     {t('common.next')}
                   </button>
@@ -2018,18 +2018,18 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             )}
           </div>
           ) : (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <div className="border-b border-slate-200 p-3">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <div className="border-b border-slate-200 p-3 dark:border-slate-800">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <h4 className="truncate text-sm font-bold text-slate-800">
+                  <h4 className="truncate text-sm font-bold text-slate-800 dark:text-slate-200">
                     {isViewAll
                       ? t('editor.category.viewAll')
                       : selectedCategory
                         ? getCategoryDisplayName(selectedCategory, t)
                         : t('editor.saved.title')}
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {t('editor.saved.counts', {
                       count: visibleSavedIcons.length,
                       selected: iconSelection.size,
@@ -2039,11 +2039,11 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 <div className="ml-auto flex flex-wrap items-center gap-2 text-xs">
                   {iconSelection.size > 0 ? (
                     <>
-                      <span className="font-semibold text-lime-700">{t('editor.saved.dragToCategory')}</span>
+                      <span className="font-semibold text-lime-700 dark:text-lime-400">{t('editor.saved.dragToCategory')}</span>
                       <button
                         type="button"
                         onClick={() => setIconSelection(new Set())}
-                        className="font-semibold text-slate-500 hover:text-slate-800"
+                        className="font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                       >
                         {t('common.clearSelection')}
                       </button>
@@ -2052,19 +2052,19 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                         onClick={() =>
                           openBatchExport(visibleSavedIcons.filter((icon) => iconSelection.has(icon.id)))
                         }
-                        className="rounded-md bg-slate-900 px-2 py-1.5 font-semibold text-white hover:bg-slate-800"
+                        className="rounded-md bg-slate-900 px-2 py-1.5 font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
                       >
                         {t('batch.exportSelected', { count: iconSelection.size })}
                       </button>
                     </>
                   ) : (
-                    <span className="text-slate-400">{t('editor.saved.dragHint')}</span>
+                    <span className="text-slate-400 dark:text-slate-500">{t('editor.saved.dragHint')}</span>
                   )}
                   <button
                     type="button"
                     onClick={() => openBatchExport(visibleSavedIcons)}
                     disabled={visibleSavedIcons.length === 0}
-                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40"
+                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
                   >
                     {t('batch.exportCategory')}
                   </button>
@@ -2078,22 +2078,22 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                       )
                     }
                     disabled={visibleSavedIcons.length === 0}
-                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40"
+                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
                   >
                     {t('editor.sprite.button')}
                   </button>
-                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
-                    <Grid3x3 className="h-4 w-4 text-slate-500" />
+                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                    <Grid3x3 className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                     <input
                       type="range"
                       min="2"
                       max="10"
                       value={gridColumns}
                       onChange={(event) => setGridColumns(Number(event.target.value))}
-                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200"
+                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200 dark:bg-slate-700"
                       title={t('common.gridColumns', { count: gridColumns })}
                     />
-                    <span className="min-w-[2ch] text-xs font-semibold text-slate-500">{gridColumns}</span>
+                    <span className="min-w-[2ch] text-xs font-semibold text-slate-500 dark:text-slate-400">{gridColumns}</span>
                   </div>
                 </div>
               </div>
@@ -2105,7 +2105,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 kind="saved"
                 getItemKey={(icon) => icon.id}
                 empty={
-                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
                     {t('editor.saved.empty')}
                   </div>
                 }
@@ -2158,14 +2158,14 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
       )}
       <aside
         style={{ width: displayRightWidth }}
-        className="shrink-0 border-l border-slate-200 bg-white flex flex-col min-h-0 overflow-hidden transition-[width] duration-200 ease-out"
+        className="shrink-0 border-l border-slate-200 bg-white flex flex-col min-h-0 overflow-hidden transition-[width] duration-200 ease-out dark:border-slate-800 dark:bg-slate-900"
       >
         {rightCollapsed ? (
           <div className="flex flex-1 flex-col items-center py-3">
             <button
               type="button"
               onClick={toggleRightCollapsed}
-              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               title={t('editor.sidebar.expand')}
               aria-label={t('editor.sidebar.expand')}
             >
@@ -2177,10 +2177,10 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
         {/* 사이드바 전체를 하나의 스크롤 영역으로 — 빠른 내보내기 + 스타일 + 상세가 함께 스크롤되어 잘리지 않음 */}
         <div className="flex-1 min-h-0 overflow-y-auto">
         {/* 빠른 내보내기 — 항목 상태를 따른다(검색 결과=정규화 원본, 보관함 아이콘=저장된 스타일) */}
-        <div className="border-b border-slate-200 p-4 space-y-3">
+        <div className="border-b border-slate-200 p-4 space-y-3 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-bold">
-              <Download size={16} className="text-lime-600" />
+              <Download size={16} className="text-lime-600 dark:text-lime-400" />
               {t('export.quick')}
             </div>
             <div className="flex items-center gap-1">
@@ -2190,7 +2190,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   setSelectedIconId(null);
                   setSelectedResultId(null);
                 }}
-                className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
+                className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 title={t('common.clearSelection')}
               >
                 <X size={16} />
@@ -2199,7 +2199,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             <button
               type="button"
               onClick={toggleRightCollapsed}
-              className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
               title={t('editor.sidebar.collapse')}
               aria-label={t('editor.sidebar.collapse')}
             >
@@ -2210,11 +2210,11 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
           {activeDetailName ? (
             <>
               <div className="flex items-center gap-2">
-                <label className="shrink-0 text-xs font-semibold text-slate-500">{t('editor.exportSize')}</label>
+                <label className="shrink-0 text-xs font-semibold text-slate-500 dark:text-slate-400">{t('editor.exportSize')}</label>
                 <select
                   value={workspace.defaultViewBox}
                   onChange={(event) => handleSettingChange(event.target.value as SvgIconViewBox)}
-                  className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-lime-500"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-lime-500 dark:border-slate-800 dark:bg-slate-900"
                 >
                   {SVG_ICON_VIEW_BOXES.map((viewBox) => (
                     <option key={viewBox} value={viewBox}>
@@ -2234,7 +2234,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     )
                   }
                   disabled={!activeDetailSvg}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-slate-800 dark:hover:bg-slate-800"
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <Download size={14} />
@@ -2250,7 +2250,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     )
                   }
                   disabled={!activeDetailSvg}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-slate-800 dark:hover:bg-slate-800"
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <Download size={14} />
@@ -2260,25 +2260,25 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
               </div>
             </>
           ) : (
-            <p className="text-sm text-slate-500">{t('editor.emptyPreview')}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('editor.emptyPreview')}</p>
           )}
         </div>
 
         {/* 스타일 섹션 — 검색 탭은 항상, 즐겨찾기는 아이콘 선택 시에만 */}
         {(mode === 'search' || selectedIcon) && (
-        <div className="border-b border-slate-200">
+        <div className="border-b border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => setIsStyleOpen((prev) => !prev)}
             className="flex w-full items-center justify-between p-4 text-sm font-bold"
           >
             <span className="flex items-center gap-2">
-              <Palette size={16} className="text-lime-600" />
+              <Palette size={16} className="text-lime-600 dark:text-lime-400" />
               {t('editor.style.section')}
             </span>
             <ChevronDown
               size={16}
-              className={`text-slate-400 transition-transform ${isStyleOpen ? 'rotate-180' : ''}`}
+              className={`text-slate-400 dark:text-slate-500 transition-transform ${isStyleOpen ? 'rotate-180' : ''}`}
             />
           </button>
           {isStyleOpen && (
@@ -2292,8 +2292,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 onClick={() => handleSelectStyle(opt.id)}
                 className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
                   currentStyleKind === opt.id
-                    ? 'border-slate-900 bg-slate-900 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900'
+                    ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-slate-100'
                 }`}
               >
                 {t(opt.labelKey)}
@@ -2309,7 +2309,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   setPrimaryColor(preset.primary);
                   setAccentColor(preset.accent);
                 }}
-                className="h-8 rounded-md border border-slate-200"
+                className="h-8 rounded-md border border-slate-200 dark:border-slate-800"
                 style={{ background: `linear-gradient(135deg, ${preset.primary} 0 50%, ${preset.accent} 50% 100%)` }}
               />
             ))}
@@ -2321,13 +2321,13 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     setPrimaryColor(preset.primary);
                     setAccentColor(preset.accent);
                   }}
-                  className="h-8 w-full rounded-md border border-slate-200"
+                  className="h-8 w-full rounded-md border border-slate-200 dark:border-slate-800"
                   style={{ background: `linear-gradient(135deg, ${preset.primary} 0 50%, ${preset.accent} 50% 100%)` }}
                 />
                 <button
                   type="button"
                   onClick={() => handleDeleteColorPreset(preset.id)}
-                  className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white shadow group-hover:flex"
+                  className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white shadow group-hover:flex dark:bg-slate-100 dark:text-slate-900"
                 >
                   <X size={10} />
                 </button>
@@ -2357,22 +2357,22 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             <button
               type="button"
               onClick={handleSaveColorPreset}
-              className="flex h-8 shrink-0 items-center gap-1 rounded-md border border-dashed border-slate-300 px-3 text-xs font-semibold text-slate-500 hover:border-lime-400 hover:text-lime-700"
+              className="flex h-8 shrink-0 items-center gap-1 rounded-md border border-dashed border-slate-300 px-3 text-xs font-semibold text-slate-500 hover:border-lime-400 hover:text-lime-700 dark:border-slate-700 dark:text-slate-400 dark:hover:text-lime-400"
             >
               <Plus size={12} /> {t('common.save')}
             </button>
           </div>
 
           {/* 합성 가능한 스타일 효과 — 항목별 1행(토글/색상/강도) */}
-          <div className="space-y-2 border-t border-slate-200 pt-3">
-            <div className="text-xs font-bold text-slate-500">{t('editor.effect.group')}</div>
+          <div className="space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-400">{t('editor.effect.group')}</div>
             {/* 외곽선: 토글 + 색상 + 굵기 슬라이더 (다른 효과와 동일한 1행 UX) */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setOutlineEnabled((v) => !v)}
                 className={`w-20 shrink-0 rounded-md px-2 py-1.5 text-xs font-semibold ${
-                  outlineEnabled ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'
+                  outlineEnabled ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                 }`}
               >
                 {t('editor.outline')}
@@ -2408,7 +2408,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                       setEffects((p) => ({ ...p, [item.key]: { ...p[item.key], enabled: !p[item.key].enabled } }))
                     }
                     className={`w-20 shrink-0 rounded-md px-2 py-1.5 text-xs font-semibold ${
-                      effect.enabled ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'
+                      effect.enabled ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                     }`}
                   >
                     {t(item.labelKey)}
@@ -2438,7 +2438,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             })}
             {/* 베벨: 모드 3분할 + 강도 */}
             <div className="flex items-center gap-2">
-              <div className="grid w-44 shrink-0 grid-cols-3 rounded-lg border border-slate-200 bg-slate-50 p-1">
+              <div className="grid w-44 shrink-0 grid-cols-3 rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-800 dark:bg-slate-950">
                 {([
                   { value: 'none', labelKey: 'bevel.none' },
                   { value: 'raised', labelKey: 'bevel.raised' },
@@ -2450,8 +2450,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     onClick={() => setEffects((p) => ({ ...p, bevel: { ...p.bevel, mode: item.value } }))}
                     className={`rounded-md px-1 py-1 text-xs font-semibold ${
                       effects.bevel.mode === item.value
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-500 hover:text-slate-800'
+                        ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                        : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
                     }`}
                   >
                     {t(item.labelKey)}
@@ -2482,7 +2482,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => handleCopy('SVG', selectedIconExportSvg || selectedIcon.svg)}
-                className="rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                className="rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
               >
                 <span className="inline-flex items-center justify-center gap-1">
                   <Copy size={12} />
@@ -2493,7 +2493,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 onClick={() =>
                   handleCopy(t('editor.label.html'), buildHtmlIconSnippet(selectedIconForExport ?? selectedIcon))
                 }
-                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
               >
                 <span className="inline-flex items-center justify-center gap-1">
                   <Copy size={12} />
@@ -2504,7 +2504,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 onClick={() =>
                   handleCopy(t('editor.label.css'), buildSvgDataUri(selectedIconForExport ?? selectedIcon))
                 }
-                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
               >
                 <span className="inline-flex items-center justify-center gap-1">
                   <Copy size={12} />
@@ -2516,13 +2516,13 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             <div className="flex gap-2">
               <button
                 onClick={() => handleApplyStyleToIcon(selectedIcon)}
-                className="flex-1 rounded-lg border border-lime-400 bg-lime-100 px-3 py-2 text-sm font-semibold text-lime-900 hover:bg-lime-200"
+                className="flex-1 rounded-lg border border-lime-400 bg-lime-100 px-3 py-2 text-sm font-semibold text-lime-900 hover:bg-lime-200 dark:bg-lime-900/40 dark:text-lime-200 dark:hover:bg-lime-900/60"
               >
                 {t('editor.reapplyStyle')}
               </button>
               <button
                 onClick={() => handleDeleteIcon(selectedIcon)}
-                className="flex-1 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                className="flex-1 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900"
               >
                 <span className="inline-flex items-center justify-center gap-2">
                   <Trash2 size={14} />
@@ -2535,7 +2535,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
           <div className="p-4 space-y-4">
             <button
               onClick={() => handleCopy('SVG', selectedResultPreviewSvg)}
-              className="w-full rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+              className="w-full rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
             >
               <span className="inline-flex items-center justify-center gap-1">
                 <Copy size={12} />
@@ -2544,7 +2544,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             </button>
 
             {selectedResult.license && (
-              <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+              <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-950 dark:text-slate-400">
                 <p>{t('editor.license', { license: selectedResult.license })}</p>
               </div>
             )}
@@ -2578,7 +2578,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
             <button
               type="button"
               onClick={() => setUnfavoriteConfirmIcon(null)}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
             >
               {t('common.cancel')}
             </button>

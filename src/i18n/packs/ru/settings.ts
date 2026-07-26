@@ -2,6 +2,10 @@ export const ruSettingsTranslations = {
   'settings.title': 'Настройки',
   'settings.button.aria': 'Настройки',
   'settings.general': 'Общие',
+  'settings.theme': 'Тема',
+  'settings.theme.light': 'Светлая',
+  'settings.theme.dark': 'Тёмная',
+  'settings.theme.system': 'Системная',
 
   'settings.defaultFolder': 'Папка сохранения по умолчанию',
   'settings.defaultFolder.placeholder': 'Не выбрана',

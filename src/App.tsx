@@ -6,6 +6,7 @@ import { ToastProvider } from '@/components/ui/toast';
 import { SvgIconPanel, type WorkspaceTab } from '@/components/svg-icon/SvgIconPanel';
 import { storageService } from '@/services/storageService';
 import { useAutoUpdater } from '@/hooks/useAutoUpdater';
+import { useTheme } from '@/hooks/useTheme';
 import { UpdateDialog } from '@/components/UpdateDialog';
 import { useI18n } from '@/i18n';
 import packageJson from '../package.json';
@@ -34,6 +35,9 @@ function AppContent() {
 
   // 자동 업데이트
   const updater = useAutoUpdater();
+
+  // 테마 적용 (light/dark/system)
+  useTheme();
 
   // 앱 시작 시 기본 폴더 초기화
   useEffect(() => {

@@ -2,6 +2,10 @@ export const esSettingsTranslations = {
   'settings.title': 'Ajustes',
   'settings.button.aria': 'Ajustes',
   'settings.general': 'General',
+  'settings.theme': 'Tema',
+  'settings.theme.light': 'Claro',
+  'settings.theme.dark': 'Oscuro',
+  'settings.theme.system': 'Sistema',
 
   'settings.defaultFolder': 'Carpeta de guardado predeterminada',
   'settings.defaultFolder.placeholder': 'Sin seleccionar',

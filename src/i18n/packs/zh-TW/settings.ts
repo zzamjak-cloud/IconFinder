@@ -2,6 +2,10 @@ export const zhTWSettingsTranslations = {
   'settings.title': '設定',
   'settings.button.aria': '設定',
   'settings.general': '一般',
+  'settings.theme': '主題',
+  'settings.theme.light': '淺色',
+  'settings.theme.dark': '深色',
+  'settings.theme.system': '跟隨系統',
 
   'settings.defaultFolder': '預設儲存資料夾',
   'settings.defaultFolder.placeholder': '未選取',

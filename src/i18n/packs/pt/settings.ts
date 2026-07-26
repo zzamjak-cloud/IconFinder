@@ -2,6 +2,10 @@ export const ptSettingsTranslations = {
   'settings.title': 'Configurações',
   'settings.button.aria': 'Configurações',
   'settings.general': 'Geral',
+  'settings.theme': 'Tema',
+  'settings.theme.light': 'Claro',
+  'settings.theme.dark': 'Escuro',
+  'settings.theme.system': 'Sistema',
 
   'settings.defaultFolder': 'Pasta de salvamento padrão',
   'settings.defaultFolder.placeholder': 'Não selecionada',

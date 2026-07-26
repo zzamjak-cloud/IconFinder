@@ -2,6 +2,10 @@ export const koSettingsTranslations = {
   'settings.title': '설정',
   'settings.button.aria': '설정',
   'settings.general': '일반',
+  'settings.theme': '테마',
+  'settings.theme.light': '라이트',
+  'settings.theme.dark': '다크',
+  'settings.theme.system': '시스템',
 
   'settings.defaultFolder': '기본 저장 폴더',
   'settings.defaultFolder.placeholder': '선택되지 않음',

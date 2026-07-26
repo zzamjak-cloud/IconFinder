@@ -126,7 +126,7 @@ export function ColorSwatchPicker({
         type="button"
         disabled={disabled}
         onClick={toggle}
-        className={`inline-flex items-center justify-center rounded-md border border-slate-200 ${className ?? 'h-12 w-full'} ${
+        className={`inline-flex items-center justify-center rounded-md border border-slate-200 dark:border-slate-800 ${className ?? 'h-12 w-full'} ${
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         }`}
         style={{ backgroundColor: value }}
@@ -144,7 +144,7 @@ export function ColorSwatchPicker({
       {open && pos && (
         <div
           style={{ position: 'fixed', left: pos.left, top: pos.top, width: POPUP_WIDTH }}
-          className="z-50 max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] overflow-auto rounded-lg border border-slate-200 bg-white p-2 shadow-xl"
+          className="z-50 max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] overflow-auto rounded-lg border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
         >
           <div className="grid grid-cols-12 gap-1">
             {PALETTE.map((color, index) => (
@@ -157,8 +157,8 @@ export function ColorSwatchPicker({
                 }}
                 className={`aspect-square w-full rounded-[3px] border ${
                   value.toLowerCase() === color.toLowerCase()
-                    ? 'border-slate-900 ring-2 ring-slate-400'
-                    : 'border-black/10 hover:border-slate-400'
+                    ? 'border-slate-900 ring-2 ring-slate-400 dark:border-slate-100 dark:ring-slate-500'
+                    : 'border-black/10 hover:border-slate-400 dark:border-white/10 dark:hover:border-slate-500'
                 }`}
                 style={{ backgroundColor: color }}
                 aria-label={color}
@@ -171,13 +171,13 @@ export function ColorSwatchPicker({
               type="color"
               value={value}
               onChange={(event) => onChange(event.target.value)}
-              className="h-8 w-10 shrink-0 cursor-pointer rounded-md border border-slate-200"
+              className="h-8 w-10 shrink-0 cursor-pointer rounded-md border border-slate-200 dark:border-slate-800"
             />
             <input
               type="text"
               value={value}
               onChange={(event) => onChange(event.target.value)}
-              className="h-8 w-full rounded-md border border-slate-200 px-2 text-xs"
+              className="h-8 w-full rounded-md border border-slate-200 px-2 text-xs dark:border-slate-800 dark:bg-slate-900"
             />
           </div>
         </div>

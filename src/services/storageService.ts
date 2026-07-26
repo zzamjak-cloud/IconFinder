@@ -21,6 +21,9 @@ import {
 // v2: 즐겨찾기가 보관함 아이콘의 favorite 플래그로 흡수되어 favorites 키가 사라짐
 export const SETTINGS_BACKUP_VERSION = 2;
 
+// 앱 테마 설정
+export type ThemeSetting = 'light' | 'dark' | 'system';
+
 // UI 상태 (그리드 열 수, 사이드바 폭/접힘) — 손상 대비 모든 필드 옵셔널, 읽는 쪽에서 클램프
 export interface UiPreferences {
   gridColumns?: number;
@@ -145,6 +148,24 @@ export class StorageService {
   async clearRecentSearches(): Promise<void> {
     const store = await this.getStore();
     await store.set('recentSearches', []);
+    await store.save();
+  }
+
+  /**
+   * 테마 설정 가져오기 (미설정/손상 시 'system')
+   */
+  async getTheme(): Promise<ThemeSetting> {
+    const store = await this.getStore();
+    const value = await store.get<string>('theme');
+    return value === 'light' || value === 'dark' || value === 'system' ? value : 'system';
+  }
+
+  /**
+   * 테마 설정 저장
+   */
+  async saveTheme(theme: ThemeSetting): Promise<void> {
+    const store = await this.getStore();
+    await store.set('theme', theme);
     await store.save();
   }
 

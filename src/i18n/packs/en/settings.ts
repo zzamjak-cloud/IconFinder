@@ -2,6 +2,10 @@ export const enSettingsTranslations = {
   'settings.title': 'Settings',
   'settings.button.aria': 'Settings',
   'settings.general': 'General',
+  'settings.theme': 'Theme',
+  'settings.theme.light': 'Light',
+  'settings.theme.dark': 'Dark',
+  'settings.theme.system': 'System',
 
   'settings.defaultFolder': 'Default save folder',
   'settings.defaultFolder.placeholder': 'Not selected',

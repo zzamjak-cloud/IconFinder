@@ -2,6 +2,10 @@ export const zhCNSettingsTranslations = {
   'settings.title': '设置',
   'settings.button.aria': '设置',
   'settings.general': '常规',
+  'settings.theme': '主题',
+  'settings.theme.light': '浅色',
+  'settings.theme.dark': '深色',
+  'settings.theme.system': '跟随系统',
 
   'settings.defaultFolder': '默认保存文件夹',
   'settings.defaultFolder.placeholder': '未选择',

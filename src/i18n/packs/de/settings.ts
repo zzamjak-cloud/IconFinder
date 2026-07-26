@@ -2,6 +2,10 @@ export const deSettingsTranslations = {
   'settings.title': 'Einstellungen',
   'settings.button.aria': 'Einstellungen',
   'settings.general': 'Allgemein',
+  'settings.theme': 'Design',
+  'settings.theme.light': 'Hell',
+  'settings.theme.dark': 'Dunkel',
+  'settings.theme.system': 'System',
 
   'settings.defaultFolder': 'Standard-Speicherordner',
   'settings.defaultFolder.placeholder': 'Nicht ausgewählt',

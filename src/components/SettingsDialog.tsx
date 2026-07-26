@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem } from '@/components/ui/select';
+import { useTheme } from '@/hooks/useTheme';
+import type { ThemeSetting } from '@/services/storageService';
 import { useSettings } from '@/hooks/useSettings';
 import { ExportFormat } from '@/types/export';
 import { storageService, SettingsBackup } from '@/services/storageService';
@@ -28,6 +30,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
   const { settings, updateSettings, isUpdating } = useSettings();
   const { t, language, setLanguage } = useI18n();
+  const { theme, setTheme } = useTheme();
 
   // 로컬 상태
   const [defaultFolder, setDefaultFolder] = useState(settings.defaultFolder);
@@ -168,6 +171,18 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">{t('language.help')}</p>
+            </div>
+
+            {/* 테마 선택: 언어와 동일하게 선택 즉시 적용된다 */}
+            <div className="space-y-2">
+              <Label>{t('settings.theme')}</Label>
+              <Select value={theme} onValueChange={(v) => setTheme(v as ThemeSetting)}>
+                <SelectContent>
+                  <SelectItem value="light">{t('settings.theme.light')}</SelectItem>
+                  <SelectItem value="dark">{t('settings.theme.dark')}</SelectItem>
+                  <SelectItem value="system">{t('settings.theme.system')}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

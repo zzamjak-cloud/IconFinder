@@ -2,6 +2,10 @@ export const jaSettingsTranslations = {
   'settings.title': '設定',
   'settings.button.aria': '設定',
   'settings.general': '一般',
+  'settings.theme': 'テーマ',
+  'settings.theme.light': 'ライト',
+  'settings.theme.dark': 'ダーク',
+  'settings.theme.system': 'システム',
 
   'settings.defaultFolder': 'デフォルト保存フォルダ',
   'settings.defaultFolder.placeholder': '未選択',

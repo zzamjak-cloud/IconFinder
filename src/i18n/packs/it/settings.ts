@@ -2,6 +2,10 @@ export const itSettingsTranslations = {
   'settings.title': 'Impostazioni',
   'settings.button.aria': 'Impostazioni',
   'settings.general': 'Generali',
+  'settings.theme': 'Tema',
+  'settings.theme.light': 'Chiaro',
+  'settings.theme.dark': 'Scuro',
+  'settings.theme.system': 'Sistema',
 
   'settings.defaultFolder': 'Cartella di salvataggio predefinita',
   'settings.defaultFolder.placeholder': 'Non selezionata',
