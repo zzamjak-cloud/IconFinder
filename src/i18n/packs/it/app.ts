@@ -1,47 +1,16 @@
 export const itAppTranslations = {
-  'app.tab.search': 'Cerca',
-  'app.tab.search.title': 'Ricerca icone',
-  'app.tab.editor': 'Editor',
-  'app.tab.editor.title': 'Editor SVG',
-  'app.editorLoading': "Caricamento dell'editor...",
-  'app.favorites': 'Preferiti',
-  'app.favorites.showAll': 'Mostra tutte le icone',
-  'app.favorites.showOnly': 'Mostra solo i preferiti',
-  'app.batchExport': 'Esportazione multipla',
-  'app.batchExport.title': 'Esporta i preferiti in blocco',
-
-  // 아이콘 검색 결과 그리드 (IconGrid)
-  'search.placeholder': 'Cerca icone... (es. home, user, settings)',
   'search.clear': 'Cancella il termine di ricerca',
-  'search.searching': 'Ricerca icone in corso...',
-  'search.error.title': 'Si è verificato un errore durante la ricerca',
-  'search.minChars': 'Inserire almeno 2 caratteri',
-  'search.empty.inCollection': 'Nessun risultato per "{query}" nella raccolta selezionata',
-  'search.empty.all': 'Nessun risultato per "{query}"',
-  'search.empty.hint': 'Provare con un altro termine di ricerca',
-  'search.initial.title': 'Inizia a cercare le icone',
-  'search.initial.subtitle': 'Cerca tra più di 275.000 icone open source',
-  'search.initial.example': 'Esempi: home, user, settings, arrow, check',
-  'search.initial.orPick': 'Oppure scegli un set di icone dalle categorie qui sopra',
-  'search.count.favorites': '{count} preferiti',
-  'search.count.collection': 'Raccolta selezionata: {count} icone',
-  'search.count.results': 'Visualizzati {shown} di {total} risultati',
 
-  // 컬렉션 드롭다운 (CategoryDropdown)
+  // 검색 스코프 피커(컬렉션 드롭다운)
   'collection.label': 'Categoria',
   'collection.viewAll': 'Vedi tutto',
   'collection.allSets': 'Tutti i set di icone',
   'collection.iconCount': '{prefix} • {count} icone',
   'workspace.scope.collection': 'Collezioni…',
 
-  // 아이콘 카드 · 즐겨찾기 패널
+  // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': 'Caricamento non riuscito',
   'favorites.add': 'Aggiungi ai preferiti',
   'favorites.remove': 'Rimuovi dai preferiti',
   'favorites.title': 'Preferiti',
-  'favorites.gridEmpty': 'Non hai ancora preferiti',
-  'favorites.gridEmptyHint': 'Fai clic sulla stella di una scheda icona per aggiungerla ai preferiti',
-  'favorites.panelEmpty': 'Nessuna icona preferita',
-  'favorites.panelEmptyHint': "Fai clic sulla stella di un'icona per aggiungerla",
-  'favorites.total': '{count} preferiti in totale',
 } as const;

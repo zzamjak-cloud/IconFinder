@@ -1,47 +1,16 @@
 export const zhCNAppTranslations = {
-  'app.tab.search': '搜索',
-  'app.tab.search.title': '图标搜索',
-  'app.tab.editor': '编辑器',
-  'app.tab.editor.title': 'SVG 编辑器',
-  'app.editorLoading': '正在加载编辑器...',
-  'app.favorites': '收藏',
-  'app.favorites.showAll': '显示全部图标',
-  'app.favorites.showOnly': '仅显示收藏',
-  'app.batchExport': '批量导出',
-  'app.batchExport.title': '批量导出收藏图标',
-
-  // 아이콘 검색 결과 그리드 (IconGrid)
-  'search.placeholder': '搜索图标...（例如 home、user、settings）',
   'search.clear': '清除搜索词',
-  'search.searching': '正在搜索图标...',
-  'search.error.title': '搜索时发生错误',
-  'search.minChars': '请至少输入 2 个字符',
-  'search.empty.inCollection': '在所选图标集中找不到“{query}”的结果',
-  'search.empty.all': '找不到“{query}”的结果',
-  'search.empty.hint': '请尝试其他搜索词',
-  'search.initial.title': '开始搜索图标',
-  'search.initial.subtitle': '可搜索 275,000 多个开源图标',
-  'search.initial.example': '示例：home, user, settings, arrow, check',
-  'search.initial.orPick': '也可以从上方分类中选择图标集',
-  'search.count.favorites': '{count} 个收藏',
-  'search.count.collection': '所选图标集：{count} 个图标',
-  'search.count.results': '共 {total} 个结果，已显示 {shown} 个',
 
-  // 컬렉션 드롭다운 (CategoryDropdown)
+  // 검색 스코프 피커(컬렉션 드롭다운)
   'collection.label': '分类',
   'collection.viewAll': '查看全部',
   'collection.allSets': '所有图标集',
   'collection.iconCount': '{prefix} • {count} 个图标',
   'workspace.scope.collection': '图标集…',
 
-  // 아이콘 카드 · 즐겨찾기 패널
+  // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': '加载失败',
   'favorites.add': '添加到收藏',
   'favorites.remove': '从收藏中移除',
   'favorites.title': '收藏',
-  'favorites.gridEmpty': '还没有收藏的图标',
-  'favorites.gridEmptyHint': '点击图标卡片上的星标即可添加到收藏',
-  'favorites.panelEmpty': '暂无收藏图标',
-  'favorites.panelEmptyHint': '点击图标上的星标即可添加',
-  'favorites.total': '共 {count} 个收藏',
 } as const;

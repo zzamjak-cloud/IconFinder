@@ -1,47 +1,16 @@
 export const ruAppTranslations = {
-  'app.tab.search': 'Поиск',
-  'app.tab.search.title': 'Поиск иконок',
-  'app.tab.editor': 'Редактор',
-  'app.tab.editor.title': 'Редактор SVG',
-  'app.editorLoading': 'Загрузка редактора...',
-  'app.favorites': 'Избранное',
-  'app.favorites.showAll': 'Показать все иконки',
-  'app.favorites.showOnly': 'Показать только избранное',
-  'app.batchExport': 'Пакетный экспорт',
-  'app.batchExport.title': 'Пакетный экспорт избранного',
-
-  // 아이콘 검색 결과 그리드 (IconGrid)
-  'search.placeholder': 'Поиск иконок... (например, home, user, settings)',
   'search.clear': 'Очистить поисковый запрос',
-  'search.searching': 'Поиск иконок...',
-  'search.error.title': 'При поиске произошла ошибка',
-  'search.minChars': 'Введите не менее 2 символов',
-  'search.empty.inCollection': 'В выбранной коллекции нет результатов по запросу «{query}»',
-  'search.empty.all': 'Нет результатов по запросу «{query}»',
-  'search.empty.hint': 'Попробуйте другой запрос',
-  'search.initial.title': 'Начните поиск иконок',
-  'search.initial.subtitle': 'Более 275 000 иконок с открытым исходным кодом',
-  'search.initial.example': 'Примеры: home, user, settings, arrow, check',
-  'search.initial.orPick': 'Либо выберите набор иконок в категориях выше',
-  'search.count.favorites': 'Избранное: {count}',
-  'search.count.collection': 'Выбранная коллекция · иконок: {count}',
-  'search.count.results': 'Показано: {shown} из {total}',
 
-  // 컬렉션 드롭다운 (CategoryDropdown)
+  // 검색 스코프 피커(컬렉션 드롭다운)
   'collection.label': 'Категория',
   'collection.viewAll': 'Показать все',
   'collection.allSets': 'Все наборы иконок',
   'collection.iconCount': '{prefix} • иконок: {count}',
   'workspace.scope.collection': 'Коллекции…',
 
-  // 아이콘 카드 · 즐겨찾기 패널
+  // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': 'Не удалось загрузить',
   'favorites.add': 'Добавить в избранное',
   'favorites.remove': 'Удалить из избранного',
   'favorites.title': 'Избранное',
-  'favorites.gridEmpty': 'В избранном пока ничего нет',
-  'favorites.gridEmptyHint': 'Нажмите звёздочку на карточке иконки, чтобы добавить её в избранное',
-  'favorites.panelEmpty': 'Избранных иконок пока нет',
-  'favorites.panelEmptyHint': 'Нажмите звёздочку на иконке, чтобы добавить её',
-  'favorites.total': 'Всего в избранном: {count}',
 } as const;

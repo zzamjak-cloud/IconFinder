@@ -112,54 +112,6 @@ export class StorageService {
   }
 
   /**
-   * 즐겨찾기 목록 가져오기
-   * @deprecated 즐겨찾기는 보관함 아이콘의 favorite 플래그로 일원화되었다.
-   *   useFavorites 훅이 제거되는 Phase 2/3에서 함께 삭제한다.
-   */
-  async getFavorites(): Promise<string[]> {
-    const store = await this.getStore();
-    return (await store.get<string[]>('favorites')) || [];
-  }
-
-  /**
-   * 즐겨찾기 목록 저장
-   * @deprecated getFavorites 참고.
-   */
-  async saveFavorites(favorites: string[]): Promise<void> {
-    const store = await this.getStore();
-    await store.set('favorites', favorites);
-    await store.save();
-  }
-
-  /**
-   * 즐겨찾기 추가
-   * @deprecated getFavorites 참고.
-   */
-  async addFavorite(iconName: string): Promise<void> {
-    console.log('Adding favorite:', iconName);
-    const favorites = await this.getFavorites();
-    if (!favorites.includes(iconName)) {
-      const newFavorites = [...favorites, iconName];
-      await this.saveFavorites(newFavorites);
-      console.log('Favorite added successfully. Total favorites:', newFavorites.length);
-    } else {
-      console.log('Icon already in favorites');
-    }
-  }
-
-  /**
-   * 즐겨찾기 제거
-   * @deprecated getFavorites 참고.
-   */
-  async removeFavorite(iconName: string): Promise<void> {
-    console.log('Removing favorite:', iconName);
-    const favorites = await this.getFavorites();
-    const newFavorites = favorites.filter(f => f !== iconName);
-    await this.saveFavorites(newFavorites);
-    console.log('Favorite removed successfully. Total favorites:', newFavorites.length);
-  }
-
-  /**
    * 최근 검색어 가져오기
    */
   async getRecentSearches(): Promise<string[]> {

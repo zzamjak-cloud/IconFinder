@@ -29,16 +29,6 @@ export interface SearchSvgIconNamesOptions {
   stylePreset: SvgIconStylePreset;
   scope?: SvgIconSearchScope;
   poolLimit?: number;
-  /** @deprecated Phase 2에서 제거. scope를 사용할 것. 기존 다중 소스팩 선택 UI 호환용. */
-  sourcePackIds?: SvgIconSourcePackId[];
-}
-
-export interface SearchSvgIconsOptions {
-  limit: number;
-  stylePreset: SvgIconStylePreset;
-  scope?: SvgIconSearchScope;
-  /** @deprecated Phase 2에서 제거. scope를 사용할 것. */
-  sourcePackIds?: SvgIconSourcePackId[];
 }
 
 // Iconify /search 호출 1건의 범위 파라미터. prefixes(복수) 또는 prefix(단일 컬렉션).
@@ -201,14 +191,9 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
-function getSelectedSourcePacks(sourcePackIds: SvgIconSourcePackId[]): SvgIconSourcePack[] {
-  const selectedIds = sourcePackIds.length > 0 ? sourcePackIds : ['game', 'ui', 'pixel'];
-  return SVG_ICON_SOURCE_PACKS.filter((pack) => selectedIds.includes(pack.id));
-}
-
 /**
  * 검색 범위를 Iconify /search 호출 그룹 목록으로 변환한다.
- * 그룹 1개당 (확장 검색어 × 1)회 호출하므로, 호출량은 기존 소스팩 방식과 동일한 규칙을 따른다.
+ * 그룹 1개당 (확장 검색어 × 1)회 호출한다.
  */
 function resolveScopeGroups(scope: SvgIconSearchScope): IconifySearchScopeGroup[] {
   if (scope.type === 'collection') {
@@ -221,16 +206,9 @@ function resolveScopeGroups(scope: SvgIconSearchScope): IconifySearchScopeGroup[
   return [{ prefixes: undefined }];
 }
 
-// scope 우선, 없으면 레거시 sourcePackIds(다중 선택)를 그룹으로 변환한다.
-function resolveSearchGroups(options: {
-  scope?: SvgIconSearchScope;
-  sourcePackIds?: SvgIconSourcePackId[];
-}): IconifySearchScopeGroup[] {
-  if (options.scope) return resolveScopeGroups(options.scope);
-  if (options.sourcePackIds) {
-    return getSelectedSourcePacks(options.sourcePackIds).map((pack) => ({ prefixes: pack.prefixes }));
-  }
-  return resolveScopeGroups(DEFAULT_SVG_ICON_SEARCH_SCOPE);
+// scope가 없으면 기본 스코프(전체)를 사용한다.
+function resolveSearchGroups(options: { scope?: SvgIconSearchScope }): IconifySearchScopeGroup[] {
+  return resolveScopeGroups(options.scope ?? DEFAULT_SVG_ICON_SEARCH_SCOPE);
 }
 
 // "prefix:name" 형태의 Iconify 전체 이름을 분해한다. 형식이 아니면 null.
@@ -302,28 +280,4 @@ export async function searchSvgIconNames(
 export async function fetchSvgIconsByNames(names: string[]): Promise<SvgIconSearchResult[]> {
   const fetched = await mapWithConcurrency(names, ICONIFY_FETCH_CONCURRENCY, fetchIconSvg);
   return fetched.filter((item): item is SvgIconSearchResult => Boolean(item));
-}
-
-export async function searchSvgIcons(
-  query: string,
-  options: SearchSvgIconsOptions
-): Promise<SvgIconSearchResult[]> {
-  const terms = expandSvgIconSearchQuery(query);
-  const groups = resolveSearchGroups(options);
-  const perSearchLimit = Math.max(16, Math.ceil(options.limit / Math.max(groups.length, 1)));
-  const rawIconNames = (
-    await Promise.all(
-      groups.flatMap((group) => terms.map((term) => fetchIconifySearch(term, perSearchLimit, group)))
-    )
-  ).flat();
-
-  const sortedIconNames = interleaveByCollection(rawIconNames, options.stylePreset);
-
-  const fetched = await mapWithConcurrency(
-    sortedIconNames.slice(0, options.limit * 2),
-    ICONIFY_FETCH_CONCURRENCY,
-    fetchIconSvg
-  );
-
-  return fetched.filter((item): item is SvgIconSearchResult => Boolean(item)).slice(0, options.limit);
 }

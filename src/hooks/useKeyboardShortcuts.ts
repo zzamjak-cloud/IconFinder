@@ -31,8 +31,10 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}) {
         if (options.onSearch) {
           options.onSearch();
         } else {
-          // 기본 동작: 검색 입력 필드 포커스
-          const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+          // 기본 동작: 워크스페이스 검색 입력에 포커스(없으면 첫 텍스트 입력으로 폴백)
+          const searchInput =
+            (document.getElementById(WORKSPACE_SEARCH_INPUT_ID) as HTMLInputElement | null) ??
+            (document.querySelector('input[type="text"]') as HTMLInputElement | null);
           if (searchInput) {
             searchInput.focus();
             searchInput.select();
