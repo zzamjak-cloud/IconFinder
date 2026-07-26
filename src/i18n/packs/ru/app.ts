@@ -32,6 +32,7 @@ export const ruAppTranslations = {
   'collection.viewAll': 'Показать все',
   'collection.allSets': 'Все наборы иконок',
   'collection.iconCount': '{prefix} • иконок: {count}',
+  'workspace.scope.collection': 'Коллекции…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': 'Не удалось загрузить',

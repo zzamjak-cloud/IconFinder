@@ -1,5 +1,6 @@
 export const ptExportTranslations = {
   'export.title': 'Exportar ícone',
+  'export.quick': 'Exportação rápida',
   'export.format': 'Formato',
   'export.size': 'Tamanho (pixels)',
   'export.color': 'Cor',
@@ -25,6 +26,8 @@ export const ptExportTranslations = {
   'batch.partial': '{success} com sucesso, {failed} com falha',
   'batch.errorList': 'Ícones com falha:',
   'batch.start': 'Iniciar exportação',
+  'batch.exportSelected': 'Exportar selecionados ({count})',
+  'batch.exportCategory': 'Exportar categoria',
   'batch.error.noIcons': 'Não há ícones para exportar',
   'batch.error.noFolder': 'Escolha primeiro uma pasta de salvamento padrão nas Configurações',
 } as const;

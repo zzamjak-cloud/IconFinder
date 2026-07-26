@@ -1,5 +1,6 @@
 export const zhTWExportTranslations = {
   'export.title': '匯出圖示',
+  'export.quick': '快速匯出',
   'export.format': '格式',
   'export.size': '尺寸（像素）',
   'export.color': '顏色',
@@ -25,6 +26,8 @@ export const zhTWExportTranslations = {
   'batch.partial': '成功 {success} 個，失敗 {failed} 個',
   'batch.errorList': '失敗的圖示：',
   'batch.start': '開始匯出',
+  'batch.exportSelected': '匯出選取的 {count} 個',
+  'batch.exportCategory': '匯出分類',
   'batch.error.noIcons': '沒有可匯出的圖示',
   'batch.error.noFolder': '請先在設定中選擇預設儲存資料夾',
 } as const;

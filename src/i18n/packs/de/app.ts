@@ -32,6 +32,7 @@ export const deAppTranslations = {
   'collection.viewAll': 'Alle anzeigen',
   'collection.allSets': 'Alle Icon-Sätze',
   'collection.iconCount': '{prefix} • {count} Icons',
+  'workspace.scope.collection': 'Sammlungen…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': 'Laden fehlgeschlagen',

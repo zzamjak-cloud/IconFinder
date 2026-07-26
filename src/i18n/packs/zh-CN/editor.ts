@@ -1,6 +1,6 @@
 export const zhCNEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'SVG 图标库',
+  'editor.vault.title': '素材库',
   'editor.category.new': '新建分类',
   'editor.category.delete': '删除分类',
   'editor.category.deleteConfirm': '再次点击即删除',
@@ -174,4 +174,6 @@ export const zhCNEditorTranslations = {
   'categoryTemplate.tool.desc': '锤子、镐、扳手、制作',
   'categoryTemplate.exploration.name': '探索与地图',
   'categoryTemplate.exploration.desc': '地图、指南针、旗帜、位置',
+  'categoryTemplate.uncategorized.name': '未分类',
+  'categoryTemplate.uncategorized.desc': '从搜索结果中快速保存的图标',
 } as const;

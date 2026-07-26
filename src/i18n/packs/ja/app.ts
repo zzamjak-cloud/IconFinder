@@ -32,6 +32,7 @@ export const jaAppTranslations = {
   'collection.viewAll': 'すべて表示',
   'collection.allSets': 'すべてのアイコンセット',
   'collection.iconCount': '{prefix} • {count}件のアイコン',
+  'workspace.scope.collection': 'コレクション…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': '読み込み失敗',

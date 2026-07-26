@@ -1,6 +1,6 @@
 export const jaEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'SVG アイコン保管庫',
+  'editor.vault.title': 'ライブラリ',
   'editor.category.new': '新規カテゴリ',
   'editor.category.delete': 'カテゴリを削除',
   'editor.category.deleteConfirm': 'もう一度押すと削除',
@@ -174,4 +174,6 @@ export const jaEditorTranslations = {
   'categoryTemplate.tool.desc': 'ハンマー・ツルハシ・レンチ・クラフト',
   'categoryTemplate.exploration.name': '探索・マップ',
   'categoryTemplate.exploration.desc': 'マップ・コンパス・旗・位置',
+  'categoryTemplate.uncategorized.name': '未分類',
+  'categoryTemplate.uncategorized.desc': '検索結果からすばやく保存したアイコン',
 } as const;

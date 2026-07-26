@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
 
+/**
+ * 워크스페이스 검색 입력의 DOM id.
+ * v1.0.0에서 헤더 SearchBar가 사라졌으므로 Cmd/Ctrl+K는 이 입력을 직접 찾는다.
+ */
+export const WORKSPACE_SEARCH_INPUT_ID = 'workspace-search-input';
+
 interface KeyboardShortcutsOptions {
   onSearch?: () => void;          // Cmd/Ctrl + K
   onQuickExport?: () => void;     // Cmd/Ctrl + S

@@ -1,5 +1,6 @@
 export const jaExportTranslations = {
   'export.title': 'アイコンをエクスポート',
+  'export.quick': 'クイックエクスポート',
   'export.format': '形式',
   'export.size': 'サイズ (ピクセル)',
   'export.color': 'カラー',
@@ -25,6 +26,8 @@ export const jaExportTranslations = {
   'batch.partial': '成功 {success}件・失敗 {failed}件',
   'batch.errorList': '失敗したアイコン:',
   'batch.start': 'エクスポート開始',
+  'batch.exportSelected': '選択した{count}件をエクスポート',
+  'batch.exportCategory': 'カテゴリをエクスポート',
   'batch.error.noIcons': 'エクスポートするアイコンがありません',
   'batch.error.noFolder': '先に設定でデフォルト保存フォルダを選択してください',
 } as const;

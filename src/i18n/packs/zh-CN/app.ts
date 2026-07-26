@@ -32,6 +32,7 @@ export const zhCNAppTranslations = {
   'collection.viewAll': '查看全部',
   'collection.allSets': '所有图标集',
   'collection.iconCount': '{prefix} • {count} 个图标',
+  'workspace.scope.collection': '图标集…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': '加载失败',

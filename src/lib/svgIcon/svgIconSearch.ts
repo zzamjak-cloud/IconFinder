@@ -6,17 +6,46 @@ interface IconifySearchResponse {
   icons?: string[];
 }
 
-interface SearchSvgIconsOptions {
-  limit: number;
-  stylePreset: SvgIconStylePreset;
-  sourcePackIds: SvgIconSourcePackId[];
-}
-
 const ICONIFY_API_BASE = 'https://api.iconify.design';
 const ICONIFY_PAGE_BASE = 'https://icon-sets.iconify.design';
 const ICONIFY_FETCH_CONCURRENCY = 8;
 
 export type SvgIconSourcePackId = 'all' | 'game' | 'ui' | 'pixel' | 'material' | 'emoji';
+
+/**
+ * 검색 범위. 앱 전체가 이 한 가지 검색 경로를 쓴다.
+ * - all: 전체 Iconify (prefix 제한 없음)
+ * - pack: 큐레이션 소스팩 1종 (prefix 묶음)
+ * - collection: 임의의 Iconify 컬렉션 1개
+ */
+export type SvgIconSearchScope =
+  | { type: 'all' }
+  | { type: 'pack'; packId: SvgIconSourcePackId }
+  | { type: 'collection'; prefix: string };
+
+export const DEFAULT_SVG_ICON_SEARCH_SCOPE: SvgIconSearchScope = { type: 'all' };
+
+export interface SearchSvgIconNamesOptions {
+  stylePreset: SvgIconStylePreset;
+  scope?: SvgIconSearchScope;
+  poolLimit?: number;
+  /** @deprecated Phase 2에서 제거. scope를 사용할 것. 기존 다중 소스팩 선택 UI 호환용. */
+  sourcePackIds?: SvgIconSourcePackId[];
+}
+
+export interface SearchSvgIconsOptions {
+  limit: number;
+  stylePreset: SvgIconStylePreset;
+  scope?: SvgIconSearchScope;
+  /** @deprecated Phase 2에서 제거. scope를 사용할 것. */
+  sourcePackIds?: SvgIconSourcePackId[];
+}
+
+// Iconify /search 호출 1건의 범위 파라미터. prefixes(복수) 또는 prefix(단일 컬렉션).
+interface IconifySearchScopeGroup {
+  prefixes?: string[];
+  prefix?: string;
+}
 
 export interface SvgIconSourcePack {
   id: SvgIconSourcePackId;
@@ -101,10 +130,16 @@ function collectionPriority(prefix: string, stylePreset: SvgIconStylePreset): nu
   return index === -1 ? 99 : index;
 }
 
-async function fetchIconifySearch(term: string, limit: number, prefixes?: string[]): Promise<string[]> {
+async function fetchIconifySearch(
+  term: string,
+  limit: number,
+  group: IconifySearchScopeGroup
+): Promise<string[]> {
   const params = new URLSearchParams({ query: term, limit: String(limit) });
-  if (prefixes && prefixes.length > 0) {
-    params.set('prefixes', prefixes.join(','));
+  if (group.prefix) {
+    params.set('prefix', group.prefix);
+  } else if (group.prefixes && group.prefixes.length > 0) {
+    params.set('prefixes', group.prefixes.join(','));
   }
   const response = await fetch(`${ICONIFY_API_BASE}/search?${params.toString()}`);
   if (!response.ok) return [];
@@ -171,6 +206,54 @@ function getSelectedSourcePacks(sourcePackIds: SvgIconSourcePackId[]): SvgIconSo
   return SVG_ICON_SOURCE_PACKS.filter((pack) => selectedIds.includes(pack.id));
 }
 
+/**
+ * 검색 범위를 Iconify /search 호출 그룹 목록으로 변환한다.
+ * 그룹 1개당 (확장 검색어 × 1)회 호출하므로, 호출량은 기존 소스팩 방식과 동일한 규칙을 따른다.
+ */
+function resolveScopeGroups(scope: SvgIconSearchScope): IconifySearchScopeGroup[] {
+  if (scope.type === 'collection') {
+    return [{ prefix: scope.prefix }];
+  }
+  if (scope.type === 'pack') {
+    const pack = SVG_ICON_SOURCE_PACKS.find((item) => item.id === scope.packId);
+    return [{ prefixes: pack?.prefixes }];
+  }
+  return [{ prefixes: undefined }];
+}
+
+// scope 우선, 없으면 레거시 sourcePackIds(다중 선택)를 그룹으로 변환한다.
+function resolveSearchGroups(options: {
+  scope?: SvgIconSearchScope;
+  sourcePackIds?: SvgIconSourcePackId[];
+}): IconifySearchScopeGroup[] {
+  if (options.scope) return resolveScopeGroups(options.scope);
+  if (options.sourcePackIds) {
+    return getSelectedSourcePacks(options.sourcePackIds).map((pack) => ({ prefixes: pack.prefixes }));
+  }
+  return resolveScopeGroups(DEFAULT_SVG_ICON_SEARCH_SCOPE);
+}
+
+// "prefix:name" 형태의 Iconify 전체 이름을 분해한다. 형식이 아니면 null.
+export function parseIconifyIconName(iconName: string): { prefix: string; name: string } | null {
+  return parseIconName(iconName);
+}
+
+// 아이콘 원본 페이지(Iconify) 주소. sourceId가 "prefix:name" 형식일 때만 반환.
+export function buildIconifyPageUrl(sourceId: string): string | undefined {
+  const parsed = parseIconName(sourceId);
+  return parsed ? `${ICONIFY_PAGE_BASE}/${parsed.prefix}/${parsed.name}/` : undefined;
+}
+
+// 컬렉션 prefix의 표시 이름(모르는 컬렉션은 prefix 그대로).
+export function getIconifyCollectionLabel(prefix: string): string {
+  return COLLECTION_LABELS[prefix] ?? prefix;
+}
+
+// 컬렉션 prefix의 라이선스 표기(모르면 undefined).
+export function getIconifyCollectionLicense(prefix: string): string | undefined {
+  return COLLECTION_LICENSES[prefix];
+}
+
 function interleaveByCollection(iconNames: string[], stylePreset: SvgIconStylePreset): string[] {
   const buckets = new Map<string, string[]>();
   for (const iconName of unique(iconNames)) {
@@ -201,15 +284,15 @@ function interleaveByCollection(iconNames: string[], stylePreset: SvgIconStylePr
 // 아이콘 "이름" 풀만 조회한다(SVG는 받지 않음 → 가볍다). 페이지네이션용.
 export async function searchSvgIconNames(
   query: string,
-  options: { stylePreset: SvgIconStylePreset; sourcePackIds: SvgIconSourcePackId[]; poolLimit?: number }
+  options: SearchSvgIconNamesOptions
 ): Promise<string[]> {
   const poolLimit = options.poolLimit ?? 400;
   const terms = expandSvgIconSearchQuery(query);
-  const sourcePacks = getSelectedSourcePacks(options.sourcePackIds);
-  const perSearchLimit = Math.max(32, Math.ceil(poolLimit / Math.max(sourcePacks.length, 1)));
+  const groups = resolveSearchGroups(options);
+  const perSearchLimit = Math.max(32, Math.ceil(poolLimit / Math.max(groups.length, 1)));
   const rawIconNames = (
     await Promise.all(
-      sourcePacks.flatMap((pack) => terms.map((term) => fetchIconifySearch(term, perSearchLimit, pack.prefixes)))
+      groups.flatMap((group) => terms.map((term) => fetchIconifySearch(term, perSearchLimit, group)))
     )
   ).flat();
   return interleaveByCollection(rawIconNames, options.stylePreset).slice(0, poolLimit);
@@ -226,13 +309,11 @@ export async function searchSvgIcons(
   options: SearchSvgIconsOptions
 ): Promise<SvgIconSearchResult[]> {
   const terms = expandSvgIconSearchQuery(query);
-  const sourcePacks = getSelectedSourcePacks(options.sourcePackIds);
-  const perSearchLimit = Math.max(16, Math.ceil(options.limit / Math.max(sourcePacks.length, 1)));
+  const groups = resolveSearchGroups(options);
+  const perSearchLimit = Math.max(16, Math.ceil(options.limit / Math.max(groups.length, 1)));
   const rawIconNames = (
     await Promise.all(
-      sourcePacks.flatMap((pack) =>
-        terms.map((term) => fetchIconifySearch(term, perSearchLimit, pack.prefixes))
-      )
+      groups.flatMap((group) => terms.map((term) => fetchIconifySearch(term, perSearchLimit, group)))
     )
   ).flat();
 

@@ -1,5 +1,6 @@
 export const enExportTranslations = {
   'export.title': 'Export icon',
+  'export.quick': 'Quick export',
   'export.format': 'Format',
   'export.size': 'Size (pixels)',
   'export.color': 'Color',
@@ -25,6 +26,8 @@ export const enExportTranslations = {
   'batch.partial': '{success} succeeded, {failed} failed',
   'batch.errorList': 'Failed icons:',
   'batch.start': 'Start export',
+  'batch.exportSelected': 'Export {count} selected',
+  'batch.exportCategory': 'Export category',
   'batch.error.noIcons': 'There are no icons to export',
   'batch.error.noFolder': 'Please choose a default save folder in Settings first',
 } as const;

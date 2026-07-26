@@ -1,5 +1,6 @@
 export const ruExportTranslations = {
   'export.title': 'Экспорт иконки',
+  'export.quick': 'Быстрый экспорт',
   'export.format': 'Формат',
   'export.size': 'Размер (пиксели)',
   'export.color': 'Цвет',
@@ -25,6 +26,8 @@ export const ruExportTranslations = {
   'batch.partial': 'Успешно: {success} · С ошибкой: {failed}',
   'batch.errorList': 'Иконки с ошибкой:',
   'batch.start': 'Начать экспорт',
+  'batch.exportSelected': 'Экспортировать выбранные ({count})',
+  'batch.exportCategory': 'Экспортировать категорию',
   'batch.error.noIcons': 'Нет иконок для экспорта',
   'batch.error.noFolder': 'Сначала выберите папку сохранения по умолчанию в настройках',
 } as const;

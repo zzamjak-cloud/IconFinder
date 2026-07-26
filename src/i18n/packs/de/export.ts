@@ -1,5 +1,6 @@
 export const deExportTranslations = {
   'export.title': 'Icon exportieren',
+  'export.quick': 'Schnellexport',
   'export.format': 'Format',
   'export.size': 'Größe (Pixel)',
   'export.color': 'Farbe',
@@ -26,6 +27,8 @@ export const deExportTranslations = {
   'batch.partial': '{success} erfolgreich, {failed} fehlgeschlagen',
   'batch.errorList': 'Fehlgeschlagene Icons:',
   'batch.start': 'Export starten',
+  'batch.exportSelected': 'Auswahl exportieren ({count})',
+  'batch.exportCategory': 'Kategorie exportieren',
   'batch.error.noIcons': 'Es gibt keine Icons zum Exportieren',
   'batch.error.noFolder':
     'Bitte wählen Sie zuerst in den Einstellungen einen Standard-Speicherordner aus',

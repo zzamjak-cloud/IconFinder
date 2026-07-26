@@ -32,6 +32,7 @@ export const ptAppTranslations = {
   'collection.viewAll': 'Ver tudo',
   'collection.allSets': 'Todos os conjuntos de ícones',
   'collection.iconCount': '{prefix} • {count} ícones',
+  'workspace.scope.collection': 'Coleções…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': 'Falha ao carregar',

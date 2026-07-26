@@ -1,5 +1,6 @@
 export const koExportTranslations = {
   'export.title': '아이콘 내보내기',
+  'export.quick': '퀵 내보내기',
   'export.format': '포맷',
   'export.size': '크기 (픽셀)',
   'export.color': '색상',
@@ -25,6 +26,8 @@ export const koExportTranslations = {
   'batch.partial': '{success}개 완료, {failed}개 실패',
   'batch.errorList': '실패한 아이콘:',
   'batch.start': '내보내기 시작',
+  'batch.exportSelected': '선택 {count}개 내보내기',
+  'batch.exportCategory': '카테고리 내보내기',
   'batch.error.noIcons': '내보낼 아이콘이 없습니다',
   'batch.error.noFolder': '먼저 설정에서 기본 저장 폴더를 지정해주세요',
 } as const;

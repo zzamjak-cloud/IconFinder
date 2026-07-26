@@ -1,6 +1,6 @@
 export const itEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'Archivio icone SVG',
+  'editor.vault.title': 'Libreria',
   'editor.category.new': 'Nuova categoria',
   'editor.category.delete': 'Elimina categoria',
   'editor.category.deleteConfirm': 'Premere di nuovo per eliminare',
@@ -174,4 +174,6 @@ export const itEditorTranslations = {
   'categoryTemplate.tool.desc': 'Martello, piccone, chiave inglese, crafting',
   'categoryTemplate.exploration.name': 'Esplorazione e mappe',
   'categoryTemplate.exploration.desc': 'Mappa, bussola, bandiera, posizione',
+  'categoryTemplate.uncategorized.name': 'Senza categoria',
+  'categoryTemplate.uncategorized.desc': 'Icone salvate rapidamente dai risultati di ricerca',
 } as const;

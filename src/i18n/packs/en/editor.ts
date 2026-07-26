@@ -1,6 +1,6 @@
 export const enEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'SVG icon vault',
+  'editor.vault.title': 'Library',
   'editor.category.new': 'New category',
   'editor.category.delete': 'Delete category',
   'editor.category.deleteConfirm': 'Press again to delete',
@@ -174,4 +174,7 @@ export const enEditorTranslations = {
   'categoryTemplate.tool.desc': 'Hammer, pickaxe, wrench, crafting',
   'categoryTemplate.exploration.name': 'Exploration & Maps',
   'categoryTemplate.exploration.desc': 'Map, compass, flag, location',
+  // 예약 카테고리: 검색 결과에서 별(★)로 빠르게 담은 아이콘의 기본 목적지
+  'categoryTemplate.uncategorized.name': 'Uncategorized',
+  'categoryTemplate.uncategorized.desc': 'Icons saved quickly from search results',
 } as const;

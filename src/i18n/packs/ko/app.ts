@@ -30,6 +30,7 @@ export const koAppTranslations = {
   'collection.viewAll': '전체 보기',
   'collection.allSets': '모든 아이콘 세트',
   'collection.iconCount': '{prefix} • {count} 아이콘',
+  'workspace.scope.collection': '컬렉션…',
 
   'icon.loadFailed': '로드 실패',
   'favorites.add': '즐겨찾기 추가',

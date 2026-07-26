@@ -1,5 +1,5 @@
 export const koEditorTranslations = {
-  'editor.vault.title': 'SVG 아이콘 금고',
+  'editor.vault.title': '보관함',
   'editor.category.new': '새 카테고리',
   'editor.category.delete': '카테고리 삭제',
   'editor.category.deleteConfirm': '한 번 더 누르면 삭제',
@@ -163,4 +163,6 @@ export const koEditorTranslations = {
   'categoryTemplate.tool.desc': '망치, 곡괭이, 렌치, 제작',
   'categoryTemplate.exploration.name': '탐험/지도',
   'categoryTemplate.exploration.desc': '지도, 나침반, 깃발, 위치',
+  'categoryTemplate.uncategorized.name': '미분류',
+  'categoryTemplate.uncategorized.desc': '검색 결과에서 빠르게 담은 아이콘',
 } as const;

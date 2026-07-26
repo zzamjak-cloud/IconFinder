@@ -1,23 +1,97 @@
 import { Store } from '@tauri-apps/plugin-store';
 import { invoke } from '@tauri-apps/api/core';
 import { ExportSettings } from '@/types/export';
-import { SvgWorkspaceData } from '@/types/svgIcon';
+import { SvgGameIcon, SvgWorkspaceData } from '@/types/svgIcon';
 import { isSupportedLanguage, type AppLanguage } from '@/i18n/languageOptions';
 import { i18nError } from '@/i18n/errorMessage';
+import {
+  createDefaultSvgWorkspaceData,
+  createSvgIconId,
+  ensureUncategorizedCategory,
+} from '@/lib/svgIcon/svgIconDefaults';
+import {
+  buildIconifyPageUrl,
+  getIconifyCollectionLabel,
+  getIconifyCollectionLicense,
+  parseIconifyIconName,
+} from '@/lib/svgIcon/svgIconSearch';
 
-// 백업 파일 포맷 버전 (향후 마이그레이션 대비)
-export const SETTINGS_BACKUP_VERSION = 1;
+// 백업 파일 포맷 버전
+// v1: data.favorites(이름 배열)를 별도로 보관하던 IconMaker 포맷
+// v2: 즐겨찾기가 보관함 아이콘의 favorite 플래그로 흡수되어 favorites 키가 사라짐
+export const SETTINGS_BACKUP_VERSION = 2;
 
-// 전체 설정 백업 구조
+// 전체 설정 백업 구조 (읽기는 v1/v2 모두 허용, 쓰기는 항상 v2)
 export interface SettingsBackup {
   version: number;
   exportedAt: string;
   data: {
-    favorites: string[];
     recentSearches: string[];
     exportSettings: ExportSettings;
     svgWorkspace: SvgWorkspaceData | null;
     language?: AppLanguage;
+    /** @deprecated v1 백업에만 존재. 가져오기 시 보관함 라이트 항목으로 변환된다. */
+    favorites?: string[];
+  };
+}
+
+/**
+ * v1 백업의 즐겨찾기(아이콘 이름 배열)를 보관함 라이트 항목으로 변환한다.
+ * - 저장 위치는 "미분류" 카테고리, favorite 플래그 on.
+ * - svg는 ''(라이트 항목) — 최초 표시 시 sourceId로 받아와 채운다.
+ * - 워크스페이스 어디에든 같은 sourceId가 이미 있으면 건너뛴다.
+ * - 옮길 항목이 없으면 입력 참조를 그대로 반환한다.
+ */
+function convertLegacyFavorites(
+  workspace: SvgWorkspaceData | null,
+  favorites: string[]
+): SvgWorkspaceData | null {
+  const names = Array.from(new Set(favorites.filter((name) => typeof name === 'string' && name.trim())));
+  if (names.length === 0) return workspace;
+
+  const base = workspace ?? createDefaultSvgWorkspaceData();
+  const existingSourceIds = new Set(
+    base.icons.map((icon) => icon.sourceId).filter((id): id is string => Boolean(id))
+  );
+  const pending = names.filter((name) => !existingSourceIds.has(name));
+  if (pending.length === 0) return workspace;
+
+  const { data, category } = ensureUncategorizedCategory(base);
+  const now = new Date().toISOString();
+  const converted: SvgGameIcon[] = pending.map((sourceId) => {
+    const parsed = parseIconifyIconName(sourceId);
+    return {
+      id: createSvgIconId('svg-icon'),
+      categoryId: category.id,
+      name: (parsed?.name ?? sourceId).replace(/-/g, ' '),
+      prompt: '',
+      // 라이트 항목: 이름만 아는 상태
+      svg: '',
+      tags: [],
+      stylePreset: data.stylePreset,
+      viewBox: data.defaultViewBox,
+      source: 'iconify',
+      sourceId,
+      sourceName: parsed ? getIconifyCollectionLabel(parsed.prefix) : undefined,
+      sourceUrl: buildIconifyPageUrl(sourceId),
+      license: parsed ? getIconifyCollectionLicense(parsed.prefix) : undefined,
+      favorite: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+  });
+
+  const categories = data.categories.map((item) =>
+    item.id === category.id
+      ? { ...item, iconIds: [...item.iconIds, ...converted.map((icon) => icon.id)], updatedAt: now }
+      : item
+  );
+
+  return {
+    ...data,
+    categories,
+    icons: [...data.icons, ...converted],
+    updatedAt: now,
   };
 }
 
@@ -39,6 +113,8 @@ export class StorageService {
 
   /**
    * 즐겨찾기 목록 가져오기
+   * @deprecated 즐겨찾기는 보관함 아이콘의 favorite 플래그로 일원화되었다.
+   *   useFavorites 훅이 제거되는 Phase 2/3에서 함께 삭제한다.
    */
   async getFavorites(): Promise<string[]> {
     const store = await this.getStore();
@@ -47,6 +123,7 @@ export class StorageService {
 
   /**
    * 즐겨찾기 목록 저장
+   * @deprecated getFavorites 참고.
    */
   async saveFavorites(favorites: string[]): Promise<void> {
     const store = await this.getStore();
@@ -56,6 +133,7 @@ export class StorageService {
 
   /**
    * 즐겨찾기 추가
+   * @deprecated getFavorites 참고.
    */
   async addFavorite(iconName: string): Promise<void> {
     console.log('Adding favorite:', iconName);
@@ -71,6 +149,7 @@ export class StorageService {
 
   /**
    * 즐겨찾기 제거
+   * @deprecated getFavorites 참고.
    */
   async removeFavorite(iconName: string): Promise<void> {
     console.log('Removing favorite:', iconName);
@@ -160,8 +239,8 @@ export class StorageService {
   }
 
   /**
-   * 전체 설정을 백업 객체로 수집
-   * - 즐겨찾기, 최근 검색어, 내보내기 설정, SVG 워크스페이스(카테고리·저장 아이콘 포함)
+   * 전체 설정을 백업 객체로 수집 (항상 v2)
+   * - 최근 검색어, 내보내기 설정, SVG 워크스페이스(카테고리·저장 아이콘·즐겨찾기 플래그), 언어
    */
   async exportAllSettings(): Promise<SettingsBackup> {
     const store = await this.getStore();
@@ -169,7 +248,6 @@ export class StorageService {
       version: SETTINGS_BACKUP_VERSION,
       exportedAt: new Date().toISOString(),
       data: {
-        favorites: (await store.get<string[]>('favorites')) || [],
         recentSearches: (await store.get<string[]>('recentSearches')) || [],
         exportSettings: await this.getExportSettings(),
         svgWorkspace: (await store.get<SvgWorkspaceData>('svgWorkspace')) ?? null,
@@ -180,19 +258,32 @@ export class StorageService {
 
   /**
    * 백업 객체로부터 전체 설정 복원
-   * - 존재하는 키만 덮어쓰며, 형식이 올바르지 않으면 예외
+   * - v2: 그대로 복원
+   * - v1(IconMaker): 나머지를 복원한 뒤 favorites(이름 배열)를 워크스페이스 "미분류" 카테고리의
+   *   라이트 항목(svg='')으로 변환해 흡수한다. SVG는 최초 표시 시 sourceId로 채운다.
+   * - 그 외/형식 불일치: 예외
    */
   async importAllSettings(backup: SettingsBackup): Promise<void> {
     if (!backup || typeof backup !== 'object' || !backup.data) {
       throw i18nError('error.invalidBackup');
     }
-    const store = await this.getStore();
     const { favorites, recentSearches, exportSettings, svgWorkspace, language } = backup.data;
-    if (Array.isArray(favorites)) await store.set('favorites', favorites);
+
+    const isLegacyBackup = backup.version === 1 || Array.isArray(favorites);
+    if (!isLegacyBackup && backup.version !== SETTINGS_BACKUP_VERSION) {
+      throw i18nError('error.invalidBackup');
+    }
+
+    const store = await this.getStore();
     if (Array.isArray(recentSearches)) await store.set('recentSearches', recentSearches);
     if (exportSettings) await store.set('exportSettings', exportSettings);
-    if (svgWorkspace) await store.set('svgWorkspace', svgWorkspace);
     if (isSupportedLanguage(language)) await store.set('language', language);
+
+    const workspace = isLegacyBackup
+      ? convertLegacyFavorites(svgWorkspace ?? null, favorites ?? [])
+      : svgWorkspace;
+    if (workspace) await store.set('svgWorkspace', workspace);
+
     await store.save();
   }
 

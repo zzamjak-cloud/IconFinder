@@ -2,28 +2,36 @@
 
 **English** · [한국어](README.ko.md)
 
-A desktop app for searching, styling, and exporting icons as SVG/PNG, powered by the Iconify library.
+A desktop icon workspace: search 275,000+ Iconify icons, organize them into a library, style them, and export as SVG/PNG — all in one screen.
 
-## Features
+> IconFinder is the successor to [IconMaker](https://github.com/zzamjak-cloud/IconMaker), merging its separate Search and Editor tabs into a single unified workspace.
 
-### 🔍 Icon Search (Search tab)
-- Search 275,000+ icons through the Iconify API
-- Favorites and caching
-- Export as SVG / PNG, plus batch export
-- Adjustable grid column count (image scale follows the column ratio)
+## The workspace
 
-### 🎨 SVG Workspace (Editor tab)
-- Collect and organize icons by category (20 built-in categories aimed at casual games)
-- Selecting a category auto-fills a recommended English search term
-- **Styling**: color mode (original / solid / duotone), gradient, and 3D combined into a single style selector
-- **Effects** (SVG filters, compatible with HTML and PNG): drop shadow · outer/inner glow · bevel (embossed/engraved) · outline
-  - Per-effect color and intensity control; shadows include the outline, while inner glow is based on the content
-- **Custom color picker**: 108-color palette plus direct selection / HEX input
-- Export: individual SVG/PNG, sprite sheet, HTML snippet / Copy: SVG, HTML, CSS
+One three-pane screen instead of tabs:
+
+### 📚 Library (left)
+- Organize icons by category (20 built-in categories aimed at casual games, plus Uncategorized)
+- ☆ **Favorites smart view** — every starred icon across all categories in one place
+- Drag icons between categories; per-category sprite-sheet export
+- Selecting a category auto-fills a recommended search term
+
+### 🔍 Search (center)
+- One search across the entire Iconify API (275,000+ icons)
+- **Scope chips**: All / curated packs (Game, UI/HUD, Pixel, System, Emoji) / any single collection
+- Korean search terms are auto-expanded to English Iconify tags
+- Paginated, virtualized results grid with adjustable columns
+- ★ on a result saves it straight into Uncategorized as a favorite; save puts it in the selected category
+
+### 🎛️ Detail (right)
+- **Quick export** by default: SVG/PNG with size control — search results export the original, library icons export with their saved style
+- Expandable **Style** section: color mode (original / solid / duotone / gradient / 3D), effects (drop shadow · outer/inner glow · bevel · outline) with per-effect color and intensity, 108-color palette with HEX input
+- Copy as SVG / HTML / CSS; batch export any selection or category
 
 ### ⚙️ Settings · Backup
-- Default save folder and auto-save
-- Full settings backup/restore (favorites, export settings, and the SVG workspace as JSON)
+- 11-language UI, auto-detected from the OS locale, switchable in Settings
+- Default save folder with auto-save
+- Full settings backup/restore as a single JSON file — IconMaker (v1) backups import cleanly, favorites included
 - Data survives app updates (Tauri Store)
 
 ## Tech Stack

@@ -3,13 +3,14 @@ import { Download, Check, X as XIcon, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
-import { useBatchExport } from '@/hooks/useBatchExport';
+import { useBatchExport, type BatchExportItem } from '@/hooks/useBatchExport';
 import { useSettings } from '@/hooks/useSettings';
 import { resolveErrorMessage } from '@/i18n/errorMessage';
 import { useI18n } from '@/i18n/I18nProvider';
 
 interface BatchExportDialogProps {
-  iconNames: string[];
+  /** 내보낼 항목 목록. 호출부가 선택 항목/카테고리 등 무엇이든 명시적으로 넘긴다. */
+  items: BatchExportItem[];
   isOpen: boolean;
   onClose: () => void;
 }
@@ -20,7 +21,7 @@ interface BatchExportDialogProps {
  * - 진행 상황 표시
  * - 에러 목록 표시
  */
-export function BatchExportDialog({ iconNames, isOpen, onClose }: BatchExportDialogProps) {
+export function BatchExportDialog({ items, isOpen, onClose }: BatchExportDialogProps) {
   const { batchExport, isExporting, progress, errors, reset } = useBatchExport();
   const { settings } = useSettings();
   const { t } = useI18n();
@@ -47,7 +48,7 @@ export function BatchExportDialog({ iconNames, isOpen, onClose }: BatchExportDia
   const handleStart = async () => {
     setHasStarted(true);
     try {
-      await batchExport(iconNames);
+      await batchExport(items);
     } catch (error) {
       // Tauri에서 window.alert은 동작이 불안정하므로 앱 토스트로 알린다.
       toast({
@@ -86,7 +87,7 @@ export function BatchExportDialog({ iconNames, isOpen, onClose }: BatchExportDia
             <div className="space-y-4">
               <div className="p-4 bg-muted rounded-lg space-y-2">
                 <p className="text-sm font-medium">
-                  {t('batch.summary', { count: iconNames.length })}
+                  {t('batch.summary', { count: items.length })}
                 </p>
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p>{t('batch.detail.format', { format: settings.format.toUpperCase() })}</p>

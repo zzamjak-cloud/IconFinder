@@ -32,6 +32,7 @@ export const frAppTranslations = {
   'collection.viewAll': 'Tout afficher',
   'collection.allSets': "Tous les jeux d'icônes",
   'collection.iconCount': '{prefix} • {count} icônes',
+  'workspace.scope.collection': 'Collections…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': 'Échec du chargement',

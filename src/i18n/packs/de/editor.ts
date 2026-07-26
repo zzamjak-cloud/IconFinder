@@ -1,6 +1,6 @@
 export const deEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'SVG-Icon-Tresor',
+  'editor.vault.title': 'Bibliothek',
   'editor.category.new': 'Neue Kategorie',
   'editor.category.delete': 'Kategorie löschen',
   'editor.category.deleteConfirm': 'Zum Löschen erneut klicken',
@@ -175,4 +175,6 @@ export const deEditorTranslations = {
   'categoryTemplate.tool.desc': 'Hammer, Spitzhacke, Schraubenschlüssel, Handwerk',
   'categoryTemplate.exploration.name': 'Erkundung & Karten',
   'categoryTemplate.exploration.desc': 'Karte, Kompass, Flagge, Standort',
+  'categoryTemplate.uncategorized.name': 'Nicht kategorisiert',
+  'categoryTemplate.uncategorized.desc': 'Icons, die schnell aus den Suchergebnissen gespeichert wurden',
 } as const;

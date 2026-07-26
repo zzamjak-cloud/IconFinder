@@ -63,6 +63,17 @@ export type SvgIconCategoryTemplateKey =
   | 'tool'
   | 'exploration';
 
+/**
+ * 예약 카테고리 "미분류"의 템플릿 키.
+ * 기본 게임 카테고리 20종에는 포함되지 않으며(자동 생성 대상 아님),
+ * 검색 결과에서 빠르게 담은 아이콘이 들어갈 자리로만 필요할 때 생성된다.
+ * 표시 문구는 다른 템플릿과 동일하게 언어팩(categoryTemplate.uncategorized.name/desc)에서 온다.
+ */
+export const UNCATEGORIZED_TEMPLATE_KEY = 'uncategorized';
+
+// 미분류 카테고리의 색(중립 회색)
+const UNCATEGORIZED_COLOR = '#94a3b8';
+
 export interface SvgIconCategoryTemplate {
   key: SvgIconCategoryTemplateKey;
   color: string;
@@ -132,6 +143,11 @@ function isTemplateKey(value: string | undefined): value is SvgIconCategoryTempl
   return !!value && value in RECOMMENDED_QUERY_BY_TEMPLATE_KEY;
 }
 
+// 표시 문구를 언어팩에서 가져오는 키 집합(기본 템플릿 20종 + 예약 키 '미분류').
+function isDisplayTemplateKey(value: string | undefined): value is string {
+  return isTemplateKey(value) || value === UNCATEGORIZED_TEMPLATE_KEY;
+}
+
 // 카테고리의 템플릿 키를 구한다(저장된 templateKey 우선, 레거시 한국어 이름 폴백).
 function resolveTemplateKey(
   category: SvgIconCategory | null | undefined
@@ -143,7 +159,7 @@ function resolveTemplateKey(
 
 // 카테고리 표시 이름: 기본 템플릿이면 번역문, 사용자가 만든/이름을 바꾼 카테고리는 저장값.
 export function getCategoryDisplayName(category: SvgIconCategory, t: Translator): string {
-  if (isTemplateKey(category.templateKey)) {
+  if (isDisplayTemplateKey(category.templateKey)) {
     return t(`categoryTemplate.${category.templateKey}.name` as TranslationKey);
   }
   return category.name;
@@ -151,7 +167,7 @@ export function getCategoryDisplayName(category: SvgIconCategory, t: Translator)
 
 // 카테고리 표시 설명: 규칙은 getCategoryDisplayName과 동일.
 export function getCategoryDisplayDescription(category: SvgIconCategory, t: Translator): string {
-  if (isTemplateKey(category.templateKey)) {
+  if (isDisplayTemplateKey(category.templateKey)) {
     return t(`categoryTemplate.${category.templateKey}.desc` as TranslationKey);
   }
   return category.description ?? '';
@@ -231,6 +247,39 @@ export function createDefaultSvgWorkspaceData(): SvgWorkspaceData {
     defaultViewBox: '0 0 64 64',
     customColorPresets: [],
     updatedAt: now,
+  };
+}
+
+/**
+ * 워크스페이스에 "미분류" 카테고리를 보장한다.
+ * - 이미 있으면(templateKey === UNCATEGORIZED_TEMPLATE_KEY) 그대로 반환하고 data 참조도 유지한다.
+ * - 없으면 목록 끝에 새로 추가한 새 data를 반환한다.
+ */
+export function ensureUncategorizedCategory(
+  data: SvgWorkspaceData
+): { data: SvgWorkspaceData; category: SvgIconCategory } {
+  const existing = data.categories.find(
+    (category) => category.templateKey === UNCATEGORIZED_TEMPLATE_KEY
+  );
+  if (existing) return { data, category: existing };
+
+  const now = new Date().toISOString();
+  const category: SvgIconCategory = {
+    id: createSvgIconId('svg-cat'),
+    templateKey: UNCATEGORIZED_TEMPLATE_KEY,
+    // 표시 문구는 templateKey 번역에서 오므로 저장값은 비워 둔다.
+    name: '',
+    description: '',
+    color: UNCATEGORIZED_COLOR,
+    recommendedQuery: '',
+    iconIds: [],
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  return {
+    data: { ...data, categories: [...data.categories, category] },
+    category,
   };
 }
 

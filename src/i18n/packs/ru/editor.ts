@@ -1,6 +1,6 @@
 export const ruEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'Хранилище SVG-иконок',
+  'editor.vault.title': 'Библиотека',
   'editor.category.new': 'Новая категория',
   'editor.category.delete': 'Удалить категорию',
   'editor.category.deleteConfirm': 'Нажмите снова, чтобы удалить',
@@ -174,4 +174,6 @@ export const ruEditorTranslations = {
   'categoryTemplate.tool.desc': 'Молот, кирка, гаечный ключ, ремесло',
   'categoryTemplate.exploration.name': 'Исследование и карты',
   'categoryTemplate.exploration.desc': 'Карта, компас, флаг, местоположение',
+  'categoryTemplate.uncategorized.name': 'Без категории',
+  'categoryTemplate.uncategorized.desc': 'Иконки, быстро сохранённые из результатов поиска',
 } as const;

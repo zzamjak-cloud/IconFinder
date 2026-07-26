@@ -101,17 +101,24 @@ export interface SvgGameIcon {
   categoryId: string;
   name: string;
   prompt: string;
+  /**
+   * 스타일이 적용된 SVG 원문.
+   * 빈 문자열('')이면 **라이트 항목**이다 — 이름만 저장된 상태(예: v1 백업 가져오기로 이관된 구 즐겨찾기).
+   * 최초 표시 시 sourceId로 SVG를 받아와 채운 뒤(하이드레이션) 워크스페이스에 저장한다.
+   */
   svg: string;
   originalSvg?: string;
   tags: string[];
   stylePreset: SvgIconStylePreset;
   viewBox: string;
   source?: SvgIconSource;
+  /** Iconify 전체 이름 "prefix:name". 지연 로드(하이드레이션)와 원본 보기 링크의 기준. */
   sourceId?: string;
   sourceName?: string;
   sourceUrl?: string;
   license?: string;
   styleSnapshot?: SvgIconStyleSnapshot;
+  /** 즐겨찾기 플래그. 앱 전체에서 유일한 즐겨찾기 수단. */
   favorite?: boolean;
   createdAt: string;
   updatedAt: string;

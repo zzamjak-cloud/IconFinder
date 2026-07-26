@@ -32,6 +32,7 @@ export const esAppTranslations = {
   'collection.viewAll': 'Ver todo',
   'collection.allSets': 'Todos los conjuntos de iconos',
   'collection.iconCount': '{prefix} • {count} iconos',
+  'workspace.scope.collection': 'Colecciones…',
 
   // 아이콘 카드 · 즐겨찾기 패널
   'icon.loadFailed': 'Error al cargar',

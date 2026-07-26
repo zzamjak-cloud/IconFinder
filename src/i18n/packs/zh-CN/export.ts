@@ -1,5 +1,6 @@
 export const zhCNExportTranslations = {
   'export.title': '导出图标',
+  'export.quick': '快速导出',
   'export.format': '格式',
   'export.size': '尺寸（像素）',
   'export.color': '颜色',
@@ -25,6 +26,8 @@ export const zhCNExportTranslations = {
   'batch.partial': '成功 {success} 个，失败 {failed} 个',
   'batch.errorList': '导出失败的图标：',
   'batch.start': '开始导出',
+  'batch.exportSelected': '导出选中的 {count} 个',
+  'batch.exportCategory': '导出分类',
   'batch.error.noIcons': '没有可导出的图标',
   'batch.error.noFolder': '请先在设置中选择默认保存文件夹',
 } as const;

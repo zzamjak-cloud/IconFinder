@@ -1,5 +1,6 @@
 export const frExportTranslations = {
   'export.title': "Exporter l'icône",
+  'export.quick': 'Export rapide',
   'export.format': 'Format',
   'export.size': 'Taille (pixels)',
   'export.color': 'Couleur',
@@ -26,6 +27,8 @@ export const frExportTranslations = {
   'batch.partial': '{success} réussies, {failed} échouées',
   'batch.errorList': 'Icônes en échec :',
   'batch.start': "Lancer l'export",
+  'batch.exportSelected': 'Exporter la sélection ({count})',
+  'batch.exportCategory': 'Exporter la catégorie',
   'batch.error.noIcons': "Il n'y a aucune icône à exporter",
   'batch.error.noFolder':
     "Veuillez d'abord choisir un dossier de sauvegarde par défaut dans les Paramètres",

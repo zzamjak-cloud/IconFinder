@@ -1,6 +1,6 @@
 export const ptEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'Cofre de ícones SVG',
+  'editor.vault.title': 'Biblioteca',
   'editor.category.new': 'Nova categoria',
   'editor.category.delete': 'Excluir categoria',
   'editor.category.deleteConfirm': 'Pressione novamente para excluir',
@@ -174,4 +174,6 @@ export const ptEditorTranslations = {
   'categoryTemplate.tool.desc': 'Martelo, picareta, chave inglesa, fabricação',
   'categoryTemplate.exploration.name': 'Exploração e mapas',
   'categoryTemplate.exploration.desc': 'Mapa, bússola, bandeira, localização',
+  'categoryTemplate.uncategorized.name': 'Sem categoria',
+  'categoryTemplate.uncategorized.desc': 'Ícones salvos rapidamente a partir dos resultados da busca',
 } as const;

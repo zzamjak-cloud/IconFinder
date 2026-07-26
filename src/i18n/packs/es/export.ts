@@ -1,5 +1,6 @@
 export const esExportTranslations = {
   'export.title': 'Exportar icono',
+  'export.quick': 'Exportación rápida',
   'export.format': 'Formato',
   'export.size': 'Tamaño (píxeles)',
   'export.color': 'Color',
@@ -25,6 +26,8 @@ export const esExportTranslations = {
   'batch.partial': '{success} correctos, {failed} con error',
   'batch.errorList': 'Iconos con error:',
   'batch.start': 'Iniciar exportación',
+  'batch.exportSelected': 'Exportar seleccionados ({count})',
+  'batch.exportCategory': 'Exportar categoría',
   'batch.error.noIcons': 'No hay iconos que exportar',
   'batch.error.noFolder': 'Elija primero una carpeta de guardado predeterminada en Ajustes',
 } as const;

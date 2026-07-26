@@ -1,6 +1,6 @@
 export const zhTWEditorTranslations = {
   // 좌측 금고 · 카테고리
-  'editor.vault.title': 'SVG 圖示庫',
+  'editor.vault.title': '素材庫',
   'editor.category.new': '新增分類',
   'editor.category.delete': '刪除分類',
   'editor.category.deleteConfirm': '再按一次即刪除',
@@ -174,4 +174,6 @@ export const zhTWEditorTranslations = {
   'categoryTemplate.tool.desc': '鎚子、鎬、扳手、製作',
   'categoryTemplate.exploration.name': '探索與地圖',
   'categoryTemplate.exploration.desc': '地圖、羅盤、旗幟、位置',
+  'categoryTemplate.uncategorized.name': '未分類',
+  'categoryTemplate.uncategorized.desc': '從搜尋結果中快速儲存的圖示',
 } as const;

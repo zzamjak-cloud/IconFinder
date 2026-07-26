@@ -4,19 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-IconFinder is a tool for generating icon SVG and PNG files using the Iconify library.
+IconFinder is a desktop icon workspace built on the Iconify library — search, organize, style, and export icons as SVG/PNG in a single screen. It is the successor to IconMaker (github.com/zzamjak-cloud/IconMaker), merging its former Search/Editor tabs into one unified three-pane workspace. Git history from IconMaker is preserved in this repository.
 
-## Project Status
+## Architecture (v1.0.0)
 
-This is a new project in the initialization phase. The technology stack and project structure have not yet been established.
+Single workspace, three panes:
 
-## Intended Functionality
+- **Library** (left): categorized icon vault + ☆ Favorites smart view. `favorite` flag on icons is the only favorites mechanism. Reserved `uncategorized` templateKey category receives quick-saves (★ on search results).
+- **Search** (center): one search path (`src/lib/svgIcon/svgIconSearch.ts`) over the whole Iconify API with `SvgIconSearchScope` (all / curated pack / single collection), Korean query expansion, pagination, virtualized grid.
+- **Detail** (right): quick export by default (follows item state — search results export the original, library icons their saved style), expandable Style section.
 
-- 🔍 Search and browse 275,000+ icons from Iconify API
-- ⭐ Favorite and cache icons for quick access
-- 📥 Export icons as SVG or PNG files
-- ⚙️ Pre-configure export settings and default save folder
-- ⚡ Quick export with a single click
+Key layers:
+- `src/i18n/` — 11-language system; English pack is the schema of record; missing keys are compile errors (`LanguagePack<TranslationKey>`)
+- `src/services/storageService.ts` — Tauri Store (`iconfinder.json`); backup format v2 (v1 IconMaker backups convert on import: favorites → light library items, `svg: ''`, hydrated lazily via `sourceId`)
+- Rust errors use the `i18n:<key>|<detail>` protocol, resolved by `resolveErrorMessage`
 
 ## Technology Stack
 
