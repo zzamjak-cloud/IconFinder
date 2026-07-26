@@ -24,6 +24,8 @@ export const enEditorTranslations = {
   'editor.search.pageFailed': 'Failed to load the page.',
   'editor.search.recentTitle': 'Recent searches',
   'editor.search.recentClear': 'Clear',
+  'editor.sprite.button': 'SVG sprite',
+  'editor.sprite.skipped': 'Excluded {count} icons that are not loaded yet.',
 
   // 결과 · 저장 목록
   'editor.counts': 'Saved {saved} · Results {results}',

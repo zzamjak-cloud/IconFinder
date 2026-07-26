@@ -24,6 +24,8 @@ export const jaEditorTranslations = {
   'editor.search.pageFailed': 'ページの読み込みに失敗しました。',
   'editor.search.recentTitle': '最近の検索',
   'editor.search.recentClear': 'クリア',
+  'editor.sprite.button': 'SVGスプライト',
+  'editor.sprite.skipped': '未読み込みのアイコン{count}個を除外しました。',
 
   // 결과 · 저장 목록
   'editor.counts': '保存済み {saved}件 · 検索結果 {results}件',

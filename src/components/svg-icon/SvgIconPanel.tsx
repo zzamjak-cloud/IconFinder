@@ -74,6 +74,7 @@ import {
   buildHtmlIconSnippet,
   buildStandaloneSvg,
   buildSvgDataUri,
+  buildSvgSprite,
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { useSettings } from '@/hooks/useSettings';
@@ -1590,6 +1591,19 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     );
   };
 
+  // SVG 스프라이트 내보내기(원본 기준). 라이트 항목(svg='')은 제외하고 개수 안내.
+  const handleExportSprite = async (icons: SvgGameIcon[]) => {
+    const ready = icons.filter((icon) => icon.svg !== '');
+    const skipped = icons.length - ready.length;
+    if (ready.length === 0) {
+      if (skipped > 0) showToast(t('editor.sprite.skipped', { count: skipped }), 'info');
+      return;
+    }
+    const baseName = selectedCategory ? getCategoryDisplayName(selectedCategory, t) : 'icons';
+    await handleSaveTextFile(t('editor.label.svgFile'), `${baseName}-sprite.svg`, buildSvgSprite(ready), 'svg');
+    if (skipped > 0) showToast(t('editor.sprite.skipped', { count: skipped }), 'info');
+  };
+
   const handleApplyStyleToIcon = (icon: SvgGameIcon) => {
     const now = new Date().toISOString();
     const styleSnapshot = getCurrentStyleSnapshot();
@@ -2053,6 +2067,20 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40"
                   >
                     {t('batch.exportCategory')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void handleExportSprite(
+                        iconSelection.size > 0
+                          ? visibleSavedIcons.filter((icon) => iconSelection.has(icon.id))
+                          : visibleSavedIcons
+                      )
+                    }
+                    disabled={visibleSavedIcons.length === 0}
+                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40"
+                  >
+                    {t('editor.sprite.button')}
                   </button>
                   <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
                     <Grid3x3 className="h-4 w-4 text-slate-500" />

@@ -84,12 +84,19 @@ export function buildStandaloneSvg(icon: SvgGameIcon): string {
 
 export function buildSvgSprite(icons: SvgGameIcon[]): string {
   const parser = new DOMParser();
+  const usedIds = new Set<string>();
   const symbols = icons.map((icon) => {
     const doc = parser.parseFromString(icon.svg, 'image/svg+xml');
     const svg = doc.documentElement;
     const viewBox = svg.getAttribute('viewBox') ?? icon.viewBox;
     const exportBox = expandViewBoxForOutline(viewBox, svg);
-    return `<symbol id="icon-${safeFileName(icon.name).toLowerCase()}" viewBox="${exportBox?.viewBox ?? viewBox}">
+    // 동명 아이콘의 symbol id 충돌 방지: -2, -3… 접미사
+    const baseId = `icon-${safeFileName(icon.name).toLowerCase()}`;
+    let symbolId = baseId;
+    let suffix = 2;
+    while (usedIds.has(symbolId)) symbolId = `${baseId}-${suffix++}`;
+    usedIds.add(symbolId);
+    return `<symbol id="${symbolId}" viewBox="${exportBox?.viewBox ?? viewBox}">
 ${svg.innerHTML}
 </symbol>`;
   });

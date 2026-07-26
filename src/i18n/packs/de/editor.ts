@@ -24,6 +24,8 @@ export const deEditorTranslations = {
   'editor.search.pageFailed': 'Die Seite konnte nicht geladen werden.',
   'editor.search.recentTitle': 'Letzte Suchanfragen',
   'editor.search.recentClear': 'Leeren',
+  'editor.sprite.button': 'SVG-Sprite',
+  'editor.sprite.skipped': '{count} noch nicht geladene Icons wurden ausgeschlossen.',
 
   // 결과 · 저장 목록
   'editor.counts': 'Gespeichert {saved} · Ergebnisse {results}',

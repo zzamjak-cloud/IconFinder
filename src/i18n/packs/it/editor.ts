@@ -24,6 +24,8 @@ export const itEditorTranslations = {
   'editor.search.pageFailed': 'Caricamento della pagina non riuscito.',
   'editor.search.recentTitle': 'Ricerche recenti',
   'editor.search.recentClear': 'Cancella',
+  'editor.sprite.button': 'Sprite SVG',
+  'editor.sprite.skipped': '{count} icone non ancora caricate sono state escluse.',
 
   // 결과 · 저장 목록
   'editor.counts': 'Salvate {saved} · Risultati {results}',

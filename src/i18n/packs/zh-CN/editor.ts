@@ -24,6 +24,8 @@ export const zhCNEditorTranslations = {
   'editor.search.pageFailed': '加载页面失败。',
   'editor.search.recentTitle': '最近搜索',
   'editor.search.recentClear': '清除',
+  'editor.sprite.button': 'SVG 雪碧图',
+  'editor.sprite.skipped': '已排除 {count} 个尚未加载的图标。',
 
   // 결과 · 저장 목록
   'editor.counts': '已保存 {saved} · 结果 {results}',

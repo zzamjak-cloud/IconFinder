@@ -22,6 +22,8 @@ export const koEditorTranslations = {
   'editor.search.pageFailed': '페이지 로드에 실패했습니다.',
   'editor.search.recentTitle': '최근 검색어',
   'editor.search.recentClear': '지우기',
+  'editor.sprite.button': 'SVG 스프라이트',
+  'editor.sprite.skipped': '아직 로드되지 않은 아이콘 {count}개를 제외했습니다.',
 
   'editor.counts': '저장 {saved}개 · 검색 결과 {results}개',
   'editor.results.title': '검색 결과',
