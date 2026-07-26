@@ -26,6 +26,7 @@ export const itEditorTranslations = {
   'editor.search.recentClear': 'Cancella',
   'editor.sprite.button': 'Sprite SVG',
   'editor.sprite.skipped': '{count} icone non ancora caricate sono state escluse.',
+  'editor.rename': 'Rinomina',
 
   // 결과 · 저장 목록
   'editor.counts': 'Salvate {saved} · Risultati {results}',

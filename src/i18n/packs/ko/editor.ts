@@ -24,6 +24,7 @@ export const koEditorTranslations = {
   'editor.search.recentClear': '지우기',
   'editor.sprite.button': 'SVG 스프라이트',
   'editor.sprite.skipped': '아직 로드되지 않은 아이콘 {count}개를 제외했습니다.',
+  'editor.rename': '이름 변경',
 
   'editor.counts': '저장 {saved}개 · 검색 결과 {results}개',
   'editor.results.title': '검색 결과',

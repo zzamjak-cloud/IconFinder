@@ -26,6 +26,7 @@ export const ptEditorTranslations = {
   'editor.search.recentClear': 'Limpar',
   'editor.sprite.button': 'Sprite SVG',
   'editor.sprite.skipped': '{count} ícones ainda não carregados foram excluídos.',
+  'editor.rename': 'Renomear',
 
   // 결과 · 저장 목록
   'editor.counts': 'Salvos {saved} · Resultados {results}',

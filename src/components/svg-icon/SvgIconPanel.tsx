@@ -21,6 +21,7 @@ import {
   ImageOff,
   Loader2,
   Palette,
+  Pencil,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
@@ -761,6 +762,9 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   );
 
   const [newCategoryName, setNewCategoryName] = useState('');
+  // 인라인 이름 변경 상태 (카테고리: 더블클릭, 아이콘: Detail 연필 버튼)
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingIconId, setEditingIconId] = useState<string | null>(null);
   const [searchInputSeed, setSearchInputSeed] = useState(DEFAULT_SVG_ICON_SEARCH_QUERY);
   const [searchResults, setSearchResults] = useState<SvgIconSearchResult[]>([]);
   const [resultNames, setResultNames] = useState<string[]>([]); // 전체 검색 이름 풀(페이지네이션용)
@@ -1458,6 +1462,29 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     showToast(t('editor.icon.deleted', { name: icon.name }));
   };
 
+  // 아이콘 이름 변경 (빈 이름/동일 이름은 무시)
+  const handleRenameIcon = (iconId: string, rawName: string) => {
+    const name = rawName.trim();
+    const icon = workspace.icons.find((item) => item.id === iconId);
+    if (!icon || !name || name === icon.name) return;
+    const now = new Date().toISOString();
+    updateWorkspace({
+      ...workspace,
+      icons: workspace.icons.map((item) => (item.id === iconId ? { ...item, name, updatedAt: now } : item)),
+    });
+  };
+
+  // 카테고리 이름 변경 — templateKey 카테고리(미분류 등)는 표시명이 언어팩에서 오므로 대상 아님
+  const handleRenameCategory = (categoryId: string, rawName: string) => {
+    const name = rawName.trim();
+    const category = workspace.categories.find((item) => item.id === categoryId);
+    if (!category || category.templateKey || !name || name === category.name) return;
+    updateWorkspace({
+      ...workspace,
+      categories: workspace.categories.map((item) => (item.id === categoryId ? { ...item, name } : item)),
+    });
+  };
+
   // 즐겨찾기 해제 = 보관함에서 제거(즐겨찾기 탭 본문에서 사라짐)
   const handleUnfavoriteIcon = (icon: SvgGameIcon) => {
     updateWorkspace({
@@ -1816,7 +1843,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
               <div
                 key={category.id}
                 data-category-drop-id={category.id}
-                draggable
+                draggable={editingCategoryId !== category.id}
                 onDragStart={(event) => {
                   event.dataTransfer.setData('text/category-reorder', category.id);
                   event.dataTransfer.effectAllowed = 'move';
@@ -1837,8 +1864,34 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   isDropTarget ? 'ring-2 ring-lime-400 ring-offset-1' : ''
                 }`}
               >
+                {editingCategoryId === category.id ? (
+                  // 인라인 이름 편집: Enter/blur 확정, Escape 취소
+                  <div className="flex items-center gap-1.5 px-2 py-1">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
+                    <input
+                      autoFocus
+                      defaultValue={category.name}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          handleRenameCategory(category.id, event.currentTarget.value);
+                          setEditingCategoryId(null);
+                        }
+                        if (event.key === 'Escape') setEditingCategoryId(null);
+                      }}
+                      onBlur={(event) => {
+                        handleRenameCategory(category.id, event.currentTarget.value);
+                        setEditingCategoryId(null);
+                      }}
+                      className="min-w-0 flex-1 rounded border border-lime-500 px-1 py-0.5 text-xs font-medium outline-none dark:bg-slate-900"
+                    />
+                  </div>
+                ) : (
                 <button
                   onClick={() => handleCategorySelect(category.id)}
+                  onDoubleClick={() => {
+                    if (!category.templateKey) setEditingCategoryId(category.id);
+                  }}
+                  title={category.templateKey ? undefined : t('editor.rename')}
                   className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
                     isDropTarget ? 'bg-lime-50 dark:bg-lime-900/30' : isActive ? 'bg-lime-100 text-lime-950 dark:bg-lime-900/40 dark:text-lime-200' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
@@ -1851,6 +1904,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     <span className="shrink-0 text-[10px] text-slate-500 dark:text-slate-400">{iconCount}</span>
                   </span>
                 </button>
+                )}
                 <button
                   type="button"
                   onClick={() => handleDeleteCategory(category)}
@@ -2479,6 +2533,42 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
 
         {selectedIcon ? (
           <div className="p-4 space-y-4">
+            {/* 이름 (연필 버튼으로 인라인 편집) */}
+            <div className="flex items-center gap-1.5">
+              {editingIconId === selectedIcon.id ? (
+                <input
+                  autoFocus
+                  defaultValue={selectedIcon.name}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      handleRenameIcon(selectedIcon.id, event.currentTarget.value);
+                      setEditingIconId(null);
+                    }
+                    if (event.key === 'Escape') setEditingIconId(null);
+                  }}
+                  onBlur={(event) => {
+                    handleRenameIcon(selectedIcon.id, event.currentTarget.value);
+                    setEditingIconId(null);
+                  }}
+                  className="min-w-0 flex-1 rounded-md border border-lime-500 px-2 py-1 text-sm font-semibold outline-none dark:bg-slate-900"
+                />
+              ) : (
+                <>
+                  <p className="min-w-0 flex-1 truncate text-sm font-semibold" title={selectedIcon.name}>
+                    {selectedIcon.name}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setEditingIconId(selectedIcon.id)}
+                    className="shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                    title={t('editor.rename')}
+                    aria-label={t('editor.rename')}
+                  >
+                    <Pencil size={13} />
+                  </button>
+                </>
+              )}
+            </div>
             {/* 복사: 아이콘 + SVG/HTML/CSS */}
             <div className="grid grid-cols-3 gap-2">
               <button

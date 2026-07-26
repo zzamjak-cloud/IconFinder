@@ -26,6 +26,7 @@ export const enEditorTranslations = {
   'editor.search.recentClear': 'Clear',
   'editor.sprite.button': 'SVG sprite',
   'editor.sprite.skipped': 'Excluded {count} icons that are not loaded yet.',
+  'editor.rename': 'Rename',
 
   // 결과 · 저장 목록
   'editor.counts': 'Saved {saved} · Results {results}',

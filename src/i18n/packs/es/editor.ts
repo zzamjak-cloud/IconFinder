@@ -26,6 +26,7 @@ export const esEditorTranslations = {
   'editor.search.recentClear': 'Borrar',
   'editor.sprite.button': 'Sprite SVG',
   'editor.sprite.skipped': 'Se excluyeron {count} iconos aún no cargados.',
+  'editor.rename': 'Renombrar',
 
   // 결과 · 저장 목록
   'editor.counts': 'Guardados {saved} · Resultados {results}',

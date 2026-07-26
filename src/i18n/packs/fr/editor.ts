@@ -26,6 +26,7 @@ export const frEditorTranslations = {
   'editor.search.recentClear': 'Effacer',
   'editor.sprite.button': 'Sprite SVG',
   'editor.sprite.skipped': '{count} icônes pas encore chargées ont été exclues.',
+  'editor.rename': 'Renommer',
 
   // 결과 · 저장 목록
   'editor.counts': 'Enregistrées {saved} · Résultats {results}',

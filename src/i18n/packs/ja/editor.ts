@@ -26,6 +26,7 @@ export const jaEditorTranslations = {
   'editor.search.recentClear': 'クリア',
   'editor.sprite.button': 'SVGスプライト',
   'editor.sprite.skipped': '未読み込みのアイコン{count}個を除外しました。',
+  'editor.rename': '名前を変更',
 
   // 결과 · 저장 목록
   'editor.counts': '保存済み {saved}件 · 検索結果 {results}件',

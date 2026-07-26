@@ -26,6 +26,7 @@ export const zhCNEditorTranslations = {
   'editor.search.recentClear': '清除',
   'editor.sprite.button': 'SVG 雪碧图',
   'editor.sprite.skipped': '已排除 {count} 个尚未加载的图标。',
+  'editor.rename': '重命名',
 
   // 결과 · 저장 목록
   'editor.counts': '已保存 {saved} · 结果 {results}',

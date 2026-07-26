@@ -26,6 +26,7 @@ export const ruEditorTranslations = {
   'editor.search.recentClear': 'Очистить',
   'editor.sprite.button': 'SVG-спрайт',
   'editor.sprite.skipped': 'Исключено ещё не загруженных иконок: {count}.',
+  'editor.rename': 'Переименовать',
 
   // 결과 · 저장 목록
   'editor.counts': 'Сохранено: {saved} · Результатов: {results}',
