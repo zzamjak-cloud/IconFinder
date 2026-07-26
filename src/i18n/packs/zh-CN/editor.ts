@@ -22,6 +22,8 @@ export const zhCNEditorTranslations = {
   'editor.search.noResults': '没有搜索结果。',
   'editor.search.failed': '图标搜索失败。',
   'editor.search.pageFailed': '加载页面失败。',
+  'editor.search.recentTitle': '最近搜索',
+  'editor.search.recentClear': '清除',
 
   // 결과 · 저장 목록
   'editor.counts': '已保存 {saved} · 结果 {results}',

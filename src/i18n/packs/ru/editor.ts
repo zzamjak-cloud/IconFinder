@@ -22,6 +22,8 @@ export const ruEditorTranslations = {
   'editor.search.noResults': 'Ничего не найдено.',
   'editor.search.failed': 'Не удалось выполнить поиск иконок.',
   'editor.search.pageFailed': 'Не удалось загрузить страницу.',
+  'editor.search.recentTitle': 'Недавние запросы',
+  'editor.search.recentClear': 'Очистить',
 
   // 결과 · 저장 목록
   'editor.counts': 'Сохранено: {saved} · Результатов: {results}',

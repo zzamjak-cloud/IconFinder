@@ -22,6 +22,8 @@ export const zhTWEditorTranslations = {
   'editor.search.noResults': '沒有搜尋結果。',
   'editor.search.failed': '圖示搜尋失敗。',
   'editor.search.pageFailed': '無法載入該頁。',
+  'editor.search.recentTitle': '最近搜尋',
+  'editor.search.recentClear': '清除',
 
   // 결과 · 저장 목록
   'editor.counts': '已儲存 {saved} · 結果 {results}',

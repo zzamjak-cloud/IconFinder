@@ -20,6 +20,8 @@ export const koEditorTranslations = {
   'editor.search.noResults': '검색 결과가 없습니다.',
   'editor.search.failed': '아이콘 검색에 실패했습니다.',
   'editor.search.pageFailed': '페이지 로드에 실패했습니다.',
+  'editor.search.recentTitle': '최근 검색어',
+  'editor.search.recentClear': '지우기',
 
   'editor.counts': '저장 {saved}개 · 검색 결과 {results}개',
   'editor.results.title': '검색 결과',

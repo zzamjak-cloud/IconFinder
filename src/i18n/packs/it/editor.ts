@@ -22,6 +22,8 @@ export const itEditorTranslations = {
   'editor.search.noResults': 'Nessun risultato.',
   'editor.search.failed': 'Ricerca icone non riuscita.',
   'editor.search.pageFailed': 'Caricamento della pagina non riuscito.',
+  'editor.search.recentTitle': 'Ricerche recenti',
+  'editor.search.recentClear': 'Cancella',
 
   // 결과 · 저장 목록
   'editor.counts': 'Salvate {saved} · Risultati {results}',

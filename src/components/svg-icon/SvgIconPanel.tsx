@@ -82,7 +82,9 @@ import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { exportService } from '@/services/exportService';
+import { storageService } from '@/services/storageService';
 import { iconifyApi } from '@/services/iconifyApi';
 import { ColorSwatchPicker } from './ColorSwatchPicker';
 import {
@@ -191,8 +193,16 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
   onChangeScope,
 }: EditorSearchToolbarProps) {
   const { t } = useI18n();
+  const queryClient = useQueryClient();
   const [draftQuery, setDraftQuery] = useState(initialQuery);
   const expandedSearchTerms = useMemo(() => expandSvgIconSearchQuery(draftQuery), [draftQuery]);
+  // 최근 검색어: 입력 포커스 시 드롭다운으로 노출 (기록은 패널의 handleSearchIcons가 담당)
+  const { data: recentSearches = [] } = useQuery({
+    queryKey: ['recentSearches'],
+    queryFn: () => storageService.getRecentSearches(),
+    staleTime: Infinity,
+  });
+  const [isRecentOpen, setIsRecentOpen] = useState(false);
   // 컬렉션 드롭다운: 첫 오픈 시 lazy 로드(실패하면 null 유지 → 다음 오픈에 재시도)
   const [isCollectionListOpen, setIsCollectionListOpen] = useState(false);
   const [collections, setCollections] = useState<CollectionListItem[] | null>(null);
@@ -203,7 +213,21 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
   }, [initialQuery]);
 
   const submitSearch = () => {
+    setIsRecentOpen(false);
     onSearch(draftQuery);
+  };
+
+  const selectRecentSearch = (term: string) => {
+    setDraftQuery(term);
+    setIsRecentOpen(false);
+    onSearch(term);
+  };
+
+  const clearRecentSearches = () => {
+    setIsRecentOpen(false);
+    void storageService.clearRecentSearches().then(() => {
+      queryClient.invalidateQueries({ queryKey: ['recentSearches'] });
+    });
   };
 
   const toggleCollectionList = async () => {
@@ -248,8 +272,11 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
             id={WORKSPACE_SEARCH_INPUT_ID}
             value={draftQuery}
             onChange={(event) => setDraftQuery(event.target.value)}
+            onFocus={() => setIsRecentOpen(true)}
+            onBlur={() => setIsRecentOpen(false)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') submitSearch();
+              if (event.key === 'Escape') setIsRecentOpen(false);
             }}
             placeholder="sword, potion, shield, heart..."
             className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-10 text-sm outline-none focus:border-lime-500"
@@ -264,6 +291,34 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
             >
               <X size={15} />
             </button>
+          )}
+          {/* 최근 검색어 드롭다운: mousedown preventDefault로 입력 blur를 막고 click을 살린다 */}
+          {isRecentOpen && recentSearches.length > 0 && (
+            <div className="absolute left-0 top-full z-30 mt-1 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+              <div className="flex items-center justify-between px-3 py-1.5">
+                <span className="text-[11px] font-semibold text-slate-400">{t('editor.search.recentTitle')}</span>
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={clearRecentSearches}
+                  className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                >
+                  {t('editor.search.recentClear')}
+                </button>
+              </div>
+              {recentSearches.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => selectRecentSearch(term)}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+                >
+                  <Search size={12} className="shrink-0 text-slate-400" />
+                  <span className="truncate">{term}</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
         <button
@@ -689,6 +744,7 @@ const SavedIconCard = memo(function SavedIconCard({
 export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const { t } = useI18n();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   // SVG 워크스페이스 영속성 훅 (자기완결형: App.tsx 결합 최소화)
   const { workspace, updateWorkspace } = useSvgWorkspace();
   // 내보내기 설정 (PNG 크기 등은 설정값을 따른다)
@@ -1299,6 +1355,10 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
 
     setError(null);
     setIsSearching(true);
+    // 최근 검색어 기록 (실패해도 검색은 계속)
+    void storageService.addRecentSearch(query).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['recentSearches'] });
+    });
     try {
       // 1) 이름 풀 조회(가벼움) → 2) 첫 페이지 SVG 로드
       const names = await searchSvgIconNames(query, {

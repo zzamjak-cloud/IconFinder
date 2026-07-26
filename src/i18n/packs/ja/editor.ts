@@ -22,6 +22,8 @@ export const jaEditorTranslations = {
   'editor.search.noResults': '検索結果がありません。',
   'editor.search.failed': 'アイコン検索に失敗しました。',
   'editor.search.pageFailed': 'ページの読み込みに失敗しました。',
+  'editor.search.recentTitle': '最近の検索',
+  'editor.search.recentClear': 'クリア',
 
   // 결과 · 저장 목록
   'editor.counts': '保存済み {saved}件 · 検索結果 {results}件',

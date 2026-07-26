@@ -131,6 +131,15 @@ export class StorageService {
   }
 
   /**
+   * 최근 검색어 전체 삭제
+   */
+  async clearRecentSearches(): Promise<void> {
+    const store = await this.getStore();
+    await store.set('recentSearches', []);
+    await store.save();
+  }
+
+  /**
    * 내보내기 설정 가져오기
    */
   async getExportSettings(): Promise<ExportSettings> {

@@ -22,6 +22,8 @@ export const deEditorTranslations = {
   'editor.search.noResults': 'Keine Suchergebnisse.',
   'editor.search.failed': 'Icon-Suche fehlgeschlagen.',
   'editor.search.pageFailed': 'Die Seite konnte nicht geladen werden.',
+  'editor.search.recentTitle': 'Letzte Suchanfragen',
+  'editor.search.recentClear': 'Leeren',
 
   // 결과 · 저장 목록
   'editor.counts': 'Gespeichert {saved} · Ergebnisse {results}',

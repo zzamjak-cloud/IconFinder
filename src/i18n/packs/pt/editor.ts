@@ -22,6 +22,8 @@ export const ptEditorTranslations = {
   'editor.search.noResults': 'Nenhum resultado de pesquisa.',
   'editor.search.failed': 'Falha na pesquisa de ícones.',
   'editor.search.pageFailed': 'Falha ao carregar a página.',
+  'editor.search.recentTitle': 'Pesquisas recentes',
+  'editor.search.recentClear': 'Limpar',
 
   // 결과 · 저장 목록
   'editor.counts': 'Salvos {saved} · Resultados {results}',
