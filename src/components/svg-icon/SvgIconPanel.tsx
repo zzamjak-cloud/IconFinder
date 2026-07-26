@@ -76,6 +76,7 @@ import {
   buildSvgDataUri,
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
+import { useSettings } from '@/hooks/useSettings';
 import { WORKSPACE_SEARCH_INPUT_ID } from '@/hooks/useKeyboardShortcuts';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
@@ -690,6 +691,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const { toast } = useToast();
   // SVG 워크스페이스 영속성 훅 (자기완결형: App.tsx 결합 최소화)
   const { workspace, updateWorkspace } = useSvgWorkspace();
+  // 내보내기 설정 (PNG 크기 등은 설정값을 따른다)
+  const { settings: exportSettings } = useSettings();
 
   const showToast = useCallback(
     (title: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -1539,10 +1542,10 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     }
   };
 
-  // PNG 저장: Canvas 래스터화로 효과(필터) 포함. 취소 시 토스트 없음.
-  const handleSavePng = async (label: string, fileName: string, svgContent: string, size = 512) => {
+  // PNG 저장: Canvas 래스터화로 효과(필터) 포함. 크기는 설정값 기본. 취소 시 토스트 없음.
+  const handleSavePng = async (label: string, fileName: string, svgContent: string, size?: number) => {
     try {
-      const savedPath = await exportService.saveSvgAsPng(fileName, svgContent, size);
+      const savedPath = await exportService.saveSvgAsPng(fileName, svgContent, size ?? exportSettings.size);
       if (savedPath) showToast(t('editor.saveOk', { label }));
     } catch (saveError) {
       setError(
@@ -2102,8 +2105,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                     void handleSavePng(
                       t('editor.label.pngFile'),
                       `${activeDetailName}.png`,
-                      activeDetailSvg,
-                      512
+                      activeDetailSvg
                     )
                   }
                   disabled={!activeDetailSvg}
