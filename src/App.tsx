@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SettingsButton } from '@/components/SettingsDialog';
 import { LicenseButton } from '@/components/LicenseDialog';
 import { ToastProvider } from '@/components/ui/toast';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { SvgIconPanel, type WorkspaceTab } from '@/components/svg-icon/SvgIconPanel';
 import { storageService } from '@/services/storageService';
 import { useAutoUpdater } from '@/hooks/useAutoUpdater';
@@ -35,9 +34,6 @@ function AppContent() {
 
   // 자동 업데이트
   const updater = useAutoUpdater();
-
-  // 키보드 단축키
-  useKeyboardShortcuts();
 
   // 앱 시작 시 기본 폴더 초기화
   useEffect(() => {

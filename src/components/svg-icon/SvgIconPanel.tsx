@@ -77,7 +77,7 @@ import {
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { useSettings } from '@/hooks/useSettings';
-import { WORKSPACE_SEARCH_INPUT_ID } from '@/hooks/useKeyboardShortcuts';
+import { WORKSPACE_SEARCH_INPUT_ID, useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -1555,6 +1555,28 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
       );
     }
   };
+
+  // 키보드 단축키: Cmd/Ctrl+S = 현재 Detail 아이콘 빠른 내보내기(설정 포맷), Cmd/Ctrl+F = 즐겨찾기 토글
+  useKeyboardShortcuts({
+    onQuickExport: () => {
+      if (!activeDetailName || !activeDetailSvg) {
+        showToast(t('editor.emptyPreview'), 'info');
+        return;
+      }
+      if (exportSettings.format === 'svg') {
+        void handleSaveTextFile(t('editor.label.svgFile'), `${activeDetailName}.svg`, activeDetailSvg, 'svg');
+      } else {
+        void handleSavePng(t('editor.label.pngFile'), `${activeDetailName}.png`, activeDetailSvg);
+      }
+    },
+    onToggleFavorite: () => {
+      if (selectedIcon) {
+        handleToggleFavorite(selectedIcon);
+      } else if (selectedResult) {
+        handleToggleResultFavorite(selectedResult);
+      }
+    },
+  });
 
   const draggingPreviewIcon =
     draggingIconIds.length > 0 ? workspace.icons.find((icon) => icon.id === draggingIconIds[0]) ?? null : null;
