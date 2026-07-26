@@ -573,7 +573,8 @@ const IconCardShell = memo(function IconCardShell({
         onClick={(event) => onSelect?.(event)}
         className="block w-full text-left"
       >
-        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
+        {/* 프리뷰 타일: 항상 라이트 + 글자색 고정 — currentColor 아이콘이 다크 모드의 밝은 상속색을 물려받아 흰 타일 위에서 사라지는 것 방지 */}
+        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50 text-slate-900">
           {preview}
         </div>
         <div className="mt-2 min-h-10 text-left">
@@ -1695,7 +1696,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
         >
           <div className="flex items-center gap-2 rounded-lg border border-lime-400 bg-white px-2 py-1.5 shadow-xl">
             <div
-              className="h-8 w-8 [&>svg]:h-full [&>svg]:w-full"
+              className="h-8 w-8 text-slate-900 [&>svg]:h-full [&>svg]:w-full"
               dangerouslySetInnerHTML={{ __html: buildIconPreviewSvg(draggingPreviewIcon) }}
             />
             <span className="text-xs font-bold text-slate-700">
