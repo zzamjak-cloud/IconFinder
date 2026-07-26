@@ -1,11 +1,14 @@
 export const frEditorTranslations = {
   // 좌측 금고 · 카테고리
   'editor.vault.title': 'Bibliothèque',
+  'editor.sidebar.collapse': 'Réduire la barre latérale',
+  'editor.sidebar.expand': 'Développer la barre latérale',
+  'editor.sidebar.resize': 'Redimensionner la barre latérale',
   'editor.category.new': 'Nouvelle catégorie',
   'editor.category.delete': 'Supprimer la catégorie',
   'editor.category.deleteConfirm': 'Appuyez à nouveau pour supprimer',
+  'editor.category.viewAll': 'Tout afficher',
   'editor.category.none': 'Aucune catégorie',
-  'editor.category.minimum': 'Au moins une catégorie est requise.',
   'editor.category.deleted': '{name} supprimée',
   'editor.spriteSaveAll': 'Enregistrer le sprite complet',
   'editor.restoreDeleted': "Restaurer l'icône que vous venez de supprimer",
@@ -19,17 +22,17 @@ export const frEditorTranslations = {
   'editor.search.noResults': 'Aucun résultat de recherche.',
   'editor.search.failed': "Échec de la recherche d'icônes.",
   'editor.search.pageFailed': 'Échec du chargement de la page.',
-  'editor.search.prompt': 'Recherche Iconify : {query}',
 
   // 결과 · 저장 목록
   'editor.counts': 'Enregistrées {saved} · Résultats {results}',
   'editor.results.title': 'Résultats de recherche',
-  'editor.results.meta': '{category} · Page {page}/{totalPages} · Affichage {shown}/{total}',
+  'editor.results.meta': 'Page {page}/{totalPages} · Affichage {shown}/{total}',
   'editor.results.loading': 'Chargement des résultats de recherche...',
   'editor.results.emptyHint': "Saisissez un terme et lancez la recherche d'icônes.",
-  'editor.results.saveSelected': 'Enregistrer les {count} sélectionnées',
   'editor.results.selected': '{count} résultats de recherche sélectionnés',
   'editor.results.deselected': 'Sélection des résultats de recherche effacée',
+  'editor.results.favoriteSelected': 'Ajouter {count} aux favoris',
+  'editor.results.favorited': '{count} icônes ajoutées aux favoris',
   'editor.saved.title': 'Icônes enregistrées',
   'editor.saved.count': '{count} SVG enregistrés',
   'editor.saved.selectedHint': '{count} sélectionnées · faites-les glisser sur une catégorie',
@@ -38,7 +41,7 @@ export const frEditorTranslations = {
   'editor.saved.resizeHandle': "Ajuster la hauteur du panneau d'icônes enregistrées",
   'editor.saved.dragHint':
     'Faites glisser les icônes sur une catégorie pour les déplacer',
-  'editor.saved.empty': 'Enregistrez les SVG dont vous avez besoin depuis les résultats.',
+  'editor.saved.empty': 'Aucune icône enregistrée. Ajoutez-en depuis Recherche avec ★.',
   'editor.select': 'Sélectionner',
   'editor.dragCount': 'Déplacement de {count}',
 
@@ -60,7 +63,7 @@ export const frEditorTranslations = {
 
   // 스타일 · 효과 컨트롤
   'editor.style.section': 'Variantes de style',
-  'editor.exportSize': "Taille d'export",
+  'editor.exportSize': 'Taille',
   'editor.style.group': 'Style',
   'editor.color.main': 'Principale',
   'editor.color.main.label': 'Couleur principale',
@@ -77,7 +80,7 @@ export const frEditorTranslations = {
   'editor.outline': 'Contour',
   'editor.outline.color': 'Couleur du contour',
   'editor.outline.width': 'Épaisseur du contour {width} px',
-  'editor.reapplyStyle': 'Réappliquer le style actuel',
+  'editor.reapplyStyle': 'Réappliquer',
   'editor.copySvg': 'Copier le SVG',
   'editor.copyHtml': 'Copier le HTML',
   'editor.copyCss': 'Copier le CSS',

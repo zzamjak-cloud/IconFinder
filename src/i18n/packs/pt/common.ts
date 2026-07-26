@@ -1,4 +1,5 @@
 export const ptCommonTranslations = {
+  'common.confirm': 'Confirmar',
   'common.cancel': 'Cancelar',
   'common.close': 'Fechar',
   'common.save': 'Salvar',

@@ -106,9 +106,10 @@ assert.equal(
 const searchMetrics = getSvgIconGridMetrics(960, 6, 'search');
 const savedMetrics = getSvgIconGridMetrics(960, 6, 'saved');
 
-assert.ok(
-  searchMetrics.rowPitch > savedMetrics.rowPitch,
-  '검색 결과 카드는 저장 아이콘 카드보다 액션 영역이 커서 row pitch가 더 커야 한다.',
+assert.equal(
+  searchMetrics.rowPitch,
+  savedMetrics.rowPitch,
+  '검색/저장 카드는 동일 골격이므로 row pitch가 같아야 한다.',
 );
 assert.equal(
   getSvgIconGridTotalHeight(7, searchMetrics.rowPitch),

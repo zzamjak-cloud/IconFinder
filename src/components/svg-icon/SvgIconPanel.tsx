@@ -13,7 +13,6 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   Check,
   ChevronDown,
-  Code2,
   Copy,
   Download,
   ExternalLink,
@@ -22,6 +21,10 @@ import {
   ImageOff,
   Loader2,
   Palette,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Plus,
   Search,
   ShieldCheck,
@@ -45,6 +48,7 @@ import {
 import {
   DEFAULT_SVG_ICON_SEARCH_QUERY,
   SVG_ICON_VIEW_BOXES,
+  UNCATEGORIZED_TEMPLATE_KEY,
   createSvgIconId,
   ensureUncategorizedCategory,
   getCategoryDisplayName,
@@ -70,30 +74,40 @@ import {
   buildHtmlIconSnippet,
   buildStandaloneSvg,
   buildSvgDataUri,
-  buildSvgSprite,
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { WORKSPACE_SEARCH_INPUT_ID } from '@/hooks/useKeyboardShortcuts';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/toast';
 import { exportService } from '@/services/exportService';
 import { iconifyApi } from '@/services/iconifyApi';
 import { ColorSwatchPicker } from './ColorSwatchPicker';
 import {
-  SVG_ICON_SAVED_PANE_DEFAULT_HEIGHT,
   SVG_ICON_SEARCH_PAGE_SIZE,
-  clampSvgIconSavedPaneHeight,
   getSvgIconGridMetrics,
   getSvgIconGridRowStyle,
   getSvgIconGridTotalHeight,
-  getSvgIconSavedPaneHeightFromDrag,
   getSvgIconSearchPageSlice,
   type SvgIconGridKind,
 } from './svgIconPanelLayout';
 
+/** 헤더 워크스페이스 탭 — 검색(사이드바 없음) / 즐겨찾기(라이브러리) */
+export type WorkspaceTab = 'search' | 'favorites';
+
+// 좌·우 사이드바 너비(px) — 기본값은 min, 접힘 너비는 폴딩 아이콘만 보이게
+const LEFT_SIDEBAR_MIN = 200;
+const LEFT_SIDEBAR_DEFAULT = LEFT_SIDEBAR_MIN;
+const LEFT_SIDEBAR_MAX = 420;
+const LEFT_SIDEBAR_COLLAPSED = 48;
+const RIGHT_SIDEBAR_MIN = 280;
+const RIGHT_SIDEBAR_DEFAULT = RIGHT_SIDEBAR_MIN;
+const RIGHT_SIDEBAR_MAX = 520;
+const RIGHT_SIDEBAR_COLLAPSED = 48;
+
 const CATEGORY_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#0ea5e9', '#8b5cf6', '#eab308', '#ec4899'];
 const OUTLINE_WIDTH_MAX = 64;
-const OUTLINE_WIDTH_PERCEIVED_RATIO = 4;
 // 색상 모드(원본/단색/투톤)와 마감(그레디언트/입체)을 하나로 통합한 스타일 종류.
 // 그레디언트/입체는 색상 모드를 무시하므로 별도 컨트롤로 둘 필요가 없다.
 type SvgIconStyleKind = 'original' | 'monochrome' | 'duotone' | 'gradient' | 'raised';
@@ -129,11 +143,6 @@ function modesToStyleKind(colorMode: SvgIconColorMode, finishMode: SvgIconFinish
   if (colorMode === 'monochrome') return 'monochrome';
   if (colorMode === 'duotone') return 'duotone';
   return 'original';
-}
-
-function formatPerceivedOutlineWidth(width: number): string {
-  const perceivedWidth = width / OUTLINE_WIDTH_PERCEIVED_RATIO;
-  return Number.isInteger(perceivedWidth) ? String(perceivedWidth) : perceivedWidth.toFixed(1);
 }
 
 async function copyText(text: string): Promise<void> {
@@ -458,15 +467,122 @@ function VirtualizedSvgIconGrid<T>({
   );
 }
 
+interface IconCardShellProps {
+  title: string;
+  subtitle: string;
+  preview: ReactNode;
+  isHighlighted?: boolean;
+  showCheck?: boolean;
+  checked?: boolean;
+  isFavorite: boolean;
+  sourceUrl?: string | null;
+  isDragging?: boolean;
+  className?: string;
+  onToggleCheck?: () => void;
+  onSelect?: (event: ReactMouseEvent) => void;
+  onToggleFavorite: () => void;
+  onMouseDown?: (event: ReactMouseEvent) => void;
+}
+
+/** 검색 카드 골격 — 정사각 미리보기 / 이름·부제 / ★·원본링크·우하단 체크 */
+const IconCardShell = memo(function IconCardShell({
+  title,
+  subtitle,
+  preview,
+  isHighlighted = false,
+  showCheck = true,
+  checked = false,
+  isFavorite,
+  sourceUrl,
+  isDragging = false,
+  className,
+  onToggleCheck,
+  onSelect,
+  onToggleFavorite,
+  onMouseDown,
+}: IconCardShellProps) {
+  const { t } = useI18n();
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      className={`rounded-lg border bg-white p-3 ${
+        isHighlighted ? 'border-lime-500 ring-2 ring-lime-100' : 'border-slate-200'
+      } ${isDragging ? 'opacity-40' : ''} ${className ?? 'h-full'}`}
+    >
+      <button
+        type="button"
+        onClick={(event) => onSelect?.(event)}
+        className="block w-full text-left"
+      >
+        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
+          {preview}
+        </div>
+        <div className="mt-2 min-h-10 text-left">
+          <p className="truncate text-sm font-semibold">{title}</p>
+          <p className="truncate text-xs text-slate-500">{subtitle}</p>
+        </div>
+      </button>
+      <div className="mt-2 flex items-center gap-1">
+        <button
+          type="button"
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite();
+          }}
+          className={`rounded-md border p-1.5 ${
+            isFavorite
+              ? 'border-amber-300 bg-amber-50 text-amber-500'
+              : 'border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-amber-500'
+          }`}
+          title={isFavorite ? t('favorites.remove') : t('favorites.add')}
+          aria-label={isFavorite ? t('favorites.remove') : t('favorites.add')}
+        >
+          <Star size={14} className={isFavorite ? 'fill-amber-400 text-amber-400' : ''} />
+        </button>
+        {sourceUrl ? (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50"
+            title={t('common.viewOriginal')}
+          >
+            <ExternalLink size={14} />
+          </a>
+        ) : null}
+        {showCheck && (
+          <button
+            type="button"
+            onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleCheck?.();
+            }}
+            className={`ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+              checked ? 'border-lime-500 bg-lime-500 text-white' : 'border-slate-300'
+            }`}
+            title={checked ? t('common.clearSelection') : t('common.select')}
+            aria-label={checked ? t('common.clearSelection') : t('common.select')}
+          >
+            {checked && <Check size={13} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+});
+
 interface SearchResultCardProps {
   result: SvgIconSearchResult;
   isSelected: boolean;
   isActive: boolean;
   isFavorite: boolean;
-  canSave: boolean;
   buildPreviewSvg: (result: SvgIconSearchResult) => string;
   onToggleSelection: (resultId: string) => void;
-  onSaveResult: (result: SvgIconSearchResult) => void;
   onToggleFavorite: (result: SvgIconSearchResult) => void;
   onSelectResult: (result: SvgIconSearchResult) => void;
 }
@@ -476,78 +592,31 @@ const SearchResultCard = memo(function SearchResultCard({
   isSelected,
   isActive,
   isFavorite,
-  canSave,
   buildPreviewSvg,
   onToggleSelection,
-  onSaveResult,
   onToggleFavorite,
   onSelectResult,
 }: SearchResultCardProps) {
-  const { t } = useI18n();
   const previewSvg = useMemo(() => buildPreviewSvg(result), [buildPreviewSvg, result]);
 
   return (
-    <div
-      className={`h-full rounded-lg border bg-white p-3 ${
-        isSelected || isActive ? 'border-lime-500 ring-2 ring-lime-100' : 'border-slate-200'
-      }`}
-    >
-      <button
-        type="button"
-        onClick={() => onToggleSelection(result.id)}
-        className="mb-2 flex w-full items-center justify-between gap-2 text-left"
-      >
-        <span className="min-w-0 truncate text-xs font-semibold text-slate-600">{result.sourceName}</span>
-        <span
-          className={`flex h-5 w-5 items-center justify-center rounded border ${
-            isSelected ? 'border-lime-500 bg-lime-500 text-white' : 'border-slate-300'
-          }`}
-        >
-          {isSelected && <Check size={13} />}
-        </span>
-      </button>
-      {/* 미리보기 클릭 → 디테일 패널에서 빠른 내보내기 대상이 된다 */}
-      <button type="button" onClick={() => onSelectResult(result)} className="block w-full">
-        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
-          <div className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: previewSvg }} />
-        </div>
-        <div className="mt-2 min-h-10 text-left">
-          <p className="truncate text-sm font-semibold">{result.name}</p>
-          <p className="truncate text-xs text-slate-500">{result.collection}</p>
-        </div>
-      </button>
-      <div className="mt-2 flex gap-1">
-        <button
-          type="button"
-          onClick={() => onSaveResult(result)}
-          disabled={!canSave}
-          className="flex-1 rounded-md bg-slate-900 px-2 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:bg-slate-200"
-        >
-          {t('common.save')}
-        </button>
-        <button
-          type="button"
-          onClick={() => onToggleFavorite(result)}
-          className={`rounded-md border p-1.5 ${
-            isFavorite
-              ? 'border-amber-300 bg-amber-50 text-amber-500'
-              : 'border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-amber-500'
-          }`}
-          title={isFavorite ? t('favorites.remove') : t('favorites.add')}
-        >
-          <Star size={14} className={isFavorite ? 'fill-amber-400 text-amber-400' : ''} />
-        </button>
-        <a
-          href={result.sourceUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50"
-          title={t('common.viewOriginal')}
-        >
-          <ExternalLink size={14} />
-        </a>
-      </div>
-    </div>
+    <IconCardShell
+      title={result.name}
+      subtitle={result.collection}
+      isHighlighted={isSelected || isActive}
+      checked={isSelected}
+      isFavorite={isFavorite}
+      sourceUrl={result.sourceUrl}
+      onToggleCheck={() => onToggleSelection(result.id)}
+      onSelect={() => onSelectResult(result)}
+      onToggleFavorite={() => onToggleFavorite(result)}
+      preview={
+        <div
+          className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full"
+          dangerouslySetInnerHTML={{ __html: previewSvg }}
+        />
+      }
+    />
   );
 });
 
@@ -560,6 +629,7 @@ interface SavedIconCardProps {
   buildPreviewSvg: (icon: SvgGameIcon) => string;
   onMouseDown: (event: ReactMouseEvent, icon: SvgGameIcon) => void;
   onToggleSelection: (iconId: string) => void;
+  onToggleFavorite: (icon: SvgGameIcon) => void;
   onSelectIcon: (event: ReactMouseEvent, icon: SvgGameIcon) => void;
 }
 
@@ -572,6 +642,7 @@ const SavedIconCard = memo(function SavedIconCard({
   buildPreviewSvg,
   onMouseDown,
   onToggleSelection,
+  onToggleFavorite,
   onSelectIcon,
 }: SavedIconCardProps) {
   const { t } = useI18n();
@@ -582,60 +653,50 @@ const SavedIconCard = memo(function SavedIconCard({
   );
 
   return (
-    <div
+    <IconCardShell
+      title={icon.name}
+      subtitle={icon.sourceName ?? 'SVG'}
+      isHighlighted={isChecked || isSelected}
+      checked={isChecked}
+      isFavorite={Boolean(icon.favorite)}
+      sourceUrl={icon.sourceUrl}
+      isDragging={isDragging}
+      className="h-full cursor-grab select-none active:cursor-grabbing hover:border-lime-400"
       onMouseDown={(event) => onMouseDown(event, icon)}
-      className={`group relative h-full cursor-grab select-none rounded-lg border bg-white p-3 active:cursor-grabbing ${
-        isChecked
-          ? 'border-lime-500 ring-2 ring-lime-100'
-          : isSelected
-          ? 'border-lime-500 ring-2 ring-lime-100'
-          : 'border-slate-200 hover:border-lime-400'
-      } ${isDragging ? 'opacity-40' : ''}`}
-    >
-      <button
-        type="button"
-        onMouseDown={(event) => event.stopPropagation()}
-        onClick={(event) => {
-          event.stopPropagation();
-          onToggleSelection(icon.id);
-        }}
-        className={`absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded border ${
-          isChecked
-            ? 'border-lime-500 bg-lime-500 text-white'
-            : 'border-slate-300 bg-white/80 text-transparent group-hover:border-slate-400'
-        }`}
-        title={isChecked ? t('common.clearSelection') : t('common.select')}
-      >
-        <Check size={13} />
-      </button>
-      <button type="button" onClick={(event) => onSelectIcon(event, icon)} className="block w-full text-left">
-        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50">
-          {icon.svg === '' ? (
-            // 하이드레이션 전 플레이스홀더(실패 시 깨진 이미지 아이콘)
-            <div
-              className="flex h-3/4 w-3/4 items-center justify-center text-slate-300"
-              title={isHydrationFailed ? t('icon.loadFailed') : undefined}
-            >
-              {isHydrationFailed ? <ImageOff size={28} /> : <Loader2 size={28} className="animate-spin" />}
-            </div>
-          ) : (
-            <div className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: previewSvg }} />
-          )}
-        </div>
-        <div className="mt-2 flex items-center gap-1">
-          <p className="min-w-0 flex-1 truncate text-sm font-semibold">{icon.name}</p>
-          {icon.favorite && <Star size={14} className="fill-amber-400 text-amber-400" />}
-        </div>
-        <p className="truncate text-xs text-slate-500">{icon.sourceName ?? 'SVG'}</p>
-      </button>
-    </div>
+      onToggleCheck={() => onToggleSelection(icon.id)}
+      onSelect={(event) => onSelectIcon(event, icon)}
+      onToggleFavorite={() => onToggleFavorite(icon)}
+      preview={
+        icon.svg === '' ? (
+          <div
+            className="flex h-3/4 w-3/4 items-center justify-center text-slate-300"
+            title={isHydrationFailed ? t('icon.loadFailed') : undefined}
+          >
+            {isHydrationFailed ? <ImageOff size={28} /> : <Loader2 size={28} className="animate-spin" />}
+          </div>
+        ) : (
+          <div
+            className="h-3/4 w-3/4 [&>svg]:h-full [&>svg]:w-full"
+            dangerouslySetInnerHTML={{ __html: previewSvg }}
+          />
+        )
+      }
+    />
   );
 });
 
-export function SvgIconPanel() {
+export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const { t } = useI18n();
+  const { toast } = useToast();
   // SVG 워크스페이스 영속성 훅 (자기완결형: App.tsx 결합 최소화)
   const { workspace, updateWorkspace } = useSvgWorkspace();
+
+  const showToast = useCallback(
+    (title: string, type: 'success' | 'error' | 'info' = 'success') => {
+      toast({ title, type });
+    },
+    [toast]
+  );
 
   const [newCategoryName, setNewCategoryName] = useState('');
   const [searchInputSeed, setSearchInputSeed] = useState(DEFAULT_SVG_ICON_SEARCH_QUERY);
@@ -647,14 +708,10 @@ export function SvgIconPanel() {
   const [gridColumns, setGridColumns] = useState(5);
   // 검색 스코프(전체/팩/컬렉션) — 단일 선택
   const [searchScope, setSearchScope] = useState<SvgIconSearchScope>(DEFAULT_SVG_ICON_SEARCH_SCOPE);
-  const [savedSearchQuery, setSavedSearchQuery] = useState('');
-  const [savedPaneHeight, setSavedPaneHeight] = useState(SVG_ICON_SAVED_PANE_DEFAULT_HEIGHT);
   const [selectedIconId, setSelectedIconId] = useState<string | null>(null);
   // 디테일 패널이 따라가는 검색 결과(보관함 아이콘 선택과 상호 배타)
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
-  // 즐겨찾기 스마트 뷰 — 실제 카테고리 id와 분리된 별도 상태(저장 데이터를 오염시키지 않음)
-  const [isFavoritesView, setIsFavoritesView] = useState(false);
-  // 스타일 섹션 아코디언(검색 결과 선택 시 기본 접힘)
+  // 스타일 섹션 아코디언
   const [isStyleOpen, setIsStyleOpen] = useState(true);
   // 일괄 내보내기 대상(null이면 다이얼로그 닫힘)
   const [batchItems, setBatchItems] = useState<BatchExportItem[] | null>(null);
@@ -663,7 +720,8 @@ export function SvgIconPanel() {
   const hydrationInFlightRef = useRef<Set<string>>(new Set());
   const [isSearching, setIsSearching] = useState(false);
   const [pendingDeleteCategoryId, setPendingDeleteCategoryId] = useState<string | null>(null);
-  const [deletedIcon, setDeletedIcon] = useState<SvgGameIcon | null>(null);
+  // 즐겨찾기 해제 확인 대상(우측 디테일 별 버튼)
+  const [unfavoriteConfirmIcon, setUnfavoriteConfirmIcon] = useState<SvgGameIcon | null>(null);
   const [colorMode, setColorMode] = useState<SvgIconColorMode>('original');
   const [finishMode, setFinishMode] = useState<SvgIconFinishMode>('flat');
   const [primaryColor, setPrimaryColor] = useState(SVG_ICON_COLOR_PRESETS[0].primary);
@@ -672,12 +730,18 @@ export function SvgIconPanel() {
   const [outlineWidth, setOutlineWidth] = useState(3);
   const [outlineEnabled, setOutlineEnabled] = useState(false);
   const [effects, setEffects] = useState<SvgIconEffects>(DEFAULT_SVG_ICON_EFFECTS);
-  const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [iconSelection, setIconSelection] = useState<Set<string>>(new Set());
   const [draggingIconIds, setDraggingIconIds] = useState<string[]>([]);
   const [dragOverCategoryId, setDragOverCategoryId] = useState<string | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  // 좌·우 사이드바 너비 / 접힘
+  const [leftWidth, setLeftWidth] = useState(LEFT_SIDEBAR_DEFAULT);
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightWidth, setRightWidth] = useState(RIGHT_SIDEBAR_DEFAULT);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const leftWidthBeforeCollapseRef = useRef(LEFT_SIDEBAR_DEFAULT);
+  const rightWidthBeforeCollapseRef = useRef(RIGHT_SIDEBAR_DEFAULT);
   const selectionAnchorRef = useRef<string | null>(null);
   // 마우스 기반 드래그 상태(WKWebView에서 HTML5 DnD가 불안정해 기존 사이드바와 동일한 방식 사용).
   const iconDragRef = useRef<{
@@ -689,9 +753,10 @@ export function SvgIconPanel() {
   }>({ ids: [], startX: 0, startY: 0, active: false, targetCategoryId: null });
   const moveIconsToCategoryRef = useRef<(iconIds: string[], targetCategoryId: string) => void>(() => {});
   const suppressIconClickRef = useRef(false);
-  const splitContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const selectedCategoryId = workspace.selectedCategoryId ?? workspace.categories[0]?.id;
+  // selectedCategoryId가 없으면 "전체보기"(삭제 불가 스마트 뷰)
+  const isViewAll = !workspace.selectedCategoryId;
+  const selectedCategoryId = workspace.selectedCategoryId;
   const selectedCategory = workspace.categories.find((category) => category.id === selectedCategoryId) ?? null;
   const selectedIcon = workspace.icons.find((icon) => icon.id === selectedIconId) ?? null;
 
@@ -709,16 +774,49 @@ export function SvgIconPanel() {
       .sort((a, b) => Number(Boolean(b.favorite)) - Number(Boolean(a.favorite)));
   }, [selectedCategoryId, workspace.icons]);
 
-  // 즐겨찾기 스마트 뷰: favorite===true 아이콘 전체(카테고리 무관)
-  const favoriteIcons = useMemo(() => workspace.icons.filter((icon) => icon.favorite), [workspace.icons]);
+  // 전체보기: 즐겨찾기(favorite) 아이콘 전체 / 카테고리: 해당 카테고리의 즐겨찾기만
+  const visibleSavedIcons = useMemo(() => {
+    const base = isViewAll
+      ? workspace.icons.filter((icon) => icon.favorite)
+      : selectedCategoryIcons.filter((icon) => icon.favorite);
+    return [...base].sort(
+      (a, b) => Number(Boolean(b.favorite)) - Number(Boolean(a.favorite))
+    );
+  }, [isViewAll, selectedCategoryIcons, workspace.icons]);
 
-  // 하단 보관함 그리드에 표시되는 목록(카테고리 뷰 또는 즐겨찾기 뷰)
-  const visibleSavedIcons = isFavoritesView ? favoriteIcons : selectedCategoryIcons;
-
-  const selectedResults = useMemo(
-    () => searchResults.filter((result) => selectedResultIds.has(result.id)),
-    [searchResults, selectedResultIds]
+  // 미분류는 항상 상단 고정, 나머지 사용자 카테고리만 순서 변경 가능
+  const uncategorizedCategory = useMemo(
+    () => workspace.categories.find((category) => category.templateKey === UNCATEGORIZED_TEMPLATE_KEY) ?? null,
+    [workspace.categories]
   );
+  const userCategories = useMemo(
+    () => workspace.categories.filter((category) => category.templateKey !== UNCATEGORIZED_TEMPLATE_KEY),
+    [workspace.categories]
+  );
+
+  // 검색 ↔ 즐겨찾기 탭 전환 시 우측 디테일·선택 상태 초기화(스타일 섹션은 펼침 유지)
+  useEffect(() => {
+    setSelectedIconId(null);
+    setSelectedResultId(null);
+    setSelectedResultIds(new Set());
+    setIconSelection(new Set());
+    selectionAnchorRef.current = null;
+    setPendingDeleteCategoryId(null);
+    setIsStyleOpen(true);
+  }, [mode]);
+
+  // 즐겨찾기 탭 진입 시 미분류를 보장하고 목록 맨 앞으로 둔다
+  useEffect(() => {
+    if (mode !== 'favorites') return;
+    const { data, category } = ensureUncategorizedCategory(workspace);
+    const rest = data.categories.filter((item) => item.templateKey !== UNCATEGORIZED_TEMPLATE_KEY);
+    const ordered = [category, ...rest];
+    const alreadyOrdered =
+      data.categories.length === ordered.length &&
+      data.categories.every((item, index) => item.id === ordered[index]?.id);
+    if (data === workspace && alreadyOrdered) return;
+    updateWorkspace({ ...data, categories: ordered });
+  }, [mode, updateWorkspace, workspace]);
 
   // 디테일 패널이 따라가는 검색 결과 항목
   const selectedResult = useMemo(
@@ -734,12 +832,6 @@ export function SvgIconPanel() {
     }
     return set;
   }, [workspace.icons]);
-
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 2200);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
 
   const styleSvg = useCallback(
     (svg: string) =>
@@ -875,11 +967,11 @@ export function SvgIconPanel() {
     applyStyleSnapshotToControls(icon.styleSnapshot);
   };
 
-  // 검색 결과 카드 클릭 → 디테일 패널 대상 지정(스타일 섹션은 기본 접힘)
+  // 검색 결과 카드 클릭 → 디테일 패널 대상 지정(스타일 섹션도 표시)
   const handleSelectSearchResult = (result: SvgIconSearchResult) => {
     setSelectedResultId(result.id);
     setSelectedIconId(null);
-    setIsStyleOpen(false);
+    setIsStyleOpen(true);
   };
 
   const toggleIconSelection = (iconId: string) => {
@@ -950,10 +1042,73 @@ export function SvgIconPanel() {
     });
 
     setIconSelection(new Set());
-    setToast(t('editor.icon.moved', { count: movedIcons.length, target: targetName }));
+    showToast(t('editor.icon.moved', { count: movedIcons.length, target: targetName }));
   };
 
   moveIconsToCategoryRef.current = moveIconsToCategory;
+
+  const displayLeftWidth = leftCollapsed ? LEFT_SIDEBAR_COLLAPSED : leftWidth;
+  const displayRightWidth = rightCollapsed ? RIGHT_SIDEBAR_COLLAPSED : rightWidth;
+
+  const toggleLeftCollapsed = () => {
+    if (leftCollapsed) {
+      setLeftWidth(leftWidthBeforeCollapseRef.current);
+      setLeftCollapsed(false);
+    } else {
+      leftWidthBeforeCollapseRef.current = leftWidth;
+      setLeftCollapsed(true);
+    }
+  };
+
+  const toggleRightCollapsed = () => {
+    if (rightCollapsed) {
+      setRightWidth(rightWidthBeforeCollapseRef.current);
+      setRightCollapsed(false);
+    } else {
+      rightWidthBeforeCollapseRef.current = rightWidth;
+      setRightCollapsed(true);
+    }
+  };
+
+  const handleLeftResizePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (leftCollapsed) return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = leftWidth;
+    const onMove = (moveEvent: PointerEvent) => {
+      const next = Math.min(
+        LEFT_SIDEBAR_MAX,
+        Math.max(LEFT_SIDEBAR_MIN, startWidth + (moveEvent.clientX - startX))
+      );
+      setLeftWidth(next);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp, { once: true });
+  };
+
+  const handleRightResizePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (rightCollapsed) return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = rightWidth;
+    const onMove = (moveEvent: PointerEvent) => {
+      const next = Math.min(
+        RIGHT_SIDEBAR_MAX,
+        Math.max(RIGHT_SIDEBAR_MIN, startWidth - (moveEvent.clientX - startX))
+      );
+      setRightWidth(next);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp, { once: true });
+  };
 
   // 전역 마우스 이동/해제로 드래그를 처리한다(사이드바와 동일한 패턴).
   useEffect(() => {
@@ -1001,18 +1156,19 @@ export function SvgIconPanel() {
 
   const handleCategorySelect = (categoryId: string) => {
     updateWorkspace({ ...workspace, selectedCategoryId: categoryId });
-    setIsFavoritesView(false);
     setSelectedIconId(null);
     setPendingDeleteCategoryId(null);
+    setIconSelection(new Set());
+    selectionAnchorRef.current = null;
     // 카테고리 추천 검색어(영어)를 검색 입력에 자동 채움
     const nextCategory = workspace.categories.find((category) => category.id === categoryId) ?? null;
     const recommended = getRecommendedQueryForCategory(nextCategory);
     if (recommended) setSearchInputSeed(recommended);
   };
 
-  // 즐겨찾기 스마트 뷰 진입(추천 검색어·삭제 대기 등 카테고리 부수효과 없음)
-  const handleSelectFavoritesView = () => {
-    setIsFavoritesView(true);
+  // 전체보기 스마트 뷰 — 삭제 불가, 저장 데이터에 카테고리 id를 쓰지 않는다
+  const handleSelectViewAll = () => {
+    updateWorkspace({ ...workspace, selectedCategoryId: undefined });
     setSelectedIconId(null);
     setPendingDeleteCategoryId(null);
     setIconSelection(new Set());
@@ -1033,20 +1189,33 @@ export function SvgIconPanel() {
       updatedAt: now,
     };
 
+    const { data, category: unc } = ensureUncategorizedCategory(workspace);
+    const rest = data.categories.filter((item) => item.templateKey !== UNCATEGORIZED_TEMPLATE_KEY);
     updateWorkspace({
-      ...workspace,
-      categories: [...workspace.categories, category],
+      ...data,
+      categories: [unc, ...rest, category],
       selectedCategoryId: category.id,
     });
     setNewCategoryName('');
     setSelectedIconId(null);
   };
 
+  const handleReorderUserCategory = (sourceId: string, targetId: string) => {
+    if (sourceId === targetId) return;
+    const unc = workspace.categories.filter((item) => item.templateKey === UNCATEGORIZED_TEMPLATE_KEY);
+    const users = workspace.categories.filter((item) => item.templateKey !== UNCATEGORIZED_TEMPLATE_KEY);
+    const fromIndex = users.findIndex((item) => item.id === sourceId);
+    const toIndex = users.findIndex((item) => item.id === targetId);
+    if (fromIndex < 0 || toIndex < 0) return;
+    const nextUsers = [...users];
+    const [moved] = nextUsers.splice(fromIndex, 1);
+    nextUsers.splice(toIndex, 0, moved);
+    updateWorkspace({ ...workspace, categories: [...unc, ...nextUsers] });
+  };
+
   const handleDeleteCategory = (category: SvgIconCategory) => {
-    if (workspace.categories.length <= 1) {
-      setError(t('editor.category.minimum'));
-      return;
-    }
+    // 미분류는 삭제 불가
+    if (category.templateKey === UNCATEGORIZED_TEMPLATE_KEY) return;
 
     if (pendingDeleteCategoryId !== category.id) {
       setPendingDeleteCategoryId(category.id);
@@ -1055,15 +1224,21 @@ export function SvgIconPanel() {
 
     const nextCategories = workspace.categories.filter((item) => item.id !== category.id);
     const deletedIconIds = new Set(category.iconIds);
+    const nextSelectedId =
+      workspace.selectedCategoryId === category.id
+        ? undefined
+        : workspace.selectedCategoryId && nextCategories.some((item) => item.id === workspace.selectedCategoryId)
+          ? workspace.selectedCategoryId
+          : undefined;
     updateWorkspace({
       ...workspace,
       categories: nextCategories,
       icons: workspace.icons.filter((icon) => !deletedIconIds.has(icon.id)),
-      selectedCategoryId: nextCategories[0]?.id,
+      selectedCategoryId: nextSelectedId,
     });
     setPendingDeleteCategoryId(null);
     setSelectedIconId(null);
-    setToast(t('editor.category.deleted', { name: getCategoryDisplayName(category, t) }));
+    showToast(t('editor.category.deleted', { name: getCategoryDisplayName(category, t) }));
   };
 
   const handleSettingChange = (defaultViewBox: SvgIconViewBox) => {
@@ -1079,7 +1254,7 @@ export function SvgIconPanel() {
         preset.accent.toLowerCase() === accentColor.toLowerCase()
     );
     if (isDuplicate) {
-      setToast(t('editor.color.duplicate'));
+      showToast(t('editor.color.duplicate'));
       return;
     }
     const preset: SvgIconColorPreset = {
@@ -1089,7 +1264,7 @@ export function SvgIconPanel() {
       accent: accentColor,
     };
     updateWorkspace({ ...workspace, customColorPresets: [...existing, preset] });
-    setToast(t('editor.color.presetSaved'));
+    showToast(t('editor.color.presetSaved'));
   };
 
   // 커스텀 프리셋 삭제
@@ -1129,12 +1304,11 @@ export function SvgIconPanel() {
         poolLimit: 600,
       });
       setResultNames(names);
-      setSavedSearchQuery(query);
       if (names.length === 0) {
         setSearchResults([]);
         setSearchPage(0);
         setSelectedResultIds(new Set());
-        setToast(t('editor.search.noResults'));
+        showToast(t('editor.search.noResults'));
         return;
       }
       await loadSearchPage(names, 0, SVG_ICON_SEARCH_PAGE_SIZE);
@@ -1165,48 +1339,6 @@ export function SvgIconPanel() {
     }
   };
 
-  useEffect(() => {
-    const el = splitContainerRef.current;
-    if (!el) return;
-    const updateHeight = () => {
-      setSavedPaneHeight((prev) => clampSvgIconSavedPaneHeight(prev, el.clientHeight));
-    };
-    updateHeight();
-    const observer = new ResizeObserver(updateHeight);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const handleSplitResizePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    const el = splitContainerRef.current;
-    if (!el) return;
-    event.preventDefault();
-
-    const startY = event.clientY;
-    const savedPane = event.currentTarget.nextElementSibling;
-    const initialHeight =
-      savedPane instanceof HTMLElement ? savedPane.getBoundingClientRect().height : savedPaneHeight;
-
-    const updateFromPointer = (pointerY: number) => {
-      setSavedPaneHeight(
-        getSvgIconSavedPaneHeightFromDrag({
-          initialHeight,
-          startY,
-          currentY: pointerY,
-          containerHeight: el.clientHeight,
-        })
-      );
-    };
-    const handlePointerMove = (moveEvent: PointerEvent) => updateFromPointer(moveEvent.clientY);
-    const handlePointerUp = () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-    };
-
-    window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerup', handlePointerUp, { once: true });
-  };
-
   const toggleResultSelection = (resultId: string) => {
     setSelectedResultIds((prev) => {
       const next = new Set(prev);
@@ -1214,49 +1346,6 @@ export function SvgIconPanel() {
       else next.add(resultId);
       return next;
     });
-  };
-
-  const handleSaveResults = (targetResults: SvgIconSearchResult[]) => {
-    if (!selectedCategory || targetResults.length === 0) return;
-
-    const now = new Date().toISOString();
-    const styleSnapshot = getCurrentStyleSnapshot();
-    const newIcons: SvgGameIcon[] = targetResults.map((result) => ({
-      id: createSvgIconId('svg-icon'),
-      categoryId: selectedCategory.id,
-      name: result.name,
-      prompt: t('editor.search.prompt', { query: savedSearchQuery }),
-      svg: result.svg,
-      originalSvg: result.svg,
-      tags: result.tags,
-      stylePreset: workspace.stylePreset,
-      viewBox: workspace.defaultViewBox,
-      source: result.source,
-      sourceId: result.id,
-      sourceName: result.sourceName,
-      sourceUrl: result.sourceUrl,
-      license: result.license,
-      styleSnapshot,
-      createdAt: now,
-      updatedAt: now,
-    }));
-    const newIconIds = newIcons.map((icon) => icon.id);
-
-    updateWorkspace({
-      ...workspace,
-      icons: [...newIcons, ...workspace.icons],
-      categories: workspace.categories.map((category) =>
-        category.id === selectedCategory.id
-          ? {
-              ...category,
-              iconIds: [...newIconIds, ...category.iconIds],
-              updatedAt: now,
-            }
-          : category
-      ),
-    });
-    setSelectedResultIds(new Set());
-    setToast(t('editor.saved.count', { count: newIcons.length }));
   };
 
   const handleDeleteIcon = (icon: SvgGameIcon) => {
@@ -1269,39 +1358,49 @@ export function SvgIconPanel() {
           : category
       ),
     });
-    setDeletedIcon(icon);
     setSelectedIconId(null);
-    setToast(t('editor.icon.deleted', { name: icon.name }));
+    showToast(t('editor.icon.deleted', { name: icon.name }));
   };
 
-  const handleUndoDeleteIcon = () => {
-    if (!deletedIcon) return;
+  // 즐겨찾기 해제 = 보관함에서 제거(즐겨찾기 탭 본문에서 사라짐)
+  const handleUnfavoriteIcon = (icon: SvgGameIcon) => {
     updateWorkspace({
       ...workspace,
-      icons: [deletedIcon, ...workspace.icons],
+      icons: workspace.icons.filter((item) => item.id !== icon.id),
       categories: workspace.categories.map((category) =>
-        category.id === deletedIcon.categoryId
-          ? { ...category, iconIds: [deletedIcon.id, ...category.iconIds] }
+        category.id === icon.categoryId
+          ? { ...category, iconIds: category.iconIds.filter((iconId) => iconId !== icon.id) }
           : category
       ),
     });
-    setDeletedIcon(null);
-    setToast(t('editor.icon.restored', { name: deletedIcon.name }));
+    if (selectedIconId === icon.id) setSelectedIconId(null);
+    setIconSelection((prev) => {
+      if (!prev.has(icon.id)) return prev;
+      const next = new Set(prev);
+      next.delete(icon.id);
+      return next;
+    });
+    showToast(t('editor.icon.favoriteRemoved', { name: icon.name }));
   };
 
   const handleToggleFavorite = (icon: SvgGameIcon) => {
-    const nextFavorite = !icon.favorite;
+    if (icon.favorite) {
+      handleUnfavoriteIcon(icon);
+      return;
+    }
     updateWorkspace({
       ...workspace,
       icons: workspace.icons.map((item) =>
-        item.id === icon.id ? { ...item, favorite: nextFavorite, updatedAt: new Date().toISOString() } : item
+        item.id === icon.id ? { ...item, favorite: true, updatedAt: new Date().toISOString() } : item
       ),
     });
-    setToast(
-      nextFavorite
-        ? t('editor.icon.favoriteAdded', { name: icon.name })
-        : t('editor.icon.favoriteRemoved', { name: icon.name })
-    );
+    showToast(t('editor.icon.favoriteAdded', { name: icon.name }));
+  };
+
+  const confirmUnfavorite = () => {
+    if (!unfavoriteConfirmIcon) return;
+    handleUnfavoriteIcon(unfavoriteConfirmIcon);
+    setUnfavoriteConfirmIcon(null);
   };
 
   // 검색 결과 카드의 별 버튼: 보관함에 같은 sourceId가 있으면 favorite 토글,
@@ -1342,7 +1441,7 @@ export function SvgIconPanel() {
         item.id === category.id ? { ...item, iconIds: [icon.id, ...item.iconIds], updatedAt: now } : item
       ),
     });
-    setToast(t('editor.icon.favoriteAdded', { name: result.name }));
+    showToast(t('editor.icon.favoriteAdded', { name: result.name }));
   };
 
   // 라이트 항목(svg='') 하이드레이션: 표시 목록에 들어온 항목만 sourceId로 원본을 받아 채운다.
@@ -1416,12 +1515,12 @@ export function SvgIconPanel() {
           : item
       ),
     });
-    setToast(t('editor.icon.styleApplied', { name: icon.name }));
+    showToast(t('editor.icon.styleApplied', { name: icon.name }));
   };
 
   const handleCopy = async (label: string, text: string) => {
     await copyText(text);
-    setToast(t('editor.copied', { label }));
+    showToast(t('editor.copied', { label }));
   };
 
   // 텍스트 파일 저장(IconFinder 저장 정책: 자동저장 폴더 또는 저장 대화상자). 취소 시 토스트 없음.
@@ -1429,7 +1528,7 @@ export function SvgIconPanel() {
     try {
       const savedPath = await exportService.saveTextFile(fileName, text, extension);
       if (savedPath) {
-        setToast(t('editor.saveOk', { label }));
+        showToast(t('editor.saveOk', { label }));
       }
     } catch (saveError) {
       setError(
@@ -1444,7 +1543,7 @@ export function SvgIconPanel() {
   const handleSavePng = async (label: string, fileName: string, svgContent: string, size = 512) => {
     try {
       const savedPath = await exportService.saveSvgAsPng(fileName, svgContent, size);
-      if (savedPath) setToast(t('editor.saveOk', { label }));
+      if (savedPath) showToast(t('editor.saveOk', { label }));
     } catch (saveError) {
       setError(
         saveError instanceof Error
@@ -1477,13 +1576,41 @@ export function SvgIconPanel() {
           </div>
         </div>
       )}
-      <aside className="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col">
-        <div className="p-4 border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <FolderPlus size={18} className="text-lime-600" />
-            <h2 className="font-bold">{t('editor.vault.title')}</h2>
+      {mode === 'favorites' && (
+      <>
+      <aside
+        style={{ width: displayLeftWidth }}
+        className="shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden transition-[width] duration-200 ease-out"
+      >
+        {leftCollapsed ? (
+          <div className="flex flex-1 flex-col items-center py-3">
+            <button
+              type="button"
+              onClick={toggleLeftCollapsed}
+              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              title={t('editor.sidebar.expand')}
+              aria-label={t('editor.sidebar.expand')}
+            >
+              <PanelLeftOpen size={18} />
+            </button>
           </div>
-          <div className="mt-3 flex gap-2">
+        ) : (
+          <>
+        <div className="p-3 border-b border-slate-200">
+          <div className="flex items-center gap-1.5">
+            <FolderPlus size={14} className="shrink-0 text-lime-600" />
+            <h2 className="min-w-0 flex-1 truncate text-xs font-semibold">{t('editor.vault.title')}</h2>
+            <button
+              type="button"
+              onClick={toggleLeftCollapsed}
+              className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              title={t('editor.sidebar.collapse')}
+              aria-label={t('editor.sidebar.collapse')}
+            >
+              <PanelLeftClose size={14} />
+            </button>
+          </div>
+          <div className="mt-2 flex gap-1.5">
             <input
               value={newCategoryName}
               onChange={(event) => setNewCategoryName(event.target.value)}
@@ -1491,60 +1618,114 @@ export function SvgIconPanel() {
                 if (event.key === 'Enter') handleCreateCategory();
               }}
               placeholder={t('editor.category.new')}
-              className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-lime-500"
+              className="min-w-0 flex-1 rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-lime-500"
             />
             <button
               onClick={handleCreateCategory}
-              className="rounded-lg bg-slate-900 px-3 text-sm font-semibold text-white hover:bg-slate-800"
+              className="rounded-md bg-slate-900 px-2.5 text-xs font-semibold text-white hover:bg-slate-800"
             >
               {t('common.add')}
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-3 space-y-2">
-          {/* 즐겨찾기 스마트 뷰 — 실제 카테고리가 아니므로 드롭 대상이 아니다 */}
+        <div className="flex-1 overflow-auto p-2 space-y-0.5">
+          {/* 전체보기 — 삭제·순서변경 불가 */}
           <button
-            onClick={handleSelectFavoritesView}
-            className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
-              isFavoritesView ? 'bg-amber-100 text-amber-950' : 'hover:bg-slate-100'
+            onClick={handleSelectViewAll}
+            className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
+              isViewAll ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
             }`}
           >
-            <span className="flex items-center gap-2">
-              <Star size={14} className={isFavoritesView ? 'fill-amber-400 text-amber-500' : 'text-amber-400'} />
-              <span className="truncate font-semibold">{t('favorites.title')}</span>
-              <span className="ml-auto text-xs text-slate-500">{favoriteIcons.length}</span>
+            <span className="flex items-center gap-1.5">
+              <Grid3x3 size={12} className={isViewAll ? 'text-lime-700' : 'text-slate-400'} />
+              <span className="min-w-0 flex-1 font-medium">{t('editor.category.viewAll')}</span>
+              <span className="shrink-0 text-[10px] text-slate-500">
+                {workspace.icons.filter((icon) => icon.favorite).length}
+              </span>
             </span>
           </button>
-          {workspace.categories.map((category) => {
-            const isActive = !isFavoritesView && category.id === selectedCategoryId;
-            const iconCount = workspace.icons.filter((icon) => icon.categoryId === category.id).length;
+          {/* 미분류 — 상단 고정, 삭제 불가 */}
+          {uncategorizedCategory && (() => {
+            const category = uncategorizedCategory;
+            const isActive = !isViewAll && category.id === selectedCategoryId;
+            const iconCount = workspace.icons.filter(
+              (icon) => icon.categoryId === category.id && icon.favorite
+            ).length;
             const isDropTarget = dragOverCategoryId === category.id;
             return (
               <div
                 key={category.id}
                 data-category-drop-id={category.id}
-                className={`flex items-center gap-2 rounded-lg ${
+                className={`rounded-md ${isDropTarget ? 'ring-2 ring-lime-400 ring-offset-1' : ''}`}
+              >
+                <button
+                  onClick={() => handleCategorySelect(category.id)}
+                  className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
+                    isDropTarget ? 'bg-lime-50' : isActive ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
+                    <span className="min-w-0 flex-1 font-medium">{getCategoryDisplayName(category, t)}</span>
+                    <span className="shrink-0 text-[10px] text-slate-500">{iconCount}</span>
+                  </span>
+                </button>
+              </div>
+            );
+          })()}
+          {/* 사용자 카테고리 — 호버 시 삭제, DnD로 순서 변경 */}
+          {userCategories.map((category) => {
+            const isActive = !isViewAll && category.id === selectedCategoryId;
+            const iconCount = workspace.icons.filter(
+              (icon) => icon.categoryId === category.id && icon.favorite
+            ).length;
+            const isDropTarget = dragOverCategoryId === category.id;
+            return (
+              <div
+                key={category.id}
+                data-category-drop-id={category.id}
+                draggable
+                onDragStart={(event) => {
+                  event.dataTransfer.setData('text/category-reorder', category.id);
+                  event.dataTransfer.effectAllowed = 'move';
+                }}
+                onDragOver={(event) => {
+                  if (!event.dataTransfer.types.includes('text/category-reorder')) return;
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={(event) => {
+                  const sourceId = event.dataTransfer.getData('text/category-reorder');
+                  if (!sourceId) return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleReorderUserCategory(sourceId, category.id);
+                }}
+                className={`group relative rounded-md ${
                   isDropTarget ? 'ring-2 ring-lime-400 ring-offset-1' : ''
                 }`}
               >
                 <button
                   onClick={() => handleCategorySelect(category.id)}
-                  className={`min-w-0 flex-1 rounded-lg px-3 py-2 text-left text-sm ${
+                  className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
                     isDropTarget ? 'bg-lime-50' : isActive ? 'bg-lime-100 text-lime-950' : 'hover:bg-slate-100'
                   }`}
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: category.color }} />
-                    <span className="truncate font-semibold">{getCategoryDisplayName(category, t)}</span>
-                    <span className="ml-auto text-xs text-slate-500">{iconCount}</span>
+                  <span className="flex items-center gap-1.5 group-hover:pr-5">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
+                    <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap group-hover:truncate font-medium">
+                      {getCategoryDisplayName(category, t)}
+                    </span>
+                    <span className="shrink-0 text-[10px] text-slate-500">{iconCount}</span>
                   </span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDeleteCategory(category)}
-                  className={`rounded-md p-2 text-xs ${
+                  className={`absolute right-0.5 top-1/2 -translate-y-1/2 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 ${
                     pendingDeleteCategoryId === category.id
-                      ? 'bg-red-100 text-red-700'
+                      ? 'bg-red-100 text-red-700 opacity-100'
                       : 'text-slate-400 hover:bg-slate-100 hover:text-red-600'
                   }`}
                   title={
@@ -1553,59 +1734,44 @@ export function SvgIconPanel() {
                       : t('editor.category.delete')
                   }
                 >
-                  <X size={14} />
+                  <X size={12} />
                 </button>
               </div>
             );
           })}
         </div>
-
-        <div className="border-t border-slate-200 p-3 space-y-2">
-          <button
-            onClick={() =>
-              void handleSaveTextFile(
-                t('editor.label.fullSprite'),
-                'svg-icon-sprite.svg',
-                buildSvgSprite(workspace.icons.map(buildIconForExport)),
-                'svg'
-              )
-            }
-            disabled={workspace.icons.length === 0}
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-          >
-            {t('editor.spriteSaveAll')}
-          </button>
-          {deletedIcon && (
-            <button
-              onClick={handleUndoDeleteIcon}
-              className="w-full rounded-lg bg-amber-100 px-3 py-2 text-sm font-semibold text-amber-900"
-            >
-              {t('editor.restoreDeleted')}
-            </button>
-          )}
-        </div>
+          </>
+        )}
       </aside>
+      {!leftCollapsed && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t('editor.sidebar.resize')}
+          onPointerDown={handleLeftResizePointerDown}
+          className="w-1 shrink-0 cursor-col-resize bg-transparent hover:bg-lime-300 active:bg-lime-400"
+        />
+      )}
+      </>
+      )}
 
       <section className="flex-1 min-w-0 flex flex-col">
-        <EditorSearchToolbar
-          initialQuery={searchInputSeed}
-          isSearching={isSearching}
-          scope={searchScope}
-          onSearch={(query) => void handleSearchIcons(query)}
-          onChangeScope={setSearchScope}
-        />
+        {mode === 'search' && (
+          <EditorSearchToolbar
+            initialQuery={searchInputSeed}
+            isSearching={isSearching}
+            scope={searchScope}
+            onSearch={(query) => void handleSearchIcons(query)}
+            onChangeScope={setSearchScope}
+          />
+        )}
         {error && (
           <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 whitespace-pre-line">
             {error}
           </div>
         )}
-        {toast && (
-          <div className="border-b border-lime-200 bg-lime-50 px-4 py-3 text-sm font-semibold text-lime-800">
-            {toast}
-          </div>
-        )}
-
-        <div ref={splitContainerRef} className="flex flex-1 min-h-0 flex-col overflow-hidden p-4">
+        <div className="flex flex-1 min-h-0 flex-col overflow-hidden p-4">
+          {mode === 'search' ? (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
             <div className="border-b border-slate-200 p-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1613,9 +1779,6 @@ export function SvgIconPanel() {
                   <h3 className="truncate text-sm font-bold text-slate-800">{t('editor.results.title')}</h3>
                   <p className="text-xs text-slate-500">
                     {t('editor.results.meta', {
-                      category: selectedCategory
-                        ? getCategoryDisplayName(selectedCategory, t)
-                        : t('editor.category.none'),
                       page: searchPage + 1,
                       totalPages,
                       shown: searchResults.length,
@@ -1623,7 +1786,15 @@ export function SvgIconPanel() {
                     })}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedResultIds(new Set())}
+                    disabled={selectedResultIds.size === 0}
+                    className="rounded-md border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 disabled:opacity-40"
+                  >
+                    {t('common.clearSelection')}
+                  </button>
                   <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
                     <Grid3x3 className="h-4 w-4 text-slate-500" />
                     <input
@@ -1637,33 +1808,6 @@ export function SvgIconPanel() {
                     />
                     <span className="min-w-[2ch] text-xs font-semibold text-slate-500">{gridColumns}</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedResultIds(new Set())}
-                    disabled={selectedResultIds.size === 0}
-                    className="rounded-md border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 disabled:opacity-40"
-                  >
-                    {t('common.clearSelection')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedResultIds(new Set(searchResults.map((result) => result.id)));
-                      setToast(t('editor.results.selected', { count: searchResults.length }));
-                    }}
-                    disabled={searchResults.length === 0}
-                    className="rounded-md border border-lime-200 px-2 py-1.5 text-xs font-semibold text-lime-700 hover:text-lime-900 disabled:opacity-40"
-                  >
-                    {t('common.selectAll')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSaveResults(selectedResults)}
-                    disabled={!selectedCategory || selectedResults.length === 0}
-                    className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
-                  >
-                    {t('editor.results.saveSelected', { count: selectedResults.length })}
-                  </button>
                 </div>
               </div>
             </div>
@@ -1684,10 +1828,8 @@ export function SvgIconPanel() {
                     isSelected={selectedResultIds.has(result.id)}
                     isActive={selectedResultId === result.id}
                     isFavorite={favoriteSourceIds.has(result.id)}
-                    canSave={Boolean(selectedCategory)}
                     buildPreviewSvg={buildSearchResultPreviewSvg}
                     onToggleSelection={toggleResultSelection}
-                    onSaveResult={(item) => handleSaveResults([item])}
                     onToggleFavorite={handleToggleResultFavorite}
                     onSelectResult={handleSelectSearchResult}
                   />
@@ -1745,26 +1887,17 @@ export function SvgIconPanel() {
               </div>
             )}
           </div>
-
-          <button
-            type="button"
-            onPointerDown={handleSplitResizePointerDown}
-            className="my-1 flex h-4 shrink-0 cursor-row-resize items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-700"
-            aria-label={t('editor.saved.resizeHandle')}
-            title={t('editor.saved.resizeHandle')}
-          >
-            <span className="h-1 w-14 rounded-full bg-current" />
-          </button>
-
-          <div
-            className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white"
-            style={{ height: savedPaneHeight }}
-          >
+          ) : (
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
             <div className="border-b border-slate-200 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <h4 className="truncate text-sm font-bold text-slate-800">
-                    {isFavoritesView ? t('favorites.title') : t('editor.saved.title')}
+                    {isViewAll
+                      ? t('editor.category.viewAll')
+                      : selectedCategory
+                        ? getCategoryDisplayName(selectedCategory, t)
+                        : t('editor.saved.title')}
                   </h4>
                   <p className="text-xs text-slate-500">
                     {t('editor.saved.counts', {
@@ -1773,7 +1906,7 @@ export function SvgIconPanel() {
                     })}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="ml-auto flex flex-wrap items-center gap-2 text-xs">
                   {iconSelection.size > 0 ? (
                     <>
                       <span className="font-semibold text-lime-700">{t('editor.saved.dragToCategory')}</span>
@@ -1797,7 +1930,6 @@ export function SvgIconPanel() {
                   ) : (
                     <span className="text-slate-400">{t('editor.saved.dragHint')}</span>
                   )}
-                  {/* 즐겨찾기 뷰에서도 유지 — "보이는 것을 내보낸다" */}
                   <button
                     type="button"
                     onClick={() => openBatchExport(visibleSavedIcons)}
@@ -1806,6 +1938,19 @@ export function SvgIconPanel() {
                   >
                     {t('batch.exportCategory')}
                   </button>
+                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1">
+                    <Grid3x3 className="h-4 w-4 text-slate-500" />
+                    <input
+                      type="range"
+                      min="2"
+                      max="10"
+                      value={gridColumns}
+                      onChange={(event) => setGridColumns(Number(event.target.value))}
+                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200"
+                      title={t('common.gridColumns', { count: gridColumns })}
+                    />
+                    <span className="min-w-[2ch] text-xs font-semibold text-slate-500">{gridColumns}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1830,6 +1975,7 @@ export function SvgIconPanel() {
                     buildPreviewSvg={buildIconPreviewSvg}
                     onMouseDown={handleIconMouseDown}
                     onToggleSelection={toggleIconSelection}
+                    onToggleFavorite={handleToggleFavorite}
                     onSelectIcon={(event, item) => {
                       if (suppressIconClickRef.current) {
                         suppressIconClickRef.current = false;
@@ -1852,11 +1998,38 @@ export function SvgIconPanel() {
               />
             </div>
           </div>
+          )}
         </div>
 
       </section>
 
-      <aside className="w-[380px] shrink-0 border-l border-slate-200 bg-white flex flex-col min-h-0">
+      {!rightCollapsed && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t('editor.sidebar.resize')}
+          onPointerDown={handleRightResizePointerDown}
+          className="w-1 shrink-0 cursor-col-resize bg-transparent hover:bg-lime-300 active:bg-lime-400"
+        />
+      )}
+      <aside
+        style={{ width: displayRightWidth }}
+        className="shrink-0 border-l border-slate-200 bg-white flex flex-col min-h-0 overflow-hidden transition-[width] duration-200 ease-out"
+      >
+        {rightCollapsed ? (
+          <div className="flex flex-1 flex-col items-center py-3">
+            <button
+              type="button"
+              onClick={toggleRightCollapsed}
+              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              title={t('editor.sidebar.expand')}
+              aria-label={t('editor.sidebar.expand')}
+            >
+              <PanelRightOpen size={18} />
+            </button>
+          </div>
+        ) : (
+          <>
         {/* 사이드바 전체를 하나의 스크롤 영역으로 — 빠른 내보내기 + 스타일 + 상세가 함께 스크롤되어 잘리지 않음 */}
         <div className="flex-1 min-h-0 overflow-y-auto">
         {/* 빠른 내보내기 — 항목 상태를 따른다(검색 결과=정규화 원본, 보관함 아이콘=저장된 스타일) */}
@@ -1866,6 +2039,7 @@ export function SvgIconPanel() {
               <Download size={16} className="text-lime-600" />
               {t('export.quick')}
             </div>
+            <div className="flex items-center gap-1">
             {activeDetailName && (
               <button
                 onClick={() => {
@@ -1878,36 +2052,25 @@ export function SvgIconPanel() {
                 <X size={16} />
               </button>
             )}
+            <button
+              type="button"
+              onClick={toggleRightCollapsed}
+              className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              title={t('editor.sidebar.collapse')}
+              aria-label={t('editor.sidebar.collapse')}
+            >
+              <PanelRightClose size={16} />
+            </button>
+            </div>
           </div>
           {activeDetailName ? (
             <>
-              <div className="min-w-0">
-                <h3 className="truncate font-bold">{activeDetailName}</h3>
-                <p className="text-xs text-slate-500">
-                  {[
-                    selectedIcon?.sourceName ?? selectedResult?.sourceName,
-                    getSvgIconViewBoxLabel(
-                      selectedIcon
-                        ? selectedIconForExport?.viewBox ?? selectedIcon.viewBox
-                        : workspace.defaultViewBox
-                    ),
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 flex items-center justify-center">
-                <div
-                  className="h-28 w-28 [&>svg]:h-full [&>svg]:w-full"
-                  dangerouslySetInnerHTML={{ __html: activeDetailSvg }}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-500">{t('editor.exportSize')}</label>
+              <div className="flex items-center gap-2">
+                <label className="shrink-0 text-xs font-semibold text-slate-500">{t('editor.exportSize')}</label>
                 <select
                   value={workspace.defaultViewBox}
                   onChange={(event) => handleSettingChange(event.target.value as SvgIconViewBox)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-lime-500"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-lime-500"
                 >
                   {SVG_ICON_VIEW_BOXES.map((viewBox) => (
                     <option key={viewBox} value={viewBox}>
@@ -1931,7 +2094,7 @@ export function SvgIconPanel() {
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <Download size={14} />
-                    {t('editor.saveSvg')}
+                    SVG
                   </span>
                 </button>
                 <button
@@ -1948,7 +2111,7 @@ export function SvgIconPanel() {
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <Download size={14} />
-                    {t('editor.savePng')}
+                    PNG
                   </span>
                 </button>
               </div>
@@ -1958,7 +2121,8 @@ export function SvgIconPanel() {
           )}
         </div>
 
-        {/* 스타일 섹션 — 전체가 셰브론 아코디언(검색 결과 선택 시 기본 접힘) */}
+        {/* 스타일 섹션 — 검색 탭은 항상, 즐겨찾기는 아이콘 선택 시에만 */}
+        {(mode === 'search' || selectedIcon) && (
         <div className="border-b border-slate-200">
           <button
             type="button"
@@ -1977,24 +2141,21 @@ export function SvgIconPanel() {
           {isStyleOpen && (
           <div className="space-y-3 px-4 pb-4">
           {/* 색상 모드 + 마감을 통합한 단일 스타일 셀렉터 */}
-          <div>
-            <div className="mb-1 text-xs font-bold text-slate-500">{t('editor.style.group')}</div>
-            <div className="flex flex-wrap gap-1.5">
-              {STYLE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => handleSelectStyle(opt.id)}
-                  className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                    currentStyleKind === opt.id
-                      ? 'border-slate-900 bg-slate-900 text-white'
-                      : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {t(opt.labelKey)}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-1.5">
+            {STYLE_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => handleSelectStyle(opt.id)}
+                className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                  currentStyleKind === opt.id
+                    ? 'border-slate-900 bg-slate-900 text-white'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {t(opt.labelKey)}
+              </button>
+            ))}
           </div>
           <div className="grid grid-cols-5 gap-2">
             {SVG_ICON_COLOR_PRESETS.map((preset) => (
@@ -2006,7 +2167,6 @@ export function SvgIconPanel() {
                   setAccentColor(preset.accent);
                 }}
                 className="h-8 rounded-md border border-slate-200"
-                title={t(preset.labelKey)}
                 style={{ background: `linear-gradient(135deg, ${preset.primary} 0 50%, ${preset.accent} 50% 100%)` }}
               />
             ))}
@@ -2019,35 +2179,42 @@ export function SvgIconPanel() {
                     setAccentColor(preset.accent);
                   }}
                   className="h-8 w-full rounded-md border border-slate-200"
-                  title={t('editor.color.userPreset', { label: preset.label })}
                   style={{ background: `linear-gradient(135deg, ${preset.primary} 0 50%, ${preset.accent} 50% 100%)` }}
                 />
                 <button
                   type="button"
                   onClick={() => handleDeleteColorPreset(preset.id)}
                   className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white shadow group-hover:flex"
-                  title={t('editor.color.deletePreset')}
                 >
                   <X size={10} />
                 </button>
               </div>
             ))}
           </div>
-          {/* 메인 · 보조 색상 + 프리셋 저장 버튼을 한 라인에 */}
-          <div className="flex items-end gap-2">
-            <div className="flex-1 space-y-1 text-xs font-semibold text-slate-500">
-              {t('editor.color.main')}
-              <ColorSwatchPicker value={primaryColor} onChange={setPrimaryColor} label={t('editor.color.main.label')} />
+          {/* 메인 · 보조 색상 + 프리셋 저장 — 프리셋 칩(h-8)과 높이 맞춤 */}
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <ColorSwatchPicker
+                value={primaryColor}
+                onChange={setPrimaryColor}
+                label={t('editor.color.main.label')}
+                overlayLabel={t('editor.color.main')}
+                className="h-8 w-full"
+              />
             </div>
-            <div className="flex-1 space-y-1 text-xs font-semibold text-slate-500">
-              {t('editor.color.sub')}
-              <ColorSwatchPicker value={accentColor} onChange={setAccentColor} label={t('editor.color.sub.label')} />
+            <div className="min-w-0 flex-1">
+              <ColorSwatchPicker
+                value={accentColor}
+                onChange={setAccentColor}
+                label={t('editor.color.sub.label')}
+                overlayLabel={t('editor.color.sub')}
+                className="h-8 w-full"
+              />
             </div>
             <button
               type="button"
               onClick={handleSaveColorPreset}
-              title={t('editor.color.savePreset')}
-              className="flex h-12 shrink-0 items-center gap-1 rounded-md border border-dashed border-slate-300 px-3 text-xs font-semibold text-slate-500 hover:border-lime-400 hover:text-lime-700"
+              className="flex h-8 shrink-0 items-center gap-1 rounded-md border border-dashed border-slate-300 px-3 text-xs font-semibold text-slate-500 hover:border-lime-400 hover:text-lime-700"
             >
               <Plus size={12} /> {t('common.save')}
             </button>
@@ -2080,7 +2247,6 @@ export function SvgIconPanel() {
                 max={OUTLINE_WIDTH_MAX}
                 value={outlineWidth}
                 disabled={!outlineEnabled}
-                title={t('editor.outline.width', { width: formatPerceivedOutlineWidth(outlineWidth) })}
                 onChange={(event) => setOutlineWidth(Number(event.target.value))}
                 className={`h-8 flex-1 accent-lime-500 ${outlineEnabled ? '' : 'opacity-50'}`}
               />
@@ -2165,17 +2331,11 @@ export function SvgIconPanel() {
           </div>
           )}
         </div>
+        )}
 
         {selectedIcon ? (
           <div className="p-4 space-y-4">
-            <button
-              onClick={() => handleApplyStyleToIcon(selectedIcon)}
-              className="w-full rounded-lg bg-lime-100 px-3 py-2 text-sm font-semibold text-lime-900 hover:bg-lime-200"
-            >
-              {t('editor.reapplyStyle')}
-            </button>
-
-            {/* 복사: SVG · HTML · CSS 한 라인 */}
+            {/* 복사: 아이콘 + SVG/HTML/CSS */}
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => handleCopy('SVG', selectedIconExportSvg || selectedIcon.svg)}
@@ -2183,7 +2343,7 @@ export function SvgIconPanel() {
               >
                 <span className="inline-flex items-center justify-center gap-1">
                   <Copy size={12} />
-                  {t('editor.copySvg')}
+                  SVG
                 </span>
               </button>
               <button
@@ -2192,7 +2352,10 @@ export function SvgIconPanel() {
                 }
                 className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50"
               >
-                {t('editor.copyHtml')}
+                <span className="inline-flex items-center justify-center gap-1">
+                  <Copy size={12} />
+                  HTML
+                </span>
               </button>
               <button
                 onClick={() =>
@@ -2200,109 +2363,53 @@ export function SvgIconPanel() {
                 }
                 className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50"
               >
-                {t('editor.copyCss')}
+                <span className="inline-flex items-center justify-center gap-1">
+                  <Copy size={12} />
+                  CSS
+                </span>
               </button>
             </div>
+            {/* 재적용 | 삭제 — 아웃라인으로 대비 확보 */}
             <div className="flex gap-2">
               <button
-                onClick={() => handleToggleFavorite(selectedIcon)}
-                className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${
-                  selectedIcon.favorite ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
+                onClick={() => handleApplyStyleToIcon(selectedIcon)}
+                className="flex-1 rounded-lg border border-lime-400 bg-lime-100 px-3 py-2 text-sm font-semibold text-lime-900 hover:bg-lime-200"
               >
-                {t('favorites.title')}
+                {t('editor.reapplyStyle')}
               </button>
               <button
                 onClick={() => handleDeleteIcon(selectedIcon)}
-                className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                className="flex-1 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
               >
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center justify-center gap-2">
                   <Trash2 size={14} />
                   {t('common.delete')}
                 </span>
               </button>
             </div>
-
-            {(selectedIcon.sourceUrl || selectedIcon.license) && (
-              <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-                <p className="font-semibold">{selectedIcon.sourceName}</p>
-                {selectedIcon.license && <p>{t('editor.license', { license: selectedIcon.license })}</p>}
-                {selectedIcon.sourceUrl && (
-                  <a
-                    href={selectedIcon.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 font-semibold text-lime-700"
-                  >
-                    {t('common.viewOriginal')}
-                    <ExternalLink size={12} />
-                  </a>
-                )}
-              </div>
-            )}
-
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-500">
-                <Code2 size={14} />
-                {t('editor.svgCode')}
-              </div>
-              <pre className="max-h-72 overflow-auto rounded-lg bg-slate-950 p-3 text-xs text-lime-100">
-                {selectedIconExportSvg || selectedIcon.svg}
-              </pre>
-            </div>
           </div>
         ) : selectedResult ? (
           <div className="p-4 space-y-4">
-            {/* 검색 결과 항목: 복사·카테고리 저장·원본 정보·코드 */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleCopy('SVG', selectedResultPreviewSvg)}
-                className="rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800"
-              >
-                <span className="inline-flex items-center justify-center gap-1">
-                  <Copy size={12} />
-                  {t('editor.copySvg')}
-                </span>
-              </button>
-              <button
-                onClick={() => handleSaveResults([selectedResult])}
-                disabled={!selectedCategory}
-                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50 disabled:opacity-40"
-              >
-                {t('common.save')}
-              </button>
-            </div>
+            <button
+              onClick={() => handleCopy('SVG', selectedResultPreviewSvg)}
+              className="w-full rounded-lg bg-slate-900 px-2 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+            >
+              <span className="inline-flex items-center justify-center gap-1">
+                <Copy size={12} />
+                SVG
+              </span>
+            </button>
 
-            {(selectedResult.sourceUrl || selectedResult.license) && (
+            {selectedResult.license && (
               <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-                <p className="font-semibold">{selectedResult.sourceName}</p>
-                {selectedResult.license && <p>{t('editor.license', { license: selectedResult.license })}</p>}
-                {selectedResult.sourceUrl && (
-                  <a
-                    href={selectedResult.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 font-semibold text-lime-700"
-                  >
-                    {t('common.viewOriginal')}
-                    <ExternalLink size={12} />
-                  </a>
-                )}
+                <p>{t('editor.license', { license: selectedResult.license })}</p>
               </div>
             )}
-
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-500">
-                <Code2 size={14} />
-                {t('editor.svgCode')}
-              </div>
-              <pre className="max-h-72 overflow-auto rounded-lg bg-slate-950 p-3 text-xs text-lime-100">
-                {selectedResultPreviewSvg}
-              </pre>
-            </div>
           </div>
         ) : null}
         </div>
+          </>
+        )}
       </aside>
 
       {/* 일괄 내보내기 다이얼로그 — 워크스페이스 내부 배치 */}
@@ -2311,6 +2418,37 @@ export function SvgIconPanel() {
         isOpen={batchItems !== null}
         onClose={() => setBatchItems(null)}
       />
+
+      {/* 즐겨찾기 해제 확인 — window.confirm 대신 커스텀 다이얼로그 */}
+      <Dialog
+        open={unfavoriteConfirmIcon !== null}
+        onOpenChange={(open) => {
+          if (!open) setUnfavoriteConfirmIcon(null);
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t('favorites.remove')}</DialogTitle>
+            <DialogDescription>{t('favorites.removeConfirm')}</DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setUnfavoriteConfirmIcon(null)}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+            >
+              {t('common.cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={confirmUnfavorite}
+              className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+            >
+              {t('common.confirm')}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -8,9 +8,15 @@ export const zhTWAppTranslations = {
   'collection.iconCount': '{prefix} • {count} 個圖示',
   'workspace.scope.collection': '圖示集…',
 
+  // 헤더 워크스페이스 탭
+  'workspace.tab.label': '工作區',
+  'workspace.tab.search': '搜尋',
+  'workspace.tab.favorites': '收藏',
+
   // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': '載入失敗',
   'favorites.add': '加入收藏',
   'favorites.remove': '移除收藏',
+  'favorites.removeConfirm': '要從收藏中移除嗎？',
   'favorites.title': '收藏',
 } as const;

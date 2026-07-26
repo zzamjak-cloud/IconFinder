@@ -1,4 +1,5 @@
 export const itCommonTranslations = {
+  'common.confirm': 'Conferma',
   'common.cancel': 'Annulla',
   'common.close': 'Chiudi',
   'common.save': 'Salva',

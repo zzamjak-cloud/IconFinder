@@ -4,10 +4,11 @@ import { SettingsButton } from '@/components/SettingsDialog';
 import { LicenseButton } from '@/components/LicenseDialog';
 import { ToastProvider } from '@/components/ui/toast';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { SvgIconPanel } from '@/components/svg-icon/SvgIconPanel';
+import { SvgIconPanel, type WorkspaceTab } from '@/components/svg-icon/SvgIconPanel';
 import { storageService } from '@/services/storageService';
 import { useAutoUpdater } from '@/hooks/useAutoUpdater';
 import { UpdateDialog } from '@/components/UpdateDialog';
+import { useI18n } from '@/i18n';
 import packageJson from '../package.json';
 
 const APP_VERSION = packageJson.version;
@@ -26,8 +27,11 @@ const queryClient = new QueryClient({
 
 // 메인 앱 내용 (QueryClientProvider 내부에 있어야 함)
 function AppContent() {
+  const { t } = useI18n();
   // 업데이트 다이얼로그를 사용자가 닫았는지 여부
   const [updateDismissed, setUpdateDismissed] = useState(false);
+  // 검색 | 즐겨찾기 워크스페이스 탭
+  const [workspaceTab, setWorkspaceTab] = useState<WorkspaceTab>('search');
 
   // 자동 업데이트
   const updater = useAutoUpdater();
@@ -43,7 +47,7 @@ function AppContent() {
   return (
     <ToastProvider>
       <div className="flex flex-col h-screen bg-background text-foreground">
-        {/* 헤더 */}
+        {/* 헤더 — 검색|즐겨찾기 탭으로 워크스페이스 모드를 전환한다 */}
         <header className="relative flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">IconFinder</h1>
@@ -52,15 +56,40 @@ function AppContent() {
               v{APP_VERSION}
             </span>
           </div>
+          <nav
+            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center rounded-lg bg-muted p-1"
+            aria-label={t('workspace.tab.label')}
+          >
+            {(
+              [
+                { id: 'search' as const, labelKey: 'workspace.tab.search' as const },
+                { id: 'favorites' as const, labelKey: 'workspace.tab.favorites' as const },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setWorkspaceTab(tab.id)}
+                className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  workspaceTab === tab.id
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                aria-current={workspaceTab === tab.id ? 'page' : undefined}
+              >
+                {t(tab.labelKey)}
+              </button>
+            ))}
+          </nav>
           <div className="flex items-center gap-2">
             <LicenseButton />
             <SettingsButton />
           </div>
         </header>
 
-        {/* 메인 컨텐츠 — v1.0.0에서 검색/에디터 탭을 없애고 단일 워크스페이스가 본문 전체를 담당한다. */}
+        {/* 메인 컨텐츠 — 헤더 탭에 따라 검색/즐겨찾기 레이아웃을 전환한다 */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          <SvgIconPanel />
+          <SvgIconPanel mode={workspaceTab} />
         </main>
 
         {/* 업데이트 다이얼로그 */}

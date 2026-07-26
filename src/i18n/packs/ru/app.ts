@@ -8,9 +8,15 @@ export const ruAppTranslations = {
   'collection.iconCount': '{prefix} • иконок: {count}',
   'workspace.scope.collection': 'Коллекции…',
 
+  // 헤더 워크스페이스 탭
+  'workspace.tab.label': 'Рабочая область',
+  'workspace.tab.search': 'Поиск',
+  'workspace.tab.favorites': 'Избранное',
+
   // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': 'Не удалось загрузить',
   'favorites.add': 'Добавить в избранное',
   'favorites.remove': 'Удалить из избранного',
+  'favorites.removeConfirm': 'Убрать из избранного?',
   'favorites.title': 'Избранное',
 } as const;

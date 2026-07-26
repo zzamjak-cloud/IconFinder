@@ -83,15 +83,15 @@ export function getSvgIconSavedPaneHeightFromDrag({
 export function getSvgIconGridMetrics(
   containerWidth: number,
   columnCount: number,
-  kind: SvgIconGridKind
+  _kind: SvgIconGridKind
 ): SvgIconGridMetrics {
   const safeColumnCount = Math.max(1, Math.floor(columnCount));
   const cellWidth =
     containerWidth > 0
       ? Math.max(0, (containerWidth - SVG_ICON_GRID_GAP * (safeColumnCount - 1)) / safeColumnCount)
       : 0;
-  // 검색 결과 카드는 출처, 저장 버튼, 원본 링크 영역이 추가되어 저장 카드보다 높다.
-  const verticalAllowance = kind === 'search' ? 106 : 48;
+  // 검색/저장 카드 동일 골격(미리보기·이름·액션) — 상단 출처 행 제거 반영
+  const verticalAllowance = 90;
   const cardHeight = cellWidth > 0 ? cellWidth + verticalAllowance : 180 + verticalAllowance;
 
   return {

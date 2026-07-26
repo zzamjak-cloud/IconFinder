@@ -182,22 +182,39 @@ export function getRecommendedQueryForCategory(category: SvgIconCategory | null 
 }
 
 /**
- * 기존 저장 데이터를 templateKey 기반으로 승격한다.
+ * 기존 저장 데이터를 templateKey 기반으로 승격하고, 자동 생성됐던 빈 기본 카테고리를 정리한다.
  * - templateKey가 없고 이름이 레거시 한국어 기본 카테고리와 일치하면 키를 부여하고 name/description을 비운다.
- * - 사용자가 직접 만든/이름을 바꾼 카테고리는 그대로 둔다.
+ * - v1.1 정책: 기본 템플릿 카테고리는 더 이상 자동 생성하지 않으므로,
+ *   아이콘이 하나도 없는 템플릿 카테고리는 제거한다(아이콘이 있으면 사용자 데이터로 보고 유지).
  * - 변경이 없으면 같은 참조를 반환해 호출부가 저장을 건너뛸 수 있게 한다.
  */
 export function migrateSvgWorkspaceCategories(data: SvgWorkspaceData): SvgWorkspaceData {
   let changed = false;
-  const categories = data.categories.map((category) => {
-    if (isTemplateKey(category.templateKey)) return category;
-    const templateKey = LEGACY_CATEGORY_NAME_TO_TEMPLATE_KEY[category.name];
-    if (!templateKey) return category;
-    changed = true;
-    return { ...category, templateKey, name: '', description: '' };
-  });
+  const usedCategoryIds = new Set(data.icons.map((icon) => icon.categoryId));
+  const categories = data.categories
+    .filter((category) => {
+      const isEmptyTemplate =
+        !!category.templateKey &&
+        category.templateKey !== UNCATEGORIZED_TEMPLATE_KEY &&
+        category.iconIds.length === 0 &&
+        !usedCategoryIds.has(category.id);
+      if (isEmptyTemplate) changed = true;
+      return !isEmptyTemplate;
+    })
+    .map((category) => {
+      if (isTemplateKey(category.templateKey)) return category;
+      const templateKey = LEGACY_CATEGORY_NAME_TO_TEMPLATE_KEY[category.name];
+      if (!templateKey) return category;
+      changed = true;
+      return { ...category, templateKey, name: '', description: '' };
+    });
 
-  return changed ? { ...data, categories } : data;
+  if (!changed) return data;
+  // 선택 중이던 카테고리가 제거됐으면 선택을 해제한다.
+  const selectedCategoryId = categories.some((category) => category.id === data.selectedCategoryId)
+    ? data.selectedCategoryId
+    : undefined;
+  return { ...data, categories, selectedCategoryId };
 }
 
 // 워크스페이스 첫 진입 시 검색 입력 기본값(영어)
@@ -223,26 +240,14 @@ export function createSvgIconId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-// 기본 SVG 워크스페이스 데이터 생성 (StyleStudio의 createDefaultSvgIconSessionData를 개명)
+// 기본 SVG 워크스페이스 데이터 생성.
+// v1.1 정책: 기본 카테고리를 자동 생성하지 않는다 — 사용자가 직접 만든 카테고리만 존재한다.
 export function createDefaultSvgWorkspaceData(): SvgWorkspaceData {
   const now = new Date().toISOString();
-  const categories: SvgIconCategory[] = DEFAULT_CATEGORY_TEMPLATES.map((template) => ({
-    id: createSvgIconId('svg-cat'),
-    templateKey: template.key,
-    // 표시 문구는 templateKey 번역에서 오므로 저장값은 비워 둔다.
-    name: '',
-    description: '',
-    color: template.color,
-    recommendedQuery: template.recommendedQuery,
-    iconIds: [],
-    createdAt: now,
-    updatedAt: now,
-  }));
-
   return {
-    categories,
+    categories: [],
     icons: [],
-    selectedCategoryId: categories[0]?.id,
+    selectedCategoryId: undefined,
     stylePreset: 'casual-bold',
     defaultViewBox: '0 0 64 64',
     customColorPresets: [],

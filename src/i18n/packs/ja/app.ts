@@ -8,9 +8,15 @@ export const jaAppTranslations = {
   'collection.iconCount': '{prefix} • {count}件のアイコン',
   'workspace.scope.collection': 'コレクション…',
 
+  // 헤더 워크스페이스 탭
+  'workspace.tab.label': 'ワークスペース',
+  'workspace.tab.search': '検索',
+  'workspace.tab.favorites': 'お気に入り',
+
   // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': '読み込み失敗',
   'favorites.add': 'お気に入りに追加',
   'favorites.remove': 'お気に入りから削除',
+  'favorites.removeConfirm': 'お気に入りから削除しますか？',
   'favorites.title': 'お気に入り',
 } as const;

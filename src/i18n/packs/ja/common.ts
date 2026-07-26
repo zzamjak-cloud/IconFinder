@@ -1,4 +1,5 @@
 export const jaCommonTranslations = {
+  'common.confirm': '確認',
   'common.cancel': 'キャンセル',
   'common.close': '閉じる',
   'common.save': '保存',

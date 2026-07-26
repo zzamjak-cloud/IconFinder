@@ -1,4 +1,5 @@
 export const zhCNCommonTranslations = {
+  'common.confirm': '确认',
   'common.cancel': '取消',
   'common.close': '关闭',
   'common.save': '保存',

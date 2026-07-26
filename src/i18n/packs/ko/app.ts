@@ -8,9 +8,15 @@ export const koAppTranslations = {
   'collection.iconCount': '{prefix} • {count} 아이콘',
   'workspace.scope.collection': '컬렉션…',
 
+  // 헤더 워크스페이스 탭
+  'workspace.tab.label': '워크스페이스',
+  'workspace.tab.search': '검색',
+  'workspace.tab.favorites': '즐겨찾기',
+
   // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': '로드 실패',
   'favorites.add': '즐겨찾기 추가',
   'favorites.remove': '즐겨찾기 제거',
+  'favorites.removeConfirm': '즐겨찾기를 해제하시겠습니까?',
   'favorites.title': '즐겨찾기',
 } as const;

@@ -8,9 +8,15 @@ export const frAppTranslations = {
   'collection.iconCount': '{prefix} • {count} icônes',
   'workspace.scope.collection': 'Collections…',
 
+  // 헤더 워크스페이스 탭
+  'workspace.tab.label': 'Espace de travail',
+  'workspace.tab.search': 'Recherche',
+  'workspace.tab.favorites': 'Favoris',
+
   // 아이콘 카드 · 즐겨찾기
   'icon.loadFailed': 'Échec du chargement',
   'favorites.add': 'Ajouter aux favoris',
   'favorites.remove': 'Retirer des favoris',
+  'favorites.removeConfirm': 'Retirer des favoris ?',
   'favorites.title': 'Favoris',
 } as const;

@@ -1,1 +1,1 @@
-export { SvgIconPanel } from './SvgIconPanel';
+export { SvgIconPanel, type WorkspaceTab } from './SvgIconPanel';

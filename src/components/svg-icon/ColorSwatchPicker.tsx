@@ -37,15 +37,36 @@ const POPUP_WIDTH = 336;
 const POPUP_EST_HEIGHT = 320;
 const VIEWPORT_MARGIN = 8;
 
+// 배경 밝기에 맞춰 칩 안쪽 라벨 대비색 선택
+function contrastText(hex: string): string {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return '#ffffff';
+  const n = parseInt(match[1], 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 140 ? '#1e293b' : '#ffffff';
+}
+
 interface ColorSwatchPickerProps {
   value: string;
   onChange: (color: string) => void;
   label?: string;
   className?: string; // 트리거 스와치 크기/모양 (기본: h-12 w-full)
   disabled?: boolean;
+  /** 칩 중앙에 표시할 짧은 라벨 (예: 메인/보조) */
+  overlayLabel?: string;
 }
 
-export function ColorSwatchPicker({ value, onChange, label, className, disabled }: ColorSwatchPickerProps) {
+export function ColorSwatchPicker({
+  value,
+  onChange,
+  label,
+  className,
+  disabled,
+  overlayLabel,
+}: ColorSwatchPickerProps) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -105,12 +126,21 @@ export function ColorSwatchPicker({ value, onChange, label, className, disabled 
         type="button"
         disabled={disabled}
         onClick={toggle}
-        title={label}
-        className={`rounded-md border border-slate-200 ${className ?? 'h-12 w-full'} ${
+        className={`inline-flex items-center justify-center rounded-md border border-slate-200 ${className ?? 'h-12 w-full'} ${
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         }`}
         style={{ backgroundColor: value }}
-      />
+        aria-label={label}
+      >
+        {overlayLabel ? (
+          <span
+            className="pointer-events-none text-[10px] font-bold leading-none"
+            style={{ color: contrastText(value) }}
+          >
+            {overlayLabel}
+          </span>
+        ) : null}
+      </button>
       {open && pos && (
         <div
           style={{ position: 'fixed', left: pos.left, top: pos.top, width: POPUP_WIDTH }}
@@ -125,13 +155,13 @@ export function ColorSwatchPicker({ value, onChange, label, className, disabled 
                   onChange(color);
                   setOpen(false);
                 }}
-                title={color}
                 className={`aspect-square w-full rounded-[3px] border ${
                   value.toLowerCase() === color.toLowerCase()
                     ? 'border-slate-900 ring-2 ring-slate-400'
                     : 'border-black/10 hover:border-slate-400'
                 }`}
                 style={{ backgroundColor: color }}
+                aria-label={color}
               />
             ))}
           </div>

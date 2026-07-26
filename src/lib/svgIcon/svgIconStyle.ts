@@ -726,11 +726,7 @@ export function applySvgIconStyle(svg: string, options: SvgIconStyleOptions): st
     }
 
     if (options.colorMode === 'original') {
-      if (element.getAttribute('fill') === 'currentColor') element.setAttribute('fill', options.primaryColor);
-      if (element.getAttribute('stroke') === 'currentColor') element.setAttribute('stroke', options.primaryColor);
-      if (element.getAttribute('stop-color') === 'currentColor') {
-        element.setAttribute('stop-color', options.primaryColor);
-      }
+      // 원본: 자체 fill/stroke/currentColor를 유지한다. 색상 칩은 단색·투톤 등에서만 적용.
       continue;
     }
 

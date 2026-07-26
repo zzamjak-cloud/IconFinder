@@ -1,4 +1,5 @@
 export const koCommonTranslations = {
+  'common.confirm': '확인',
   'common.cancel': '취소',
   'common.close': '닫기',
   'common.save': '저장',

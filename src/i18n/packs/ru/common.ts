@@ -1,4 +1,5 @@
 export const ruCommonTranslations = {
+  'common.confirm': 'Подтвердить',
   'common.cancel': 'Отмена',
   'common.close': 'Закрыть',
   'common.save': 'Сохранить',

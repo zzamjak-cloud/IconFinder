@@ -1,4 +1,5 @@
 export const esCommonTranslations = {
+  'common.confirm': 'Confirmar',
   'common.cancel': 'Cancelar',
   'common.close': 'Cerrar',
   'common.save': 'Guardar',
