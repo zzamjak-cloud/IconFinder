@@ -73,9 +73,11 @@ import {
 } from '@/lib/svgIcon/svgIconSearch';
 import {
   buildHtmlIconSnippet,
+  buildReactIconSnippet,
   buildStandaloneSvg,
   buildSvgDataUri,
   buildSvgSprite,
+  buildVueIconSnippet,
 } from '@/lib/svgIcon/svgIconExport';
 import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { useSettings } from '@/hooks/useSettings';
@@ -2600,6 +2602,28 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 <span className="inline-flex items-center justify-center gap-1">
                   <Copy size={12} />
                   CSS
+                </span>
+              </button>
+              <button
+                onClick={() =>
+                  handleCopy('React', buildReactIconSnippet(selectedIconForExport ?? selectedIcon))
+                }
+                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+              >
+                <span className="inline-flex items-center justify-center gap-1">
+                  <Copy size={12} />
+                  React
+                </span>
+              </button>
+              <button
+                onClick={() =>
+                  handleCopy('Vue', buildVueIconSnippet(selectedIconForExport ?? selectedIcon))
+                }
+                className="rounded-lg border border-slate-200 px-2 py-2 text-xs font-semibold hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+              >
+                <span className="inline-flex items-center justify-center gap-1">
+                  <Copy size={12} />
+                  Vue
                 </span>
               </button>
             </div>
