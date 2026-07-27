@@ -1,8 +1,9 @@
 [package]
 name = "iconfinder"
-version = "1.0.1"
+version = "1.0.2"
 description = "Iconify 아이콘 검색 및 내보내기 도구"
 authors = ["IconFinder Team"]
+license = "MIT"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

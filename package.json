@@ -1,7 +1,8 @@
 {
   "name": "iconfinder",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +11,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "version:bump": "node scripts/bump-version.js"
+    "version:bump": "node scripts/bump-version.cjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.20",

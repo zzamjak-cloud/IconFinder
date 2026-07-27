@@ -41,7 +41,7 @@ One three-pane screen instead of tabs:
 - **Frontend**: Tauri 2.0 + React + TypeScript + Vite
 - **UI**: Tailwind CSS + shadcn/ui + Lucide
 - **State**: TanStack Query + Zustand
-- **Backend**: Rust + resvg (SVG→PNG)
+- **Backend**: Rust (ICO/ICNS encoding) + Canvas rasterization (SVG→PNG)
 - **Persistence**: Tauri Store Plugin
 
 ## Download
@@ -64,4 +64,9 @@ The public site lives in [`docs/`](./docs/) and is published from the `main` bra
 
 ## License
 
-Each icon is licensed under the policy of its own icon set (Iconify collection).
+IconFinder is free software, distributed under the [MIT License](./LICENSE).
+Third-party components are listed in [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md).
+
+Icons are not bundled with the app — they are fetched at runtime from the Iconify API,
+and each icon is licensed under the policy of its own icon set (Iconify collection).
+Check the in-app License dialog for attribution requirements before using an icon.

@@ -41,7 +41,7 @@
 - **프론트엔드**: Tauri 2.0 + React + TypeScript + Vite
 - **UI**: Tailwind CSS + shadcn/ui + Lucide
 - **상태 관리**: TanStack Query + Zustand
-- **백엔드**: Rust + resvg (SVG→PNG)
+- **백엔드**: Rust (ICO/ICNS 인코딩) + Canvas 래스터화 (SVG→PNG)
 - **영속성**: Tauri Store Plugin
 
 ## 다운로드
@@ -64,4 +64,9 @@ npx tsc --noEmit       # 타입 체크
 
 ## 라이선스
 
+IconFinder는 [MIT 라이선스](./LICENSE)로 배포되는 무료 소프트웨어입니다.
+서드파티 구성 요소는 [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md)에 정리되어 있습니다.
+
+아이콘은 앱에 번들되지 않고 런타임에 Iconify API에서 가져오며,
 각 아이콘은 해당 아이콘 세트(Iconify 컬렉션)의 라이선스 정책을 따릅니다.
+아이콘 사용 전 앱 내 라이선스 안내에서 출처 표기 의무를 확인하세요.

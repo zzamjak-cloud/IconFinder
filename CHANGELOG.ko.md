@@ -13,6 +13,23 @@
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-27
+
+IconFinder가 오픈소스로 전환되었습니다. 누구나 무료로 사용할 수 있습니다.
+
+### 추가
+- **MIT 라이선스** (`LICENSE`) — 앱과 소스 코드를 자유롭게 사용·수정·재배포 가능
+- `THIRD-PARTY-NOTICES.md` — 번들된 서드파티 구성 요소(Lucide, shadcn/ui, Tauri 등) 라이선스 고지
+- GitHub Pages 제품 사이트(`docs/`) — 소개·설치·사용 가이드
+- 홍보 영상(`promo/IconFinder-Promo.mp4`)
+
+### 변경
+- README: 라이선스 섹션에 MIT 라이선스와 서드파티 고지 반영, 기술 스택 서술 수정(resvg가 아닌 Canvas 래스터화 + Rust ICO/ICNS 인코딩)
+- 파비콘을 Vite 스캐폴드 로고 대신 IconFinder 앱 아이콘으로 교체
+
+### 제거
+- 스캐폴드 잔재 에셋 삭제(`public/vite.svg`, `public/tauri.svg`, `src/assets/react.svg`)
+
 ## [1.0.0] - 2026-07-26
 
 첫 릴리스. 아래는 앱 전체에 대한 설명입니다.
