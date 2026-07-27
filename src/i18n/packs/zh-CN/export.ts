@@ -30,4 +30,10 @@ export const zhCNExportTranslations = {
   'batch.exportCategory': '导出分类',
   'batch.error.noIcons': '没有可导出的图标',
   'batch.error.noFolder': '请先在设置中选择默认保存文件夹',
+  'batch.preset.label': '分辨率预设',
+  'batch.preset.none': '单一尺寸（设置）',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Android mipmap 密度',
+  'batch.preset.ios': 'iOS AppIcon 套件',
+  'batch.preset.hint': '将多个 PNG 尺寸导出到子文件夹。使用默认保存文件夹。',
 } as const;

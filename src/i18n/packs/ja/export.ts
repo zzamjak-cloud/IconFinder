@@ -30,4 +30,10 @@ export const jaExportTranslations = {
   'batch.exportCategory': 'カテゴリをエクスポート',
   'batch.error.noIcons': 'エクスポートするアイコンがありません',
   'batch.error.noFolder': '先に設定でデフォルト保存フォルダを選択してください',
+  'batch.preset.label': '解像度プリセット',
+  'batch.preset.none': '単一サイズ（設定値）',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Android mipmap 密度',
+  'batch.preset.ios': 'iOS AppIcon セット',
+  'batch.preset.hint': '複数の PNG サイズをサブフォルダに書き出します。既定の保存フォルダを使います。',
 } as const;

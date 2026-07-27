@@ -32,4 +32,10 @@ export const frExportTranslations = {
   'batch.error.noIcons': "Il n'y a aucune icône à exporter",
   'batch.error.noFolder':
     "Veuillez d'abord choisir un dossier de sauvegarde par défaut dans les Paramètres",
+  'batch.preset.label': 'Préréglage de résolution',
+  'batch.preset.none': 'Taille unique (réglages)',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Densités mipmap Android',
+  'batch.preset.ios': 'Jeu AppIcon iOS',
+  'batch.preset.hint': 'Exporte plusieurs tailles PNG dans des sous-dossiers. Utilise le dossier d’enregistrement par défaut.',
 } as const;

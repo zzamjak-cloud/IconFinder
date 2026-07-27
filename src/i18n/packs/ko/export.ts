@@ -30,4 +30,10 @@ export const koExportTranslations = {
   'batch.exportCategory': '카테고리 내보내기',
   'batch.error.noIcons': '내보낼 아이콘이 없습니다',
   'batch.error.noFolder': '먼저 설정에서 기본 저장 폴더를 지정해주세요',
+  'batch.preset.label': '해상도 프리셋',
+  'batch.preset.none': '단일 크기 (설정값)',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Android mipmap 밀도',
+  'batch.preset.ios': 'iOS AppIcon 세트',
+  'batch.preset.hint': '여러 PNG 크기를 하위 폴더로 내보냅니다. 기본 저장 폴더를 사용합니다.',
 } as const;

@@ -30,4 +30,10 @@ export const ruExportTranslations = {
   'batch.exportCategory': 'Экспортировать категорию',
   'batch.error.noIcons': 'Нет иконок для экспорта',
   'batch.error.noFolder': 'Сначала выберите папку сохранения по умолчанию в настройках',
+  'batch.preset.label': 'Пресет разрешения',
+  'batch.preset.none': 'Один размер (настройки)',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Плотности mipmap Android',
+  'batch.preset.ios': 'Набор AppIcon iOS',
+  'batch.preset.hint': 'Экспортирует несколько размеров PNG в подпапки. Использует папку сохранения по умолчанию.',
 } as const;

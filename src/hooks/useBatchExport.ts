@@ -3,6 +3,11 @@ import { exportService } from '@/services/exportService';
 import { storageService } from '@/services/storageService';
 import { i18nError, resolveErrorMessage } from '@/i18n/errorMessage';
 import { useI18n } from '@/i18n/I18nProvider';
+import { iconifyApi } from '@/services/iconifyApi';
+import {
+  type ResolutionPresetId,
+  resolveResolutionPreset,
+} from '@/lib/export/resolutionPresets';
 import { useSettings } from './useSettings';
 
 /**
@@ -13,6 +18,11 @@ import { useSettings } from './useSettings';
 export interface BatchExportItem {
   name: string;
   svg?: string;
+}
+
+export interface BatchExportOptions {
+  /** none이면 기존 단일 포맷 내보내기 */
+  resolutionPreset?: ResolutionPresetId;
 }
 
 /**
@@ -32,7 +42,7 @@ export function useBatchExport() {
    * 여러 아이콘 일괄 내보내기
    * @param items 내보낼 항목 목록. svg가 있으면 그대로 저장, 없으면 name으로 원본을 받아 저장.
    */
-  const batchExport = async (items: BatchExportItem[]) => {
+  const batchExport = async (items: BatchExportItem[], options?: BatchExportOptions) => {
     if (items.length === 0) {
       throw i18nError('batch.error.noIcons');
     }
@@ -42,11 +52,21 @@ export function useBatchExport() {
       throw i18nError('batch.error.noFolder');
     }
 
+    const presetId: ResolutionPresetId = options?.resolutionPreset ?? 'none';
+    const useMultiRes = presetId !== 'none';
+
+    // 다중 해상도는 PNG 전용 — 엔트리 수로 total 산정
+    const entriesPerIcon = useMultiRes
+      ? (resolveResolutionPreset(presetId, 'icon', settings.size)?.entries.length ?? 1)
+      : 1;
+    const totalSteps = items.length * entriesPerIcon;
+
     setIsExporting(true);
-    setProgress({ current: 0, total: items.length });
+    setProgress({ current: 0, total: totalSteps });
     setErrors([]);
 
     const exportErrors: string[] = [];
+    let completedSteps = 0;
 
     // 원래 autoSave 설정 저장
     const originalAutoSave = settings.autoSave;
@@ -59,53 +79,57 @@ export function useBatchExport() {
       });
 
       const exportOptions = {
-        format: settings.format,
+        format: useMultiRes ? ('png' as const) : settings.format,
         size: settings.size,
         color: settings.color,
       };
 
-      console.log(`Starting batch export of ${items.length} icons`);
-      console.log('Export settings:', exportOptions);
-
-      // 순차적으로 내보내기 (너무 빠르면 API 제한에 걸릴 수 있음)
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
 
         try {
-          console.log(`Exporting ${i + 1}/${items.length}: ${item.name}`);
-
-          if (item.svg) {
-            // 이미 SVG 원문을 들고 있는 항목(보관함 아이콘)은 네트워크 없이 그대로 저장한다.
-            if (exportOptions.format === 'png') {
-              await exportService.saveSvgAsPng(item.name, item.svg, exportOptions.size);
-            } else {
-              await exportService.saveTextFile(item.name, item.svg, 'svg');
-            }
-          } else {
+          let svg = item.svg;
+          if (!svg) {
             const [prefix, name] = item.name.split(':');
-            await exportService.exportIcon(prefix, name, exportOptions);
+            svg = await iconifyApi.getIconSvg(prefix, name);
+            if (!svg) throw i18nError('error.svgDownloadFailed');
           }
 
-          setProgress({ current: i + 1, total: items.length });
+          if (useMultiRes) {
+            await exportService.exportIconMultiRes(
+              item.name,
+              svg,
+              presetId,
+              exportOptions.size,
+              () => {
+                completedSteps += 1;
+                setProgress({ current: completedSteps, total: totalSteps });
+              }
+            );
+          } else if (exportOptions.format === 'png') {
+            await exportService.saveSvgAsPng(item.name, svg, exportOptions.size);
+            completedSteps += 1;
+            setProgress({ current: completedSteps, total: totalSteps });
+          } else {
+            await exportService.saveTextFile(item.name, svg, 'svg');
+            completedSteps += 1;
+            setProgress({ current: completedSteps, total: totalSteps });
+          }
 
-          // API 부하 방지를 위해 약간의 딜레이 (원본을 새로 받아오는 경우에만 필요)
+          // API 부하 방지를 위해 약간의 딜레이 (원본을 새로 받아오는 경우에만)
           if (!item.svg && i < items.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise((resolve) => setTimeout(resolve, 300));
           }
         } catch (error) {
           const errorMsg = `${item.name}: ${resolveErrorMessage(t, error)}`;
-          console.error('Export error:', errorMsg);
           exportErrors.push(errorMsg);
+          // 실패한 아이콘 분량만큼 진행률을 앞으로 맞춤
+          completedSteps = Math.min(totalSteps, (i + 1) * entriesPerIcon);
+          setProgress({ current: completedSteps, total: totalSteps });
         }
       }
 
       setErrors(exportErrors);
-
-      if (exportErrors.length === 0) {
-        console.log('Batch export completed successfully');
-      } else {
-        console.warn(`Batch export completed with ${exportErrors.length} errors`);
-      }
     } finally {
       // 원래 autoSave 설정 복원
       await storageService.saveExportSettings({

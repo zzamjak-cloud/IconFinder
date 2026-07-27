@@ -32,4 +32,10 @@ export const deExportTranslations = {
   'batch.error.noIcons': 'Es gibt keine Icons zum Exportieren',
   'batch.error.noFolder':
     'Bitte wählen Sie zuerst in den Einstellungen einen Standard-Speicherordner aus',
+  'batch.preset.label': 'Auflösungsvorgabe',
+  'batch.preset.none': 'Einzelgröße (Einstellungen)',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Android-Mipmap-Dichten',
+  'batch.preset.ios': 'iOS-AppIcon-Satz',
+  'batch.preset.hint': 'Exportiert mehrere PNG-Größen in Unterordner. Nutzt den Standard-Speicherordner.',
 } as const;

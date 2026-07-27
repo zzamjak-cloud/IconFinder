@@ -5,6 +5,10 @@ import { storageService } from './storageService';
 import { ExportOptions } from '@/types/export';
 import { i18nError } from '@/i18n/errorMessage';
 import { loadSvgImage, normalizeSvgForRaster, rasterizePng } from '@/lib/export/rasterize';
+import {
+  type ResolutionPresetId,
+  resolveResolutionPreset,
+} from '@/lib/export/resolutionPresets';
 
 /**
  * 아이콘 내보내기 서비스
@@ -169,6 +173,55 @@ export class ExportService {
   async renderSvgToPngBytes(svgContent: string, size: number): Promise<Uint8Array> {
     const img = await loadSvgImage(svgContent);
     return rasterizePng(img, size);
+  }
+
+  /**
+   * 다중 해상도 일괄 저장
+   * - SVG 1회 로드 후 크기별 래스터화
+   * - autoSave+defaultFolder 필수 (폴더 구조 생성)
+   * @returns 저장된 파일 수
+   */
+  async exportIconMultiRes(
+    fileName: string,
+    svgContent: string,
+    presetId: ResolutionPresetId,
+    baseSize: number,
+    onEntrySaved?: () => void
+  ): Promise<number> {
+    const settings = await storageService.getExportSettings();
+    if (!settings.autoSave || !settings.defaultFolder) {
+      throw i18nError('batch.error.noFolder');
+    }
+
+    const preset = resolveResolutionPreset(presetId, fileName, baseSize);
+    if (!preset) {
+      throw i18nError('batch.error.noIcons');
+    }
+
+    const img = await loadSvgImage(svgContent);
+    let saved = 0;
+
+    for (const entry of preset.entries) {
+      const filePath = `${settings.defaultFolder}/${entry.relativePath}`;
+      const pngBytes = await rasterizePng(img, entry.size);
+      await invoke('save_icon_file', {
+        filePath,
+        content: Array.from(pngBytes),
+      });
+      saved += 1;
+      onEntrySaved?.();
+    }
+
+    if (preset.contentsJson && preset.contentsJsonPath) {
+      const jsonPath = `${settings.defaultFolder}/${preset.contentsJsonPath}`;
+      const encoder = new TextEncoder();
+      await invoke('save_icon_file', {
+        filePath: jsonPath,
+        content: Array.from(encoder.encode(preset.contentsJson)),
+      });
+    }
+
+    return saved;
   }
 
   /**

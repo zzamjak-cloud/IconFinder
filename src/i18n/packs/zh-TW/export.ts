@@ -30,4 +30,10 @@ export const zhTWExportTranslations = {
   'batch.exportCategory': '匯出分類',
   'batch.error.noIcons': '沒有可匯出的圖示',
   'batch.error.noFolder': '請先在設定中選擇預設儲存資料夾',
+  'batch.preset.label': '解析度預設',
+  'batch.preset.none': '單一尺寸（設定）',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Android mipmap 密度',
+  'batch.preset.ios': 'iOS AppIcon 套件',
+  'batch.preset.hint': '將多個 PNG 尺寸匯出到子資料夾。使用預設儲存資料夾。',
 } as const;

@@ -30,4 +30,10 @@ export const itExportTranslations = {
   'batch.exportCategory': 'Esporta categoria',
   'batch.error.noIcons': 'Non ci sono icone da esportare',
   'batch.error.noFolder': 'Scegliere prima una cartella di salvataggio predefinita nelle Impostazioni',
+  'batch.preset.label': 'Preimpostazione risoluzione',
+  'batch.preset.none': 'Dimensione singola (impostazioni)',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Densità mipmap Android',
+  'batch.preset.ios': 'Set AppIcon iOS',
+  'batch.preset.hint': 'Esporta più dimensioni PNG in sottocartelle. Usa la cartella di salvataggio predefinita.',
 } as const;

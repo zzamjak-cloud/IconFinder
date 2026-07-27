@@ -30,4 +30,10 @@ export const enExportTranslations = {
   'batch.exportCategory': 'Export category',
   'batch.error.noIcons': 'There are no icons to export',
   'batch.error.noFolder': 'Please choose a default save folder in Settings first',
+  'batch.preset.label': 'Resolution preset',
+  'batch.preset.none': 'Single size (settings)',
+  'batch.preset.multiplier': '@1x / @2x / @3x',
+  'batch.preset.android': 'Android mipmap densities',
+  'batch.preset.ios': 'iOS AppIcon set',
+  'batch.preset.hint': 'Exports multiple PNG sizes into subfolders. Uses the default save folder.',
 } as const;
