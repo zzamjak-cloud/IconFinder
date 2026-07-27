@@ -1,6 +1,6 @@
 [package]
 name = "iconfinder"
-version = "1.0.0"
+version = "1.0.1"
 description = "Iconify 아이콘 검색 및 내보내기 도구"
 authors = ["IconFinder Team"]
 edition = "2021"
