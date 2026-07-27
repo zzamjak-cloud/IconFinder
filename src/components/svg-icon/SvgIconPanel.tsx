@@ -31,6 +31,7 @@ import {
   ShieldCheck,
   Star,
   Trash2,
+  Type,
   X,
 } from 'lucide-react';
 import { useI18n, type TranslationKey } from '@/i18n';
@@ -86,6 +87,8 @@ import { WORKSPACE_SEARCH_INPUT_ID, useKeyboardShortcuts } from '@/hooks/useKeyb
 import { useDebounce } from '@/hooks/useDebounce';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
+import { FontExportDialog, type FontExportItem } from '@/components/FontExportDialog';
+import { isFontConvertible } from '@/lib/export/fontGlyph';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -582,6 +585,8 @@ interface IconCardShellProps {
   showCheck?: boolean;
   checked?: boolean;
   isFavorite: boolean;
+  /** 폰트 변환 불가(stroke 등) 가벼운 표시 */
+  fontIncompatible?: boolean;
   sourceUrl?: string | null;
   isDragging?: boolean;
   className?: string;
@@ -600,6 +605,7 @@ const IconCardShell = memo(function IconCardShell({
   showCheck = true,
   checked = false,
   isFavorite,
+  fontIncompatible = false,
   sourceUrl,
   isDragging = false,
   className,
@@ -623,8 +629,16 @@ const IconCardShell = memo(function IconCardShell({
         className="block w-full text-left"
       >
         {/* 프리뷰 타일: 항상 라이트 + 글자색 고정 — currentColor 아이콘이 다크 모드의 밝은 상속색을 물려받아 흰 타일 위에서 사라지는 것 방지 */}
-        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-slate-50 text-slate-900">
+        <div className="relative flex aspect-square w-full items-center justify-center rounded-md bg-slate-50 text-slate-900">
           {preview}
+          {fontIncompatible && (
+            <span
+              className="absolute right-1 top-1 rounded bg-white/90 p-0.5 text-slate-400 shadow-sm dark:bg-slate-900/90 dark:text-slate-500"
+              aria-label={t('font.badge.incompatible')}
+            >
+              <Type size={12} />
+            </span>
+          )}
         </div>
         <div className="mt-2 min-h-10 text-left">
           <p className="truncate text-sm font-semibold">{title}</p>
@@ -759,6 +773,11 @@ const SavedIconCard = memo(function SavedIconCard({
     () => (icon.svg === '' ? '' : buildPreviewSvg(icon)),
     [buildPreviewSvg, icon]
   );
+  // 폰트 변환은 원본(스타일 미적용) 기준
+  const fontIncompatible = useMemo(() => {
+    const source = icon.originalSvg || icon.svg;
+    return source === '' || !isFontConvertible(source);
+  }, [icon.originalSvg, icon.svg]);
 
   return (
     <IconCardShell
@@ -767,6 +786,7 @@ const SavedIconCard = memo(function SavedIconCard({
       isHighlighted={isChecked || isSelected}
       checked={isChecked}
       isFavorite={Boolean(icon.favorite)}
+      fontIncompatible={fontIncompatible}
       sourceUrl={icon.sourceUrl}
       isDragging={isDragging}
       className="h-full cursor-grab select-none active:cursor-grabbing hover:border-lime-400"
@@ -829,6 +849,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const [isStyleOpen, setIsStyleOpen] = useState(true);
   // 일괄 내보내기 대상(null이면 다이얼로그 닫힘)
   const [batchItems, setBatchItems] = useState<BatchExportItem[] | null>(null);
+  const [fontItems, setFontItems] = useState<FontExportItem[] | null>(null);
   // 하이드레이션 실패 아이콘 id(재시도 방지 + 플레이스홀더 표시)
   const [hydrationFailedIds, setHydrationFailedIds] = useState<Set<string>>(new Set());
   const hydrationInFlightRef = useRef<Set<string>>(new Set());
@@ -1695,6 +1716,17 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     );
   };
 
+  // 아이콘 폰트: 스타일 미적용 원본 SVG 기준으로 호환 항목만 TTF 변환
+  const openFontExport = (icons: SvgGameIcon[]) => {
+    if (icons.length === 0) return;
+    setFontItems(
+      icons.map((icon) => ({
+        name: icon.name,
+        svg: icon.originalSvg || icon.svg,
+      }))
+    );
+  };
+
   // SVG 스프라이트 내보내기(원본 기준). 라이트 항목(svg='')은 제외하고 개수 안내.
   const handleExportSprite = async (icons: SvgGameIcon[]) => {
     const ready = icons.filter((icon) => icon.svg !== '');
@@ -2187,6 +2219,20 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   <button
                     type="button"
                     onClick={() =>
+                      openFontExport(
+                        iconSelection.size > 0
+                          ? visibleSavedIcons.filter((icon) => iconSelection.has(icon.id))
+                          : visibleSavedIcons
+                      )
+                    }
+                    disabled={visibleSavedIcons.length === 0}
+                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
+                  >
+                    {t('font.exportButton')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
                       void handleExportSprite(
                         iconSelection.size > 0
                           ? visibleSavedIcons.filter((icon) => iconSelection.has(icon.id))
@@ -2666,6 +2712,15 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   <p className="min-w-0 flex-1 truncate text-sm font-semibold" title={selectedIcon.name}>
                     {selectedIcon.name}
                   </p>
+                  {(selectedIcon.originalSvg || selectedIcon.svg) === '' ||
+                  !isFontConvertible(selectedIcon.originalSvg || selectedIcon.svg) ? (
+                    <span
+                      className="shrink-0 rounded-md p-1.5 text-slate-400 dark:text-slate-500"
+                      aria-label={t('font.badge.incompatible')}
+                    >
+                      <Type size={13} />
+                    </span>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => setEditingIconId(selectedIcon.id)}
@@ -2782,6 +2837,12 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
         items={batchItems ?? []}
         isOpen={batchItems !== null}
         onClose={() => setBatchItems(null)}
+      />
+
+      <FontExportDialog
+        items={fontItems ?? []}
+        isOpen={fontItems !== null}
+        onClose={() => setFontItems(null)}
       />
 
       {/* 즐겨찾기 해제 확인 — window.confirm 대신 커스텀 다이얼로그 */}

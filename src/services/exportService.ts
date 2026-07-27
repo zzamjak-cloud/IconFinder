@@ -153,6 +153,27 @@ export class ExportService {
   }
 
   /**
+   * 바이너리 파일 저장 (TTF 등)
+   */
+  async saveBinaryFile(
+    fileName: string,
+    bytes: Uint8Array,
+    extension: string
+  ): Promise<string | null> {
+    const settings = await storageService.getExportSettings();
+    const fullFileName = fileName.toLowerCase().endsWith(`.${extension.toLowerCase()}`)
+      ? fileName
+      : `${fileName}.${extension}`;
+    const filePath = await this.resolveSavePath(fullFileName, extension, settings);
+    if (!filePath) return null;
+    await invoke('save_icon_file', {
+      filePath,
+      content: Array.from(bytes),
+    });
+    return filePath;
+  }
+
+  /**
    * SVG 콘텐츠를 PNG로 저장
    * - 저장 위치 정책(자동저장 폴더 또는 저장 대화상자)은 기존 로직 재사용
    * - Canvas로 래스터화하므로 SVG 필터(효과)가 그대로 PNG에 반영됨
