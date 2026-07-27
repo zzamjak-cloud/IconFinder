@@ -31,9 +31,9 @@ export const zhTWEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': '已儲存 {saved} · 結果 {results}',
   'editor.results.title': '搜尋結果',
-  'editor.results.meta': '第 {page}/{totalPages} 頁 · 顯示 {shown}/{total}',
+  'editor.results.meta': '顯示 {shown}/{total}',
   'editor.results.loading': '正在載入搜尋結果。',
-  'editor.results.emptyHint': '請輸入搜尋字詞並執行圖示搜尋。',
+  'editor.results.emptyHint': '輸入至少 2 個字元即可自動搜尋，也可按 Enter。',
   'editor.results.selected': '已選取 {count} 筆搜尋結果',
   'editor.results.deselected': '已取消搜尋結果的選取',
   'editor.results.favoriteSelected': '將 {count} 個加入收藏',

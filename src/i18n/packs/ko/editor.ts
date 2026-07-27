@@ -28,9 +28,9 @@ export const koEditorTranslations = {
 
   'editor.counts': '저장 {saved}개 · 검색 결과 {results}개',
   'editor.results.title': '검색 결과',
-  'editor.results.meta': '페이지 {page}/{totalPages} · 표시 {shown}/{total}',
+  'editor.results.meta': '표시 {shown}/{total}',
   'editor.results.loading': '검색 결과를 불러오는 중입니다.',
-  'editor.results.emptyHint': '검색어를 입력하고 아이콘 검색을 실행하세요.',
+  'editor.results.emptyHint': '2자 이상 입력하면 자동 검색됩니다. Enter로도 실행할 수 있습니다.',
   'editor.results.selected': '{count}개 검색 결과 선택됨',
   'editor.results.deselected': '검색 결과 선택 해제됨',
   'editor.results.favoriteSelected': '선택 {count}개 즐겨찾기',

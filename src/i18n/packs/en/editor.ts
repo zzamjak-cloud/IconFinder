@@ -33,7 +33,7 @@ export const enEditorTranslations = {
   'editor.results.title': 'Search results',
   'editor.results.meta': 'Page {page}/{totalPages} · Showing {shown}/{total}',
   'editor.results.loading': 'Loading search results...',
-  'editor.results.emptyHint': 'Enter a search term and run the icon search.',
+  'editor.results.emptyHint': 'Type at least 2 characters to search, or press Enter.',
   'editor.results.selected': '{count} search results selected',
   'editor.results.deselected': 'Search result selection cleared',
   'editor.results.favoriteSelected': 'Add {count} to favorites',

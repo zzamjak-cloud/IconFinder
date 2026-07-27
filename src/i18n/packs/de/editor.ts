@@ -31,9 +31,9 @@ export const deEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': 'Gespeichert {saved} · Ergebnisse {results}',
   'editor.results.title': 'Suchergebnisse',
-  'editor.results.meta': 'Seite {page}/{totalPages} · Anzeige {shown}/{total}',
+  'editor.results.meta': 'Anzeige {shown}/{total}',
   'editor.results.loading': 'Suchergebnisse werden geladen...',
-  'editor.results.emptyHint': 'Geben Sie einen Suchbegriff ein und starten Sie die Icon-Suche.',
+  'editor.results.emptyHint': 'Mindestens 2 Zeichen eingeben zum automatischen Suchen — oder Enter drücken.',
   'editor.results.selected': '{count} Suchergebnisse ausgewählt',
   'editor.results.deselected': 'Auswahl der Suchergebnisse aufgehoben',
   'editor.results.favoriteSelected': '{count} zu Favoriten',

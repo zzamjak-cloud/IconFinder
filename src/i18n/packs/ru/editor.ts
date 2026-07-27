@@ -31,9 +31,9 @@ export const ruEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': 'Сохранено: {saved} · Результатов: {results}',
   'editor.results.title': 'Результаты поиска',
-  'editor.results.meta': 'Страница {page}/{totalPages} · Показано {shown}/{total}',
+  'editor.results.meta': 'Показано {shown}/{total}',
   'editor.results.loading': 'Загрузка результатов поиска...',
-  'editor.results.emptyHint': 'Введите запрос и запустите поиск иконок.',
+  'editor.results.emptyHint': 'Введите минимум 2 символа для автопоиска или нажмите Enter.',
   'editor.results.selected': 'Выбрано результатов: {count}',
   'editor.results.deselected': 'Выделение результатов снято',
   'editor.results.favoriteSelected': 'В избранное ({count})',

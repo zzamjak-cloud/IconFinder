@@ -31,9 +31,9 @@ export const jaEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': '保存済み {saved}件 · 検索結果 {results}件',
   'editor.results.title': '検索結果',
-  'editor.results.meta': 'ページ {page}/{totalPages} · 表示 {shown}/{total}',
+  'editor.results.meta': '表示 {shown}/{total}',
   'editor.results.loading': '検索結果を読み込んでいます。',
-  'editor.results.emptyHint': '検索語を入力してアイコン検索を実行してください。',
+  'editor.results.emptyHint': '2文字以上入力すると自動検索します。Enterでも実行できます。',
   'editor.results.selected': '検索結果 {count}件を選択しました',
   'editor.results.deselected': '検索結果の選択を解除しました',
   'editor.results.favoriteSelected': '選択した{count}件をお気に入りへ',

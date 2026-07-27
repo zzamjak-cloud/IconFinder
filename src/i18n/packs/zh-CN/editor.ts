@@ -31,9 +31,9 @@ export const zhCNEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': '已保存 {saved} · 结果 {results}',
   'editor.results.title': '搜索结果',
-  'editor.results.meta': '第 {page}/{totalPages} 页 · 显示 {shown}/{total}',
+  'editor.results.meta': '显示 {shown}/{total}',
   'editor.results.loading': '正在加载搜索结果。',
-  'editor.results.emptyHint': '请输入搜索词并执行图标搜索。',
+  'editor.results.emptyHint': '输入至少 2 个字符即可自动搜索，也可按 Enter。',
   'editor.results.selected': '已选择 {count} 个搜索结果',
   'editor.results.deselected': '已取消搜索结果的选择',
   'editor.results.favoriteSelected': '将 {count} 个加入收藏',

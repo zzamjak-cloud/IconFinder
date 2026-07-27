@@ -83,6 +83,7 @@ import { useSvgWorkspace } from '@/hooks/useSvgWorkspace';
 import { useSettings } from '@/hooks/useSettings';
 import { useUiPreferences } from '@/hooks/useUiPreferences';
 import { WORKSPACE_SEARCH_INPUT_ID, useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useDebounce } from '@/hooks/useDebounce';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -200,6 +201,11 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
   const { t } = useI18n();
   const queryClient = useQueryClient();
   const [draftQuery, setDraftQuery] = useState(initialQuery);
+  const debouncedQuery = useDebounce(draftQuery.trim(), 400);
+  // Enter/최근검색으로 이미 보낸 쿼리와 디바운스 재발화 중복 방지
+  const lastSubmittedQueryRef = useRef('');
+  const onSearchRef = useRef(onSearch);
+  onSearchRef.current = onSearch;
   const expandedSearchTerms = useMemo(() => expandSvgIconSearchQuery(draftQuery), [draftQuery]);
   // 최근 검색어: 입력 포커스 시 드롭다운으로 노출 (기록은 패널의 handleSearchIcons가 담당)
   const { data: recentSearches = [] } = useQuery({
@@ -217,13 +223,25 @@ const EditorSearchToolbar = memo(function EditorSearchToolbar({
     setDraftQuery(initialQuery);
   }, [initialQuery]);
 
+  // 2자 이상 입력 시 400ms 디바운스로 자동 검색 (Enter는 즉시 실행 유지)
+  useEffect(() => {
+    if (debouncedQuery.length < 2) return;
+    if (debouncedQuery === lastSubmittedQueryRef.current) return;
+    lastSubmittedQueryRef.current = debouncedQuery;
+    setIsRecentOpen(false);
+    onSearchRef.current(debouncedQuery);
+  }, [debouncedQuery]);
+
   const submitSearch = () => {
+    const query = draftQuery.trim();
+    lastSubmittedQueryRef.current = query;
     setIsRecentOpen(false);
     onSearch(draftQuery);
   };
 
   const selectRecentSearch = (term: string) => {
     setDraftQuery(term);
+    lastSubmittedQueryRef.current = term.trim();
     setIsRecentOpen(false);
     onSearch(term);
   };
@@ -445,6 +463,9 @@ interface VirtualizedSvgIconGridProps<T> {
   empty: ReactNode;
   getItemKey: (item: T) => string;
   renderItem: (item: T) => ReactNode;
+  /** 가상 리스트 마지막 행 근처 도달 시 (무한 스크롤) */
+  onEndReached?: () => void;
+  isLoadingMore?: boolean;
 }
 
 function VirtualizedSvgIconGrid<T>({
@@ -454,10 +475,14 @@ function VirtualizedSvgIconGrid<T>({
   empty,
   getItemKey,
   renderItem,
+  onEndReached,
+  isLoadingMore = false,
 }: VirtualizedSvgIconGridProps<T>) {
   const parentRef = useRef<HTMLDivElement | null>(null);
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const onEndReachedRef = useRef(onEndReached);
+  onEndReachedRef.current = onEndReached;
   const columnCount = Math.max(1, Math.floor(columns));
   const metrics = useMemo(
     () => getSvgIconGridMetrics(containerWidth, columnCount, kind),
@@ -471,6 +496,7 @@ function VirtualizedSvgIconGrid<T>({
     getItemKey: (index) => `${kind}:${columnCount}:${metrics.rowPitch.toFixed(3)}:${index}`,
     overscan: 3,
   });
+  const virtualItems = virtualizer.getVirtualItems();
 
   const setParentElement = useCallback((node: HTMLDivElement | null) => {
     parentRef.current = node;
@@ -491,18 +517,28 @@ function VirtualizedSvgIconGrid<T>({
     virtualizer.measure();
   }, [columnCount, metrics.rowPitch, virtualizer]);
 
+  // 마지막 가시 행이 끝에서 2행 이내면 다음 페이지 로드 요청
+  useEffect(() => {
+    if (!onEndReachedRef.current || rowCount === 0) return;
+    const lastItem = virtualItems[virtualItems.length - 1];
+    if (!lastItem) return;
+    if (lastItem.index >= rowCount - 2) {
+      onEndReachedRef.current();
+    }
+  }, [virtualItems, rowCount]);
+
   if (items.length === 0) return <>{empty}</>;
 
   return (
     <div ref={setParentElement} className="h-full overflow-auto pr-1">
       <div
         style={{
-          height: `${getSvgIconGridTotalHeight(rowCount, metrics.rowPitch)}px`,
+          height: `${getSvgIconGridTotalHeight(rowCount, metrics.rowPitch) + (isLoadingMore ? 40 : 0)}px`,
           position: 'relative',
           width: '100%',
         }}
       >
-        {virtualizer.getVirtualItems().map((virtualRow) => {
+        {virtualItems.map((virtualRow) => {
           const startIndex = virtualRow.index * columnCount;
           const rowItems = items.slice(startIndex, startIndex + columnCount);
           return (
@@ -523,6 +559,14 @@ function VirtualizedSvgIconGrid<T>({
             </div>
           );
         })}
+        {isLoadingMore && (
+          <div
+            className="absolute left-0 right-0 flex items-center justify-center gap-2 py-2 text-xs text-slate-500 dark:text-slate-400"
+            style={{ top: `${getSvgIconGridTotalHeight(rowCount, metrics.rowPitch)}px` }}
+          >
+            <Loader2 size={14} className="animate-spin" />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -769,8 +813,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const [editingIconId, setEditingIconId] = useState<string | null>(null);
   const [searchInputSeed, setSearchInputSeed] = useState(DEFAULT_SVG_ICON_SEARCH_QUERY);
   const [searchResults, setSearchResults] = useState<SvgIconSearchResult[]>([]);
-  const [resultNames, setResultNames] = useState<string[]>([]); // 전체 검색 이름 풀(페이지네이션용)
-  const [searchPage, setSearchPage] = useState(0); // 0-based 현재 페이지
+  const [resultNames, setResultNames] = useState<string[]>([]); // 전체 검색 이름 풀(무한 스크롤용)
+  const [searchPage, setSearchPage] = useState(0); // 0-based 마지막으로 로드한 페이지
   const [selectedResultIds, setSelectedResultIds] = useState<Set<string>>(new Set());
   // 그리드 컬럼 수 — IconFinder 검색 뷰와 독립적으로 동작하는 패널 전용 상태
   const [gridColumns, setGridColumns] = useState(5);
@@ -787,6 +831,10 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const [hydrationFailedIds, setHydrationFailedIds] = useState<Set<string>>(new Set());
   const hydrationInFlightRef = useRef<Set<string>>(new Set());
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // 검색 경합 제어: 새 검색이 시작되면 이전 응답은 무시
+  const searchSeqRef = useRef(0);
+  const isLoadingMoreRef = useRef(false);
   const [pendingDeleteCategoryId, setPendingDeleteCategoryId] = useState<string | null>(null);
   // 즐겨찾기 해제 확인 대상(우측 디테일 별 버튼)
   const [unfavoriteConfirmIcon, setUnfavoriteConfirmIcon] = useState<SvgGameIcon | null>(null);
@@ -1373,16 +1421,25 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     });
   };
 
-  // 페이지네이션: 전체 페이지 수
-  const totalPages = Math.max(1, Math.ceil(resultNames.length / SVG_ICON_SEARCH_PAGE_SIZE));
-
-  // 특정 페이지의 SVG를 로드해 표시
-  const loadSearchPage = async (names: string[], page: number, pageSize: number) => {
+  // 특정 페이지 SVG 로드 — replace(신규 검색) / append(무한 스크롤)
+  const loadSearchPage = async (
+    names: string[],
+    page: number,
+    pageSize: number,
+    mode: 'replace' | 'append',
+    seq: number
+  ) => {
     const slice = getSvgIconSearchPageSlice(names, page, pageSize);
+    if (slice.length === 0) return;
     const results = await fetchSvgIconsByNames(slice);
-    setSearchResults(results);
+    if (seq !== searchSeqRef.current) return;
+    if (mode === 'replace') {
+      setSearchResults(results);
+      setSelectedResultIds(new Set());
+    } else {
+      setSearchResults((prev) => [...prev, ...results]);
+    }
     setSearchPage(page);
-    setSelectedResultIds(new Set());
   };
 
   const handleSearchIcons = async (nextQuery: string) => {
@@ -1392,8 +1449,11 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
       return;
     }
 
+    const seq = ++searchSeqRef.current;
     setError(null);
     setIsSearching(true);
+    isLoadingMoreRef.current = false;
+    setIsLoadingMore(false);
     // 최근 검색어 기록 (실패해도 검색은 계속)
     void storageService.addRecentSearch(query).then(() => {
       queryClient.invalidateQueries({ queryKey: ['recentSearches'] });
@@ -1405,6 +1465,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
         scope: searchScope,
         poolLimit: 600,
       });
+      if (seq !== searchSeqRef.current) return;
       setResultNames(names);
       if (names.length === 0) {
         setSearchResults([]);
@@ -1413,31 +1474,42 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
         showToast(t('editor.search.noResults'));
         return;
       }
-      await loadSearchPage(names, 0, SVG_ICON_SEARCH_PAGE_SIZE);
+      await loadSearchPage(names, 0, SVG_ICON_SEARCH_PAGE_SIZE, 'replace', seq);
     } catch (searchError) {
+      if (seq !== searchSeqRef.current) return;
       setError(
         searchError instanceof Error
           ? resolveErrorMessage(t, searchError)
           : t('editor.search.failed')
       );
     } finally {
-      setIsSearching(false);
+      if (seq === searchSeqRef.current) setIsSearching(false);
     }
   };
 
-  // 페이지 이동
-  const handleGoToPage = async (page: number) => {
-    if (page < 0 || page >= totalPages || page === searchPage) return;
+  // 무한 스크롤: 다음 페이지를 누적 로드 (풀 600 소진 시 종료)
+  const handleLoadMoreSearchResults = async () => {
+    if (isSearching || isLoadingMoreRef.current) return;
+    const nextPage = searchPage + 1;
+    const slice = getSvgIconSearchPageSlice(resultNames, nextPage, SVG_ICON_SEARCH_PAGE_SIZE);
+    if (slice.length === 0) return;
+
+    const seq = searchSeqRef.current;
+    isLoadingMoreRef.current = true;
+    setIsLoadingMore(true);
     setError(null);
-    setIsSearching(true);
     try {
-      await loadSearchPage(resultNames, page, SVG_ICON_SEARCH_PAGE_SIZE);
+      await loadSearchPage(resultNames, nextPage, SVG_ICON_SEARCH_PAGE_SIZE, 'append', seq);
     } catch (pageError) {
+      if (seq !== searchSeqRef.current) return;
       setError(
         pageError instanceof Error ? resolveErrorMessage(t, pageError) : t('editor.search.pageFailed')
       );
     } finally {
-      setIsSearching(false);
+      if (seq === searchSeqRef.current) {
+        isLoadingMoreRef.current = false;
+        setIsLoadingMore(false);
+      }
     }
   };
 
@@ -1966,8 +2038,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   <h3 className="truncate text-sm font-bold text-slate-800 dark:text-slate-200">{t('editor.results.title')}</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     {t('editor.results.meta', {
-                      page: searchPage + 1,
-                      totalPages,
                       shown: searchResults.length,
                       total: resultNames.length || searchResults.length,
                     })}
@@ -2004,6 +2074,8 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 columns={gridColumns}
                 kind="search"
                 getItemKey={(result) => result.id}
+                onEndReached={() => void handleLoadMoreSearchResults()}
+                isLoadingMore={isLoadingMore}
                 empty={
                   <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
                     {isSearching ? t('editor.results.loading') : t('editor.results.emptyHint')}
@@ -2023,56 +2095,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 )}
               />
             </div>
-            {totalPages > 1 && (
-              <div className="border-t border-slate-200 px-3 py-2 dark:border-slate-800">
-                <div className="flex flex-wrap items-center justify-center gap-1 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => handleGoToPage(searchPage - 1)}
-                    disabled={searchPage === 0 || isSearching}
-                    className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400"
-                  >
-                    {t('common.previous')}
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i)
-                    .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - searchPage) <= 2)
-                    .reduce<number[]>((acc, i) => {
-                      if (acc.length && i - acc[acc.length - 1] > 1) acc.push(-1);
-                      acc.push(i);
-                      return acc;
-                    }, [])
-                    .map((i, idx) =>
-                      i === -1 ? (
-                        <span key={`gap-${idx}`} className="px-1 text-slate-400 dark:text-slate-500">
-                          ...
-                        </span>
-                      ) : (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() => handleGoToPage(i)}
-                          disabled={isSearching}
-                          className={`min-w-[28px] rounded-md border px-2 py-1 font-semibold ${
-                            i === searchPage
-                              ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
-                              : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          {i + 1}
-                        </button>
-                      )
-                    )}
-                  <button
-                    type="button"
-                    onClick={() => handleGoToPage(searchPage + 1)}
-                    disabled={searchPage >= totalPages - 1 || isSearching}
-                    className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-600 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400"
-                  >
-                    {t('common.next')}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
           ) : (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">

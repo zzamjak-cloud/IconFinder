@@ -31,9 +31,9 @@ export const itEditorTranslations = {
   // 결과 · 저장 목록
   'editor.counts': 'Salvate {saved} · Risultati {results}',
   'editor.results.title': 'Risultati della ricerca',
-  'editor.results.meta': 'Pagina {page}/{totalPages} · Mostrati {shown}/{total}',
+  'editor.results.meta': 'Mostrati {shown}/{total}',
   'editor.results.loading': 'Caricamento dei risultati della ricerca...',
-  'editor.results.emptyHint': 'Inserire un termine ed eseguire la ricerca delle icone.',
+  'editor.results.emptyHint': 'Digita almeno 2 caratteri per la ricerca automatica, oppure premi Invio.',
   'editor.results.selected': '{count} risultati di ricerca selezionati',
   'editor.results.deselected': 'Selezione dei risultati annullata',
   'editor.results.favoriteSelected': 'Aggiungi {count} ai preferiti',
