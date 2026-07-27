@@ -92,6 +92,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { exportService } from '@/services/exportService';
 import { storageService } from '@/services/storageService';
 import { iconifyApi } from '@/services/iconifyApi';
+import { Image } from '@tauri-apps/api/image';
+import { writeImage } from '@tauri-apps/plugin-clipboard-manager';
 import { ColorSwatchPicker } from './ColorSwatchPicker';
 import {
   SVG_ICON_SEARCH_PAGE_SIZE,
@@ -1763,6 +1765,22 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     }
   };
 
+  // PNG 이미지를 시스템 클립보드에 복사 (Figma/Slack 등 바로 붙여넣기)
+  const handleCopyPng = async (label: string, svgContent: string, size?: number) => {
+    try {
+      const pngBytes = await exportService.renderSvgToPngBytes(svgContent, size ?? exportSettings.size);
+      const image = await Image.fromBytes(pngBytes);
+      await writeImage(image);
+      showToast(t('editor.copied', { label }));
+    } catch (copyError) {
+      setError(
+        copyError instanceof Error
+          ? resolveErrorMessage(t, copyError)
+          : t('editor.copyFail', { label })
+      );
+    }
+  };
+
   // 키보드 단축키: Cmd/Ctrl+S = 현재 Detail 아이콘 빠른 내보내기(설정 포맷), Cmd/Ctrl+F = 즐겨찾기 토글
   useKeyboardShortcuts({
     onQuickExport: () => {
@@ -2302,7 +2320,7 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() =>
                     void handleSaveTextFile(
@@ -2333,6 +2351,18 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <Download size={14} />
+                    PNG
+                  </span>
+                </button>
+                <button
+                  onClick={() =>
+                    void handleCopyPng(t('editor.label.pngClipboard'), activeDetailSvg)
+                  }
+                  disabled={!activeDetailSvg}
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-slate-800 dark:hover:bg-slate-800"
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Copy size={14} />
                     PNG
                   </span>
                 </button>
