@@ -142,15 +142,15 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[calc(100vh-2rem)] max-w-lg flex-col overflow-hidden p-0">
+        <DialogHeader className="mb-0 shrink-0 border-b border-border px-6 py-4">
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
             {t('settings.title')}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
           {/* 일반 */}
           <div className="space-y-4">
             <h3 className="font-semibold">{t('settings.general')}</h3>
@@ -321,16 +321,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
               <p className="text-xs text-muted-foreground">{backupStatus}</p>
             )}
           </div>
+        </div>
 
-          {/* 버튼 */}
-          <div className="flex gap-2 justify-end pt-4 border-t border-border">
-            <Button onClick={handleReset} variant="outline">
-              {t('common.reset')}
-            </Button>
-            <Button onClick={handleSave} disabled={isUpdating}>
-              {isUpdating ? t('common.saving') : t('common.save')}
-            </Button>
-          </div>
+        {/* 하단 액션 — 스크롤 영역 밖에 고정 */}
+        <div className="flex shrink-0 justify-end gap-2 border-t border-border px-6 py-4">
+          <Button onClick={handleReset} variant="outline">
+            {t('common.reset')}
+          </Button>
+          <Button onClick={handleSave} disabled={isUpdating}>
+            {isUpdating ? t('common.saving') : t('common.save')}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

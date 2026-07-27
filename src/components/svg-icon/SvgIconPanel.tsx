@@ -31,7 +31,6 @@ import {
   ShieldCheck,
   Star,
   Trash2,
-  Type,
   X,
 } from 'lucide-react';
 import { useI18n, type TranslationKey } from '@/i18n';
@@ -87,8 +86,6 @@ import { WORKSPACE_SEARCH_INPUT_ID, useKeyboardShortcuts } from '@/hooks/useKeyb
 import { useDebounce } from '@/hooks/useDebounce';
 import { type BatchExportItem } from '@/hooks/useBatchExport';
 import { BatchExportDialog } from '@/components/BatchExportDialog';
-import { FontExportDialog, type FontExportItem } from '@/components/FontExportDialog';
-import { isFontConvertible } from '@/lib/export/fontGlyph';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -585,8 +582,6 @@ interface IconCardShellProps {
   showCheck?: boolean;
   checked?: boolean;
   isFavorite: boolean;
-  /** 폰트 변환 불가(stroke 등) 가벼운 표시 */
-  fontIncompatible?: boolean;
   sourceUrl?: string | null;
   isDragging?: boolean;
   className?: string;
@@ -605,7 +600,6 @@ const IconCardShell = memo(function IconCardShell({
   showCheck = true,
   checked = false,
   isFavorite,
-  fontIncompatible = false,
   sourceUrl,
   isDragging = false,
   className,
@@ -631,14 +625,6 @@ const IconCardShell = memo(function IconCardShell({
         {/* 프리뷰 타일: 항상 라이트 + 글자색 고정 — currentColor 아이콘이 다크 모드의 밝은 상속색을 물려받아 흰 타일 위에서 사라지는 것 방지 */}
         <div className="relative flex aspect-square w-full items-center justify-center rounded-md bg-slate-50 text-slate-900">
           {preview}
-          {fontIncompatible && (
-            <span
-              className="absolute right-1 top-1 rounded bg-white/90 p-0.5 text-slate-400 shadow-sm dark:bg-slate-900/90 dark:text-slate-500"
-              aria-label={t('font.badge.incompatible')}
-            >
-              <Type size={12} />
-            </span>
-          )}
         </div>
         <div className="mt-2 min-h-10 text-left">
           <p className="truncate text-sm font-semibold">{title}</p>
@@ -773,11 +759,6 @@ const SavedIconCard = memo(function SavedIconCard({
     () => (icon.svg === '' ? '' : buildPreviewSvg(icon)),
     [buildPreviewSvg, icon]
   );
-  // 폰트 변환은 원본(스타일 미적용) 기준
-  const fontIncompatible = useMemo(() => {
-    const source = icon.originalSvg || icon.svg;
-    return source === '' || !isFontConvertible(source);
-  }, [icon.originalSvg, icon.svg]);
 
   return (
     <IconCardShell
@@ -786,7 +767,6 @@ const SavedIconCard = memo(function SavedIconCard({
       isHighlighted={isChecked || isSelected}
       checked={isChecked}
       isFavorite={Boolean(icon.favorite)}
-      fontIncompatible={fontIncompatible}
       sourceUrl={icon.sourceUrl}
       isDragging={isDragging}
       className="h-full cursor-grab select-none active:cursor-grabbing hover:border-lime-400"
@@ -849,7 +829,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const [isStyleOpen, setIsStyleOpen] = useState(true);
   // 일괄 내보내기 대상(null이면 다이얼로그 닫힘)
   const [batchItems, setBatchItems] = useState<BatchExportItem[] | null>(null);
-  const [fontItems, setFontItems] = useState<FontExportItem[] | null>(null);
   // 하이드레이션 실패 아이콘 id(재시도 방지 + 플레이스홀더 표시)
   const [hydrationFailedIds, setHydrationFailedIds] = useState<Set<string>>(new Set());
   const hydrationInFlightRef = useRef<Set<string>>(new Set());
@@ -1115,25 +1094,62 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
   const activeDetailName = selectedIcon?.name ?? selectedResult?.name ?? null;
   const activeDetailSvg = selectedIcon ? selectedIconExportSvg || selectedIcon.svg : selectedResultPreviewSvg;
 
-  const applyStyleSnapshotToControls = (snapshot?: SvgIconStyleSnapshot) => {
-    if (!snapshot) return;
-    setColorMode(snapshot.colorMode);
-    // 구버전 'outlined' finishMode는 외곽선 토글로 마이그레이션하고 finishMode는 기본으로 정리
-    setFinishMode(snapshot.finishMode === 'outlined' ? 'flat' : snapshot.finishMode);
-    setOutlineEnabled(snapshot.outlineEnabled ?? snapshot.finishMode === 'outlined');
-    setPrimaryColor(snapshot.primaryColor);
-    setAccentColor(snapshot.accentColor);
-    setOutlineColor(snapshot.outlineColor);
-    setOutlineWidth(Math.min(Math.max(snapshot.outlineWidth, 1), OUTLINE_WIDTH_MAX));
-    setEffects(normalizeSvgIconEffects(snapshot.effects));
-    handleSettingChange(snapshot.viewBox);
-  };
+  // 스냅샷이 없는 구 아이콘용 — 원본 스타일 기본값 + 아이콘에 저장된 viewBox/preset
+  const buildFallbackStyleSnapshot = useCallback(
+    (icon: SvgGameIcon): SvgIconStyleSnapshot => {
+      const viewBox = (SVG_ICON_VIEW_BOXES as string[]).includes(icon.viewBox)
+        ? (icon.viewBox as SvgIconViewBox)
+        : workspace.defaultViewBox;
+      return {
+        colorMode: 'original',
+        finishMode: 'flat',
+        primaryColor: SVG_ICON_COLOR_PRESETS[0].primary,
+        accentColor: SVG_ICON_COLOR_PRESETS[0].accent,
+        outlineColor: '#0f172a',
+        outlineWidth: 3,
+        outlineEnabled: false,
+        stylePreset: icon.stylePreset,
+        viewBox,
+        effects: DEFAULT_SVG_ICON_EFFECTS,
+      };
+    },
+    [workspace.defaultViewBox]
+  );
 
+  const resolveIconStyleSnapshot = useCallback(
+    (icon: SvgGameIcon): SvgIconStyleSnapshot => icon.styleSnapshot ?? buildFallbackStyleSnapshot(icon),
+    [buildFallbackStyleSnapshot]
+  );
+
+  // 우측 스타일 컨트롤을 스냅샷으로 덮어쓴다(미저장 편집분 폐기).
+  const applyStyleSnapshotToControls = useCallback(
+    (snapshot: SvgIconStyleSnapshot) => {
+      setColorMode(snapshot.colorMode);
+      // 구버전 'outlined' finishMode는 외곽선 토글로 마이그레이션하고 finishMode는 기본으로 정리
+      setFinishMode(snapshot.finishMode === 'outlined' ? 'flat' : snapshot.finishMode);
+      setOutlineEnabled(snapshot.outlineEnabled ?? snapshot.finishMode === 'outlined');
+      setPrimaryColor(snapshot.primaryColor);
+      setAccentColor(snapshot.accentColor);
+      setOutlineColor(snapshot.outlineColor);
+      setOutlineWidth(Math.min(Math.max(snapshot.outlineWidth, 1), OUTLINE_WIDTH_MAX));
+      setEffects(normalizeSvgIconEffects(snapshot.effects));
+      // styleSvg가 workspace.stylePreset/viewBox를 쓰므로 스냅샷과 동기화
+      updateWorkspace((prev) => ({
+        ...prev,
+        stylePreset: snapshot.stylePreset,
+        defaultViewBox: snapshot.viewBox,
+      }));
+    },
+    [updateWorkspace]
+  );
+
+  // 보관함 아이콘 선택: 항상 해당 아이콘의 저장 스타일로 사이드바를 맞춘다.
+  // 이전 아이콘에서 미저장으로 바꿔 둔 값은 여기서 버려진다.
   const handleSelectSavedIcon = (icon: SvgGameIcon) => {
     setSelectedIconId(icon.id);
     setSelectedResultId(null);
     setIsStyleOpen(true);
-    applyStyleSnapshotToControls(icon.styleSnapshot);
+    applyStyleSnapshotToControls(resolveIconStyleSnapshot(icon));
   };
 
   // 검색 결과 카드 클릭 → 디테일 패널 대상 지정(스타일 섹션도 표시)
@@ -1625,14 +1641,39 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
 
   // 검색 결과 카드의 별 버튼: 보관함에 같은 sourceId가 있으면 favorite 토글,
   // 없으면 "미분류" 카테고리를 보장한 뒤 즐겨찾기 상태로 저장한다.
+  // 검색 화면에서 보이는 스타일 변형은 styleSnapshot으로 함께 저장한다.
   const handleToggleResultFavorite = (result: SvgIconSearchResult) => {
     const existing = workspace.icons.find((icon) => icon.sourceId === result.id);
     if (existing) {
-      handleToggleFavorite(existing);
+      if (existing.favorite) {
+        handleToggleFavorite(existing);
+        return;
+      }
+      const styleSnapshot = getCurrentStyleSnapshot();
+      const now = new Date().toISOString();
+      updateWorkspace({
+        ...workspace,
+        icons: workspace.icons.map((item) =>
+          item.id === existing.id
+            ? {
+                ...item,
+                favorite: true,
+                svg: result.svg,
+                originalSvg: result.svg,
+                styleSnapshot,
+                stylePreset: styleSnapshot.stylePreset,
+                viewBox: styleSnapshot.viewBox,
+                updatedAt: now,
+              }
+            : item
+        ),
+      });
+      showToast(t('editor.icon.favoriteAdded', { name: result.name }));
       return;
     }
 
     const now = new Date().toISOString();
+    const styleSnapshot = getCurrentStyleSnapshot();
     const { data, category } = ensureUncategorizedCategory(workspace);
     const icon: SvgGameIcon = {
       id: createSvgIconId('svg-icon'),
@@ -1642,8 +1683,9 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
       svg: result.svg,
       originalSvg: result.svg,
       tags: result.tags,
-      stylePreset: workspace.stylePreset,
-      viewBox: workspace.defaultViewBox,
+      styleSnapshot,
+      stylePreset: styleSnapshot.stylePreset,
+      viewBox: styleSnapshot.viewBox,
       source: result.source,
       sourceId: result.id,
       sourceName: result.sourceName,
@@ -1713,17 +1755,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
           ? { name: icon.sourceId }
           : { name: icon.name, svg: buildStandaloneSvg(buildIconForExport(icon)) }
       )
-    );
-  };
-
-  // 아이콘 폰트: 스타일 미적용 원본 SVG 기준으로 호환 항목만 TTF 변환
-  const openFontExport = (icons: SvgGameIcon[]) => {
-    if (icons.length === 0) return;
-    setFontItems(
-      icons.map((icon) => ({
-        name: icon.name,
-        svg: icon.originalSvg || icon.svg,
-      }))
     );
   };
 
@@ -2219,20 +2250,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   <button
                     type="button"
                     onClick={() =>
-                      openFontExport(
-                        iconSelection.size > 0
-                          ? visibleSavedIcons.filter((icon) => iconSelection.has(icon.id))
-                          : visibleSavedIcons
-                      )
-                    }
-                    disabled={visibleSavedIcons.length === 0}
-                    className="rounded-md border border-slate-200 px-2 py-1.5 font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40 dark:border-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
-                  >
-                    {t('font.exportButton')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
                       void handleExportSprite(
                         iconSelection.size > 0
                           ? visibleSavedIcons.filter((icon) => iconSelection.has(icon.id))
@@ -2712,15 +2729,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   <p className="min-w-0 flex-1 truncate text-sm font-semibold" title={selectedIcon.name}>
                     {selectedIcon.name}
                   </p>
-                  {(selectedIcon.originalSvg || selectedIcon.svg) === '' ||
-                  !isFontConvertible(selectedIcon.originalSvg || selectedIcon.svg) ? (
-                    <span
-                      className="shrink-0 rounded-md p-1.5 text-slate-400 dark:text-slate-500"
-                      aria-label={t('font.badge.incompatible')}
-                    >
-                      <Type size={13} />
-                    </span>
-                  ) : null}
                   <button
                     type="button"
                     onClick={() => setEditingIconId(selectedIcon.id)}
@@ -2837,12 +2845,6 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
         items={batchItems ?? []}
         isOpen={batchItems !== null}
         onClose={() => setBatchItems(null)}
-      />
-
-      <FontExportDialog
-        items={fontItems ?? []}
-        isOpen={fontItems !== null}
-        onClose={() => setFontItems(null)}
       />
 
       {/* 즐겨찾기 해제 확인 — window.confirm 대신 커스텀 다이얼로그 */}
