@@ -25,4 +25,8 @@ export const deErrorTranslations = {
   'error.rust.noDownloadDir': 'Der Downloads-Ordner wurde nicht gefunden',
   'error.rust.createDir': 'Der Ordner konnte nicht erstellt werden: {detail}',
   'error.rust.pathConvert': 'Der Pfad konnte nicht in eine Zeichenfolge umgewandelt werden',
+  'error.rust.icoSize': 'ICO-Größe muss zwischen 16 und 256 liegen',
+  'error.rust.icoEncode': 'ICO-Datei konnte nicht erstellt werden: {detail}',
+  'error.rust.icnsSize': 'ICNS-Größe muss zwischen 16 und 1024 liegen',
+  'error.rust.icnsEncode': 'ICNS-Datei konnte nicht erstellt werden: {detail}',
 } as const;

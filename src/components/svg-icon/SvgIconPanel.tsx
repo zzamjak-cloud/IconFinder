@@ -1781,6 +1781,25 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
     }
   };
 
+  // ICO/ICNS 앱 아이콘 패키지 저장
+  const handleExportAppIcon = async (
+    label: string,
+    fileName: string,
+    svgContent: string,
+    target: 'ico' | 'icns'
+  ) => {
+    try {
+      const savedPath = await exportService.exportAppIcon(fileName, svgContent, target);
+      if (savedPath) showToast(t('editor.saveOk', { label }));
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? resolveErrorMessage(t, saveError)
+          : t('editor.saveFail', { label })
+      );
+    }
+  };
+
   // 키보드 단축키: Cmd/Ctrl+S = 현재 Detail 아이콘 빠른 내보내기(설정 포맷), Cmd/Ctrl+F = 즐겨찾기 토글
   useKeyboardShortcuts({
     onQuickExport: () => {
@@ -2364,6 +2383,42 @@ export function SvgIconPanel({ mode }: { mode: WorkspaceTab }) {
                   <span className="inline-flex items-center justify-center gap-2">
                     <Copy size={14} />
                     PNG
+                  </span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() =>
+                    void handleExportAppIcon(
+                      t('editor.label.icoFile'),
+                      `${activeDetailName}.ico`,
+                      activeDetailSvg,
+                      'ico'
+                    )
+                  }
+                  disabled={!activeDetailSvg}
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-slate-800 dark:hover:bg-slate-800"
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Download size={14} />
+                    ICO
+                  </span>
+                </button>
+                <button
+                  onClick={() =>
+                    void handleExportAppIcon(
+                      t('editor.label.icnsFile'),
+                      `${activeDetailName}.icns`,
+                      activeDetailSvg,
+                      'icns'
+                    )
+                  }
+                  disabled={!activeDetailSvg}
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-slate-800 dark:hover:bg-slate-800"
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Download size={14} />
+                    ICNS
                   </span>
                 </button>
               </div>

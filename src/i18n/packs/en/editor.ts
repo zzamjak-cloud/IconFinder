@@ -62,6 +62,8 @@ export const enEditorTranslations = {
   'editor.label.svgFile': 'SVG file',
   'editor.label.pngFile': 'PNG file',
   'editor.label.pngClipboard': 'PNG image',
+  'editor.label.icoFile': 'ICO file',
+  'editor.label.icnsFile': 'ICNS file',
   'editor.label.fullSprite': 'Full sprite',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

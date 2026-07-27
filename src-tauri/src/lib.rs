@@ -28,6 +28,8 @@ pub fn run() {
             read_text_file,
             change_svg_color,
             setup_default_folder,
+            create_ico,
+            create_icns,
         ])
         .run(tauri::generate_context!())
         .expect("Tauri 앱 실행 오류");

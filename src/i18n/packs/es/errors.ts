@@ -25,4 +25,8 @@ export const esErrorTranslations = {
   'error.rust.noDownloadDir': 'No se ha encontrado la carpeta de Descargas',
   'error.rust.createDir': 'No se ha podido crear la carpeta: {detail}',
   'error.rust.pathConvert': 'No se ha podido convertir la ruta en texto',
+  'error.rust.icoSize': 'El tamaño ICO debe estar entre 16 y 256',
+  'error.rust.icoEncode': 'No se ha podido crear el archivo ICO: {detail}',
+  'error.rust.icnsSize': 'El tamaño ICNS debe estar entre 16 y 1024',
+  'error.rust.icnsEncode': 'No se ha podido crear el archivo ICNS: {detail}',
 } as const;

@@ -225,6 +225,43 @@ export class ExportService {
   }
 
   /**
+   * 앱 아이콘 패키지(.ico / .icns) 내보내기
+   * - Canvas로 PNG 생성 후 Rust가 컨테이너만 패키징
+   */
+  async exportAppIcon(
+    fileName: string,
+    svgContent: string,
+    target: 'ico' | 'icns'
+  ): Promise<string | null> {
+    const settings = await storageService.getExportSettings();
+    const sizes =
+      target === 'ico'
+        ? [16, 32, 48, 64, 128, 256]
+        : [16, 32, 64, 128, 256, 512, 1024];
+
+    const img = await loadSvgImage(svgContent);
+    const entries: Array<{ size: number; png: number[] }> = [];
+    for (const size of sizes) {
+      const pngBytes = await rasterizePng(img, size);
+      entries.push({ size, png: Array.from(pngBytes) });
+    }
+
+    const base = fileName.replace(/\.(svg|png|ico|icns)$/i, '');
+    const extension = target;
+    const filePath = await this.resolveSavePath(`${base}.${extension}`, extension, {
+      ...settings,
+      // 단건 액션: 대화상자 허용 (autoSave면 기본 폴더)
+    });
+    if (!filePath) return null;
+
+    await invoke(target === 'ico' ? 'create_ico' : 'create_icns', {
+      entries,
+      filePath,
+    });
+    return filePath;
+  }
+
+  /**
    * SVG 저장
    */
   private async saveSvg(filePath: string, content: string): Promise<void> {

@@ -22,4 +22,8 @@ export const koErrorTranslations = {
   'error.rust.noDownloadDir': '다운로드 폴더를 찾을 수 없습니다',
   'error.rust.createDir': '폴더 생성 실패: {detail}',
   'error.rust.pathConvert': '경로를 문자열로 변환할 수 없습니다',
+  'error.rust.icoSize': 'ICO 크기는 16~256이어야 합니다',
+  'error.rust.icoEncode': 'ICO 파일 생성에 실패했습니다: {detail}',
+  'error.rust.icnsSize': 'ICNS 크기는 16~1024이어야 합니다',
+  'error.rust.icnsEncode': 'ICNS 파일 생성에 실패했습니다: {detail}',
 } as const;

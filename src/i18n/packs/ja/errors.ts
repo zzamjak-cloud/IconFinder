@@ -25,4 +25,8 @@ export const jaErrorTranslations = {
   'error.rust.noDownloadDir': 'ダウンロードフォルダが見つかりませんでした',
   'error.rust.createDir': 'フォルダの作成に失敗しました: {detail}',
   'error.rust.pathConvert': 'パスを文字列に変換できませんでした',
+  'error.rust.icoSize': 'ICO サイズは 16〜256 である必要があります',
+  'error.rust.icoEncode': 'ICO ファイルの作成に失敗しました: {detail}',
+  'error.rust.icnsSize': 'ICNS サイズは 16〜1024 である必要があります',
+  'error.rust.icnsEncode': 'ICNS ファイルの作成に失敗しました: {detail}',
 } as const;

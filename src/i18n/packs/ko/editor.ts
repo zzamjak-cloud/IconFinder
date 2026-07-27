@@ -58,6 +58,8 @@ export const koEditorTranslations = {
   'editor.label.svgFile': 'SVG 파일',
   'editor.label.pngFile': 'PNG 파일',
   'editor.label.pngClipboard': 'PNG 이미지',
+  'editor.label.icoFile': 'ICO 파일',
+  'editor.label.icnsFile': 'ICNS 파일',
   'editor.label.fullSprite': '전체 Sprite',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

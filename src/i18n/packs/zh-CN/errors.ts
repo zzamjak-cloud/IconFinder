@@ -25,4 +25,8 @@ export const zhCNErrorTranslations = {
   'error.rust.noDownloadDir': '找不到下载文件夹',
   'error.rust.createDir': '创建文件夹失败：{detail}',
   'error.rust.pathConvert': '无法将路径转换为字符串',
+  'error.rust.icoSize': 'ICO 尺寸必须在 16 到 256 之间',
+  'error.rust.icoEncode': '创建 ICO 文件失败：{detail}',
+  'error.rust.icnsSize': 'ICNS 尺寸必须在 16 到 1024 之间',
+  'error.rust.icnsEncode': '创建 ICNS 文件失败：{detail}',
 } as const;

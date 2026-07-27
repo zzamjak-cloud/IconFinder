@@ -62,6 +62,8 @@ export const zhCNEditorTranslations = {
   'editor.label.svgFile': 'SVG 文件',
   'editor.label.pngFile': 'PNG 文件',
   'editor.label.pngClipboard': 'PNG 图像',
+  'editor.label.icoFile': 'ICO 文件',
+  'editor.label.icnsFile': 'ICNS 文件',
   'editor.label.fullSprite': '整套 Sprite',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

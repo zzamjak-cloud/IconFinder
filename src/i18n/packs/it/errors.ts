@@ -25,4 +25,8 @@ export const itErrorTranslations = {
   'error.rust.noDownloadDir': 'Impossibile trovare la cartella Download',
   'error.rust.createDir': 'Creazione della cartella non riuscita: {detail}',
   'error.rust.pathConvert': 'Impossibile convertire il percorso in una stringa',
+  'error.rust.icoSize': 'La dimensione ICO deve essere tra 16 e 256',
+  'error.rust.icoEncode': 'Creazione del file ICO non riuscita: {detail}',
+  'error.rust.icnsSize': 'La dimensione ICNS deve essere tra 16 e 1024',
+  'error.rust.icnsEncode': 'Creazione del file ICNS non riuscita: {detail}',
 } as const;

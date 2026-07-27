@@ -25,4 +25,8 @@ export const zhTWErrorTranslations = {
   'error.rust.noDownloadDir': '找不到下載資料夾',
   'error.rust.createDir': '無法建立資料夾：{detail}',
   'error.rust.pathConvert': '無法將路徑轉換為字串',
+  'error.rust.icoSize': 'ICO 尺寸必須在 16 到 256 之間',
+  'error.rust.icoEncode': '無法建立 ICO 檔案：{detail}',
+  'error.rust.icnsSize': 'ICNS 尺寸必須在 16 到 1024 之間',
+  'error.rust.icnsEncode': '無法建立 ICNS 檔案：{detail}',
 } as const;

@@ -25,4 +25,8 @@ export const ruErrorTranslations = {
   'error.rust.noDownloadDir': 'Не удалось найти папку «Загрузки»',
   'error.rust.createDir': 'Не удалось создать папку: {detail}',
   'error.rust.pathConvert': 'Не удалось преобразовать путь в строку',
+  'error.rust.icoSize': 'Размер ICO должен быть от 16 до 256',
+  'error.rust.icoEncode': 'Не удалось создать файл ICO: {detail}',
+  'error.rust.icnsSize': 'Размер ICNS должен быть от 16 до 1024',
+  'error.rust.icnsEncode': 'Не удалось создать файл ICNS: {detail}',
 } as const;

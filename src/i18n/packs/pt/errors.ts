@@ -25,4 +25,8 @@ export const ptErrorTranslations = {
   'error.rust.noDownloadDir': 'Não foi possível encontrar a pasta Downloads',
   'error.rust.createDir': 'Falha ao criar a pasta: {detail}',
   'error.rust.pathConvert': 'Não foi possível converter o caminho em texto',
+  'error.rust.icoSize': 'O tamanho ICO deve estar entre 16 e 256',
+  'error.rust.icoEncode': 'Falha ao criar o arquivo ICO: {detail}',
+  'error.rust.icnsSize': 'O tamanho ICNS deve estar entre 16 e 1024',
+  'error.rust.icnsEncode': 'Falha ao criar o arquivo ICNS: {detail}',
 } as const;

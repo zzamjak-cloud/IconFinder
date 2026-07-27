@@ -62,6 +62,8 @@ export const ptEditorTranslations = {
   'editor.label.svgFile': 'Arquivo SVG',
   'editor.label.pngFile': 'Arquivo PNG',
   'editor.label.pngClipboard': 'Imagem PNG',
+  'editor.label.icoFile': 'Arquivo ICO',
+  'editor.label.icnsFile': 'Arquivo ICNS',
   'editor.label.fullSprite': 'Sprite completo',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

@@ -25,4 +25,8 @@ export const enErrorTranslations = {
   'error.rust.noDownloadDir': 'Could not find the Downloads folder',
   'error.rust.createDir': 'Failed to create the folder: {detail}',
   'error.rust.pathConvert': 'Could not convert the path to a string',
+  'error.rust.icoSize': 'ICO size must be between 16 and 256',
+  'error.rust.icoEncode': 'Failed to create the ICO file: {detail}',
+  'error.rust.icnsSize': 'ICNS size must be between 16 and 1024',
+  'error.rust.icnsEncode': 'Failed to create the ICNS file: {detail}',
 } as const;

@@ -1,7 +1,17 @@
 use tauri::command;
+use serde::Deserialize;
 use std::fmt::Display;
 use std::fs;
+use std::io::Cursor;
 use std::path::Path;
+
+/// 프론트에서 전달하는 PNG 엔트리 (Canvas 래스터 결과)
+#[derive(Debug, Deserialize)]
+pub struct PngEntry {
+    pub size: u32,
+    pub png: Vec<u8>,
+}
+
 
 /// 번역 가능한 에러 코드를 만든다 (세부 내용 없음).
 ///
@@ -103,4 +113,64 @@ pub fn setup_default_folder() -> Result<String, String> {
         .to_str()
         .map(|s| s.to_string())
         .ok_or_else(|| i18n_err("error.rust.pathConvert"))
+}
+
+/// PNG 엔트리들을 ICO 컨테이너로 패키징해 저장 (크기 16~256)
+#[command]
+pub async fn create_ico(entries: Vec<PngEntry>, file_path: String) -> Result<(), String> {
+    if let Some(parent) = Path::new(&file_path).parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent)
+                .map_err(|e| i18n_err_detail("error.rust.createDir", e))?;
+        }
+    }
+
+    let mut icon_dir = ico::IconDir::new(ico::ResourceType::Icon);
+    for entry in entries {
+        if entry.size < 16 || entry.size > 256 {
+            return Err(i18n_err("error.rust.icoSize"));
+        }
+        let image = ico::IconImage::read_png(Cursor::new(&entry.png))
+            .map_err(|e| i18n_err_detail("error.rust.icoEncode", e))?;
+        let encoded = ico::IconDirEntry::encode(&image)
+            .map_err(|e| i18n_err_detail("error.rust.icoEncode", e))?;
+        icon_dir.add_entry(encoded);
+    }
+
+    let file = fs::File::create(&file_path)
+        .map_err(|e| i18n_err_detail("error.rust.fileSave", e))?;
+    icon_dir
+        .write(file)
+        .map_err(|e| i18n_err_detail("error.rust.icoEncode", e))?;
+    Ok(())
+}
+
+/// PNG 엔트리들을 ICNS 컨테이너로 패키징해 저장 (크기 16~1024)
+#[command]
+pub async fn create_icns(entries: Vec<PngEntry>, file_path: String) -> Result<(), String> {
+    if let Some(parent) = Path::new(&file_path).parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent)
+                .map_err(|e| i18n_err_detail("error.rust.createDir", e))?;
+        }
+    }
+
+    let mut family = icns::IconFamily::new();
+    for entry in entries {
+        if entry.size < 16 || entry.size > 1024 {
+            return Err(i18n_err("error.rust.icnsSize"));
+        }
+        let image = icns::Image::read_png(Cursor::new(&entry.png))
+            .map_err(|e| i18n_err_detail("error.rust.icnsEncode", e))?;
+        family
+            .add_icon(&image)
+            .map_err(|e| i18n_err_detail("error.rust.icnsEncode", e))?;
+    }
+
+    let file = fs::File::create(&file_path)
+        .map_err(|e| i18n_err_detail("error.rust.fileSave", e))?;
+    family
+        .write(file)
+        .map_err(|e| i18n_err_detail("error.rust.icnsEncode", e))?;
+    Ok(())
 }

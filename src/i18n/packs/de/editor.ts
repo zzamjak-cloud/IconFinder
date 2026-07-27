@@ -62,6 +62,8 @@ export const deEditorTranslations = {
   'editor.label.svgFile': 'SVG-Datei',
   'editor.label.pngFile': 'PNG-Datei',
   'editor.label.pngClipboard': 'PNG-Bild',
+  'editor.label.icoFile': 'ICO-Datei',
+  'editor.label.icnsFile': 'ICNS-Datei',
   'editor.label.fullSprite': 'Gesamtes Sprite',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

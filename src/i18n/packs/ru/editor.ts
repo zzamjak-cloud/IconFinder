@@ -62,6 +62,8 @@ export const ruEditorTranslations = {
   'editor.label.svgFile': 'SVG-файл',
   'editor.label.pngFile': 'PNG-файл',
   'editor.label.pngClipboard': 'PNG-изображение',
+  'editor.label.icoFile': 'Файл ICO',
+  'editor.label.icnsFile': 'Файл ICNS',
   'editor.label.fullSprite': 'Полный Sprite',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

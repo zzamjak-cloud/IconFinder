@@ -62,6 +62,8 @@ export const jaEditorTranslations = {
   'editor.label.svgFile': 'SVG ファイル',
   'editor.label.pngFile': 'PNG ファイル',
   'editor.label.pngClipboard': 'PNG 画像',
+  'editor.label.icoFile': 'ICO ファイル',
+  'editor.label.icnsFile': 'ICNS ファイル',
   'editor.label.fullSprite': 'Sprite 全体',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',

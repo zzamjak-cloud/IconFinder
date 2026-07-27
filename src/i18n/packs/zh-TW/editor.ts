@@ -62,6 +62,8 @@ export const zhTWEditorTranslations = {
   'editor.label.svgFile': 'SVG 檔案',
   'editor.label.pngFile': 'PNG 檔案',
   'editor.label.pngClipboard': 'PNG 影像',
+  'editor.label.icoFile': 'ICO 檔案',
+  'editor.label.icnsFile': 'ICNS 檔案',
   'editor.label.fullSprite': '完整 Sprite',
   'editor.label.html': 'HTML',
   'editor.label.css': 'CSS',
