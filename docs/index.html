@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IconFinder — 데스크톱 아이콘 워크스페이스</title>
+    <meta
+      name="description"
+      content="Iconify 아이콘 275,000+개를 검색·정리·스타일링하고 SVG/PNG로 내보내는 데스크톱 앱. macOS·Windows 무료 다운로드."
+    />
+    <meta property="og:title" content="IconFinder" />
+    <meta
+      property="og:description"
+      content="Search, organize, style, and export Iconify icons in one desktop workspace."
+    />
+    <meta property="og:image" content="./assets/01-workspace.png" />
+    <link rel="icon" href="./assets/app-icon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+    <header class="site-nav">
+      <div class="site-nav__inner">
+        <a class="brand" href="#top">
+          <img src="./assets/app-icon.png" alt="" width="32" height="32" />
+          IconFinder
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#features" data-i18n="nav.features">기능</a>
+          <a href="#install" data-i18n="nav.install">설치</a>
+          <a href="#guide" data-i18n="nav.guide">가이드</a>
+          <a href="#license" data-i18n="nav.license">라이선스</a>
+          <a href="https://github.com/zzamjak-cloud/IconFinder" rel="noopener">GitHub</a>
+          <div class="lang-toggle" role="group" aria-label="Language">
+            <button type="button" data-lang="ko" aria-pressed="true">KO</button>
+            <button type="button" data-lang="en" aria-pressed="false">EN</button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero wrap" id="top">
+        <div class="hero__grid">
+          <div>
+            <p class="eyebrow" data-i18n="hero.eyebrow">Desktop icon workspace</p>
+            <h1 data-i18n="hero.title">
+              아이콘 찾기부터 내보내기까지,<br /><span>한 화면</span>에서.
+            </h1>
+            <p class="lede" data-i18n="hero.lede">
+              IconFinder는 Iconify 아이콘 275,000+개를 검색하고, 즐겨찾기로 정리하고, 색·효과를 입혀
+              SVG·PNG로 내보내는 데스크톱 앱입니다. 게임·UI 작업에 맞게 큐레이션된 팩과 한글 검색을
+              지원합니다.
+            </p>
+            <div class="hero-actions">
+              <a
+                class="btn btn--primary"
+                href="https://github.com/zzamjak-cloud/IconFinder/releases/latest"
+                data-i18n="hero.download"
+                >최신 버전 다운로드</a
+              >
+              <a
+                class="btn btn--ghost"
+                href="#install"
+                data-i18n="hero.how"
+                >설치 방법 보기</a
+              >
+            </div>
+            <div class="hero-meta">
+              <span class="pill">v1.0.1</span>
+              <span data-i18n="hero.platforms">macOS (Universal) · Windows (x64)</span>
+              <span data-i18n="hero.free">무료 · 오픈소스</span>
+            </div>
+          </div>
+          <div class="shot-frame hero-shot">
+            <span class="mark-bl" aria-hidden="true"></span>
+            <span class="mark-br" aria-hidden="true"></span>
+            <img
+              src="./assets/01-workspace.png"
+              alt="IconFinder 검색 워크스페이스 화면 — sword 검색 결과와 스타일 패널"
+              width="1400"
+              height="900"
+              loading="eager"
+            />
+            <p class="shot-caption" data-i18n="hero.caption">
+              검색 · 스타일 · 내보내기가 한 화면에 모여 있는 워크스페이스
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight wrap reveal" id="workspace">
+        <p class="eyebrow" data-i18n="ws.eyebrow">Workspace</p>
+        <h2 data-i18n="ws.title">탭 없이, 세 칸으로 끝내는 흐름</h2>
+        <p class="lede" data-i18n="ws.lede">
+          IconMaker의 검색/에디터 탭을 하나로 합쳤습니다. 찾아두고, 다듬고, 바로 내보냅니다.
+        </p>
+        <div class="panes" style="margin-top: 1.75rem">
+          <article class="pane-card">
+            <div class="pane-card__label" data-i18n="ws.left.label">왼쪽 · 보관함</div>
+            <h3 data-i18n="ws.left.title">카테고리 & 즐겨찾기</h3>
+            <p data-i18n="ws.left.body">
+              게임용 기본 카테고리와 ☆ 즐겨찾기 스마트 뷰. 드래그로 옮기고, 카테고리 단위로
+              스프라이트까지 내보냅니다.
+            </p>
+          </article>
+          <article class="pane-card">
+            <div class="pane-card__label" data-i18n="ws.center.label">가운데 · 검색</div>
+            <h3 data-i18n="ws.center.title">Iconify 전체 검색</h3>
+            <p data-i18n="ws.center.body">
+              전체 / 게임·UI·픽셀 팩 / 단일 컬렉션. 한글 검색어는 영어 태그로 자동 확장되고, 그리드는
+              가상화되어 부드럽게 스크롤됩니다.
+            </p>
+          </article>
+          <article class="pane-card">
+            <div class="pane-card__label" data-i18n="ws.right.label">오른쪽 · 디테일</div>
+            <h3 data-i18n="ws.right.title">스타일 & 퀵 내보내기</h3>
+            <p data-i18n="ws.right.body">
+              SVG·PNG·클립보드 PNG, ICO/ICNS. 색·외곽선·발광·베벨을 적용한 뒤 즐겨찾기에 스타일까지
+              저장할 수 있습니다.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap reveal" id="features">
+        <p class="eyebrow" data-i18n="feat.eyebrow">Features</p>
+        <h2 data-i18n="feat.title">실무에 바로 쓰는 기능</h2>
+
+        <div class="feature-row">
+          <div class="feature-row__copy">
+            <h3 data-i18n="feat.search.title">검색하고 ★로 바로 보관</h3>
+            <p class="lede" data-i18n="feat.search.body">
+              Lucide, Tabler, MDI, Game-icons 등 큐레이션 팩을 넘나들며 검색합니다. 마음에 드는
+              아이콘은 별만 누르면 미분류 즐겨찾기로 들어갑니다. 적용 중이던 스타일도 함께 저장됩니다.
+            </p>
+            <ul>
+              <li data-i18n="feat.search.li1">한글 쿼리 → 영어 Iconify 태그 확장</li>
+              <li data-i18n="feat.search.li2">무한 스크롤 · 그리드 열 수 조절</li>
+              <li data-i18n="feat.search.li3">원본 링크 · 라이선스 표시</li>
+            </ul>
+          </div>
+          <div class="feature-row__media shot-frame">
+            <span class="mark-bl" aria-hidden="true"></span>
+            <span class="mark-br" aria-hidden="true"></span>
+            <img
+              src="./assets/02-detail-style.png"
+              alt="아이콘 선택 후 퀵 내보내기 패널이 열린 화면"
+              width="1400"
+              height="900"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
+        <div class="feature-row feature-row--flip">
+          <div class="feature-row__copy">
+            <h3 data-i18n="feat.style.title">스타일을 아이콘마다 기억</h3>
+            <p class="lede" data-i18n="feat.style.body">
+              원본 / 단색 / 투톤 / 그레디언트 / 입체. 외곽선·그림자·발광·양각·음각까지 조절한 뒤
+              「재적용」으로 저장하세요. Favorites에서 아이콘을 고르면 우측 패널이 그 아이콘의 설정으로
+              바뀝니다.
+            </p>
+            <ul>
+              <li data-i18n="feat.style.li1">108색 팔레트 + HEX · 커스텀 프리셋</li>
+              <li data-i18n="feat.style.li2">미저장 편집은 다른 아이콘 클릭 시 폐기</li>
+              <li data-i18n="feat.style.li3">SVG / HTML / CSS / React / Vue 스니펫 복사</li>
+            </ul>
+          </div>
+          <div class="feature-row__media shot-frame">
+            <span class="mark-bl" aria-hidden="true"></span>
+            <span class="mark-br" aria-hidden="true"></span>
+            <img
+              src="./assets/03-favorites.png"
+              alt="Favorites 탭 — 카테고리 사이드바와 보관함 그리드"
+              width="1400"
+              height="900"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
+        <div class="feature-row">
+          <div class="feature-row__copy">
+            <h3 data-i18n="feat.export.title">한 번에, 여러 해상도로</h3>
+            <p class="lede" data-i18n="feat.export.body">
+              선택 아이콘 또는 카테고리 전체를 일괄 내보내기합니다. @1x/@2x/@3x, Android mipmap, iOS
+              AppIcon 프리셋과 SVG 스프라이트를 지원합니다. 설정에서 기본 저장 폴더만 지정하면 됩니다.
+            </p>
+            <ul>
+              <li data-i18n="feat.export.li1">PNG 클립보드 복사 — Figma·슬랙에 바로 붙여넣기</li>
+              <li data-i18n="feat.export.li2">ICO / ICNS 앱 아이콘</li>
+              <li data-i18n="feat.export.li3">11개 언어 UI · Light / Dark / System 테마</li>
+            </ul>
+          </div>
+          <div class="feature-row__media shot-frame">
+            <span class="mark-bl" aria-hidden="true"></span>
+            <span class="mark-br" aria-hidden="true"></span>
+            <img
+              src="./assets/04-settings.png"
+              alt="설정 팝업 — 언어, 테마, 기본 저장 폴더"
+              width="1400"
+              height="900"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="section wrap reveal" id="install">
+        <p class="eyebrow" data-i18n="install.eyebrow">Install</p>
+        <h2 data-i18n="install.title">설치는 2분이면 됩니다</h2>
+        <p class="lede" data-i18n="install.lede">
+          GitHub Releases에서 OS에 맞는 파일을 받아 실행하세요. 이후 업데이트는 앱이 Releases를
+          확인해 안내합니다.
+        </p>
+
+        <div class="hero-actions" style="margin-top: 1.25rem">
+          <a
+            class="btn btn--primary"
+            href="https://github.com/zzamjak-cloud/IconFinder/releases/latest"
+            data-i18n="install.cta"
+            >Releases에서 받기</a
+          >
+        </div>
+
+        <div class="install-grid">
+          <article class="os-card">
+            <h3> macOS</h3>
+            <ol>
+              <li data-i18n="install.mac.1">
+                <code>IconFinder_*_universal.dmg</code> 를 다운로드합니다. (Intel · Apple Silicon 공용)
+              </li>
+              <li data-i18n="install.mac.2">DMG를 열고 <strong>IconFinder</strong>를 Applications로 드래그합니다.</li>
+              <li data-i18n="install.mac.3">
+                처음 실행 시 Gatekeeper 경고가 뜨면 <strong>시스템 설정 → 개인정보 보호 및 보안</strong>에서
+                「확인 없이 열기」를 허용하세요. (서명·공증된 릴리스 기준)
+              </li>
+            </ol>
+          </article>
+          <article class="os-card">
+            <h3>⊞ Windows</h3>
+            <ol>
+              <li data-i18n="install.win.1">
+                <code>*_x64-setup.exe</code> (권장) 또는 <code>*_x64_en-US.msi</code> 를 받습니다.
+              </li>
+              <li data-i18n="install.win.2">설치 마법사를 따라 진행한 뒤 시작 메뉴에서 IconFinder를 실행합니다.</li>
+              <li data-i18n="install.win.3">SmartScreen이 뜨면 「추가 정보」→「실행」을 선택하세요.</li>
+            </ol>
+          </article>
+        </div>
+
+        <p class="note" data-i18n="install.note">
+          <strong>참고:</strong> 현재 공식 바이너리는 macOS·Windows만 제공합니다. Linux 패키지와
+          Homebrew / winget은 아직 없습니다. 개발자라면 저장소에서
+          <code>npm run tauri build</code>로 직접 빌드할 수 있습니다.
+        </p>
+      </section>
+
+      <section class="section wrap reveal" id="guide">
+        <p class="eyebrow" data-i18n="guide.eyebrow">Quick start</p>
+        <h2 data-i18n="guide.title">5분 퀵스타트</h2>
+        <div class="steps">
+          <article class="step">
+            <h3 data-i18n="guide.1.title">아이콘 검색</h3>
+            <p data-i18n="guide.1.body">
+              가운데 검색창에 영어 또는 한글(예: 칼, 방패)을 입력합니다. Game / UI/HUD 등 스코프 칩으로
+              범위를 좁힐 수 있습니다.
+            </p>
+          </article>
+          <article class="step">
+            <h3 data-i18n="guide.2.title">스타일 맛보기</h3>
+            <p data-i18n="guide.2.body">
+              결과 카드를 클릭하면 오른쪽에 미리보기와 스타일 패널이 열립니다. 색·효과를 맞춘 뒤 ★로
+              즐겨찾기하면 그 스타일이 함께 저장됩니다.
+            </p>
+          </article>
+          <article class="step">
+            <h3 data-i18n="guide.3.title">내보내기</h3>
+            <p data-i18n="guide.3.body">
+              SVG/PNG 다운로드, PNG 복사(클립보드), ICO/ICNS를 사용하세요. 코드가 필요하면 SVG·HTML·CSS·React·Vue
+              복사 버튼을 쓰면 됩니다.
+            </p>
+          </article>
+          <article class="step">
+            <h3 data-i18n="guide.4.title">Favorites에서 정리</h3>
+            <p data-i18n="guide.4.body">
+              상단 Favorites 탭으로 이동해 카테고리로 분류하고, 일괄 내보내기나 SVG 스프라이트로 프로젝트에
+              넣습니다. 설정에서 기본 저장 폴더를 지정해 두면 더 빠릅니다.
+            </p>
+          </article>
+        </div>
+
+        <h3 style="margin-top: 2.5rem" data-i18n="guide.keys.title">단축키</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-i18n="guide.keys.action">동작</th>
+              <th data-i18n="guide.keys.key">키</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-i18n="guide.keys.search">검색창 포커스</td>
+              <td><kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>K</kbd></td>
+            </tr>
+            <tr>
+              <td data-i18n="guide.keys.export">퀵 내보내기</td>
+              <td><kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+            </tr>
+            <tr>
+              <td data-i18n="guide.keys.fav">즐겨찾기 토글</td>
+              <td><kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>F</kbd></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section wrap reveal" id="license">
+        <p class="eyebrow" data-i18n="lic.eyebrow">License</p>
+        <h2 data-i18n="lic.title">아이콘 라이선스를 확인하세요</h2>
+        <p class="lede" data-i18n="lic.lede">
+          IconFinder는 Iconify API로 아이콘을 가져옵니다. <strong>각 아이콘의 라이선스는 해당 컬렉션
+          정책</strong>을 따릅니다. 상업 배포 전에 앱의 License 버튼과 원본 링크를 꼭 확인하세요.
+        </p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-i18n="lic.col.set">세트 (예시)</th>
+              <th data-i18n="lic.col.license">라이선스</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lucide</td>
+              <td>ISC</td>
+            </tr>
+            <tr>
+              <td>Tabler · Iconoir · Pixelarticons</td>
+              <td>MIT</td>
+            </tr>
+            <tr>
+              <td>Material Design Icons · Noto Emoji</td>
+              <td>Apache 2.0</td>
+            </tr>
+            <tr>
+              <td>Game-icons</td>
+              <td>CC BY 3.0</td>
+            </tr>
+            <tr>
+              <td>OpenMoji</td>
+              <td>CC BY-SA 4.0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note" style="margin-top: 1.25rem" data-i18n="lic.note">
+          「All」검색은 더 많은 컬렉션을 포함합니다. 표시되지 않은 라이선스·상표 이슈가 있을 수 있으니
+          사용 전 출처를 확인하세요. 위 내용은 법적 조언이 아닙니다.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap site-footer__inner">
+        <div>
+          <strong style="color: var(--ink); font-family: var(--font-display)">IconFinder</strong>
+          <p style="margin: 0.35rem 0 0" data-i18n="footer.tag">
+            Iconify 아이콘을 위한 데스크톱 워크스페이스 · Successor to IconMaker
+          </p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem">
+          <a href="https://github.com/zzamjak-cloud/IconFinder">GitHub</a>
+          <a href="https://github.com/zzamjak-cloud/IconFinder/releases">Releases</a>
+          <a href="https://github.com/zzamjak-cloud/IconFinder/blob/main/CHANGELOG.md">Changelog</a>
+          <a href="https://github.com/zzamjak-cloud/IconFinder/issues">Issues</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const copy = {
+        ko: {
+          "nav.features": "기능",
+          "nav.install": "설치",
+          "nav.guide": "가이드",
+          "nav.license": "라이선스",
+          "hero.eyebrow": "데스크톱 아이콘 워크스페이스",
+          "hero.title": "아이콘 찾기부터 내보내기까지,<br /><span>한 화면</span>에서.",
+          "hero.lede":
+            "IconFinder는 Iconify 아이콘 275,000+개를 검색하고, 즐겨찾기로 정리하고, 색·효과를 입혀 SVG·PNG로 내보내는 데스크톱 앱입니다. 게임·UI 작업에 맞게 큐레이션된 팩과 한글 검색을 지원합니다.",
+          "hero.download": "최신 버전 다운로드",
+          "hero.how": "설치 방법 보기",
+          "hero.platforms": "macOS (Universal) · Windows (x64)",
+          "hero.free": "무료 · 오픈소스",
+          "hero.caption": "검색 · 스타일 · 내보내기가 한 화면에 모여 있는 워크스페이스",
+          "ws.eyebrow": "워크스페이스",
+          "ws.title": "탭 없이, 세 칸으로 끝내는 흐름",
+          "ws.lede": "IconMaker의 검색/에디터 탭을 하나로 합쳤습니다. 찾아두고, 다듬고, 바로 내보냅니다.",
+          "ws.left.label": "왼쪽 · 보관함",
+          "ws.left.title": "카테고리 & 즐겨찾기",
+          "ws.left.body":
+            "게임용 기본 카테고리와 ☆ 즐겨찾기 스마트 뷰. 드래그로 옮기고, 카테고리 단위로 스프라이트까지 내보냅니다.",
+          "ws.center.label": "가운데 · 검색",
+          "ws.center.title": "Iconify 전체 검색",
+          "ws.center.body":
+            "전체 / 게임·UI·픽셀 팩 / 단일 컬렉션. 한글 검색어는 영어 태그로 자동 확장되고, 그리드는 가상화되어 부드럽게 스크롤됩니다.",
+          "ws.right.label": "오른쪽 · 디테일",
+          "ws.right.title": "스타일 & 퀵 내보내기",
+          "ws.right.body":
+            "SVG·PNG·클립보드 PNG, ICO/ICNS. 색·외곽선·발광·베벨을 적용한 뒤 즐겨찾기에 스타일까지 저장할 수 있습니다.",
+          "feat.eyebrow": "기능",
+          "feat.title": "실무에 바로 쓰는 기능",
+          "feat.search.title": "검색하고 ★로 바로 보관",
+          "feat.search.body":
+            "Lucide, Tabler, MDI, Game-icons 등 큐레이션 팩을 넘나들며 검색합니다. 마음에 드는 아이콘은 별만 누르면 미분류 즐겨찾기로 들어갑니다. 적용 중이던 스타일도 함께 저장됩니다.",
+          "feat.search.li1": "한글 쿼리 → 영어 Iconify 태그 확장",
+          "feat.search.li2": "무한 스크롤 · 그리드 열 수 조절",
+          "feat.search.li3": "원본 링크 · 라이선스 표시",
+          "feat.style.title": "스타일을 아이콘마다 기억",
+          "feat.style.body":
+            "원본 / 단색 / 투톤 / 그레디언트 / 입체. 외곽선·그림자·발광·양각·음각까지 조절한 뒤 「재적용」으로 저장하세요. Favorites에서 아이콘을 고르면 우측 패널이 그 아이콘의 설정으로 바뀝니다.",
+          "feat.style.li1": "108색 팔레트 + HEX · 커스텀 프리셋",
+          "feat.style.li2": "미저장 편집은 다른 아이콘 클릭 시 폐기",
+          "feat.style.li3": "SVG / HTML / CSS / React / Vue 스니펫 복사",
+          "feat.export.title": "한 번에, 여러 해상도로",
+          "feat.export.body":
+            "선택 아이콘 또는 카테고리 전체를 일괄 내보내기합니다. @1x/@2x/@3x, Android mipmap, iOS AppIcon 프리셋과 SVG 스프라이트를 지원합니다. 설정에서 기본 저장 폴더만 지정하면 됩니다.",
+          "feat.export.li1": "PNG 클립보드 복사 — Figma·슬랙에 바로 붙여넣기",
+          "feat.export.li2": "ICO / ICNS 앱 아이콘",
+          "feat.export.li3": "11개 언어 UI · Light / Dark / System 테마",
+          "install.eyebrow": "설치",
+          "install.title": "설치는 2분이면 됩니다",
+          "install.lede":
+            "GitHub Releases에서 OS에 맞는 파일을 받아 실행하세요. 이후 업데이트는 앱이 Releases를 확인해 안내합니다.",
+          "install.cta": "Releases에서 받기",
+          "install.mac.1":
+            "<code>IconFinder_*_universal.dmg</code> 를 다운로드합니다. (Intel · Apple Silicon 공용)",
+          "install.mac.2": "DMG를 열고 <strong>IconFinder</strong>를 Applications로 드래그합니다.",
+          "install.mac.3":
+            "처음 실행 시 Gatekeeper 경고가 뜨면 <strong>시스템 설정 → 개인정보 보호 및 보안</strong>에서 「확인 없이 열기」를 허용하세요.",
+          "install.win.1":
+            "<code>*_x64-setup.exe</code> (권장) 또는 <code>*_x64_en-US.msi</code> 를 받습니다.",
+          "install.win.2": "설치 마법사를 따라 진행한 뒤 시작 메뉴에서 IconFinder를 실행합니다.",
+          "install.win.3": "SmartScreen이 뜨면 「추가 정보」→「실행」을 선택하세요.",
+          "install.note":
+            "<strong>참고:</strong> 현재 공식 바이너리는 macOS·Windows만 제공합니다. Linux 패키지와 Homebrew / winget은 아직 없습니다. 개발자라면 저장소에서 <code>npm run tauri build</code>로 직접 빌드할 수 있습니다.",
+          "guide.eyebrow": "퀵스타트",
+          "guide.title": "5분 퀵스타트",
+          "guide.1.title": "아이콘 검색",
+          "guide.1.body":
+            "가운데 검색창에 영어 또는 한글(예: 칼, 방패)을 입력합니다. Game / UI/HUD 등 스코프 칩으로 범위를 좁힐 수 있습니다.",
+          "guide.2.title": "스타일 맛보기",
+          "guide.2.body":
+            "결과 카드를 클릭하면 오른쪽에 미리보기와 스타일 패널이 열립니다. 색·효과를 맞춘 뒤 ★로 즐겨찾기하면 그 스타일이 함께 저장됩니다.",
+          "guide.3.title": "내보내기",
+          "guide.3.body":
+            "SVG/PNG 다운로드, PNG 복사(클립보드), ICO/ICNS를 사용하세요. 코드가 필요하면 SVG·HTML·CSS·React·Vue 복사 버튼을 쓰면 됩니다.",
+          "guide.4.title": "Favorites에서 정리",
+          "guide.4.body":
+            "상단 Favorites 탭으로 이동해 카테고리로 분류하고, 일괄 내보내기나 SVG 스프라이트로 프로젝트에 넣습니다. 설정에서 기본 저장 폴더를 지정해 두면 더 빠릅니다.",
+          "guide.keys.title": "단축키",
+          "guide.keys.action": "동작",
+          "guide.keys.key": "키",
+          "guide.keys.search": "검색창 포커스",
+          "guide.keys.export": "퀵 내보내기",
+          "guide.keys.fav": "즐겨찾기 토글",
+          "lic.eyebrow": "라이선스",
+          "lic.title": "아이콘 라이선스를 확인하세요",
+          "lic.lede":
+            "IconFinder는 Iconify API로 아이콘을 가져옵니다. <strong>각 아이콘의 라이선스는 해당 컬렉션 정책</strong>을 따릅니다. 상업 배포 전에 앱의 License 버튼과 원본 링크를 꼭 확인하세요.",
+          "lic.col.set": "세트 (예시)",
+          "lic.col.license": "라이선스",
+          "lic.note":
+            "「All」검색은 더 많은 컬렉션을 포함합니다. 표시되지 않은 라이선스·상표 이슈가 있을 수 있으니 사용 전 출처를 확인하세요. 위 내용은 법적 조언이 아닙니다.",
+          "footer.tag": "Iconify 아이콘을 위한 데스크톱 워크스페이스 · IconMaker의 후속작",
+        },
+        en: {
+          "nav.features": "Features",
+          "nav.install": "Install",
+          "nav.guide": "Guide",
+          "nav.license": "License",
+          "hero.eyebrow": "Desktop icon workspace",
+          "hero.title": "Find, style, and export icons<br /><span>in one screen</span>.",
+          "hero.lede":
+            "IconFinder is a desktop app for searching 275,000+ Iconify icons, organizing favorites, applying color/effects, and exporting SVG/PNG. Curated packs and Korean query expansion help game and UI workflows.",
+          "hero.download": "Download latest",
+          "hero.how": "Installation guide",
+          "hero.platforms": "macOS (Universal) · Windows (x64)",
+          "hero.free": "Free · Open source",
+          "hero.caption": "Search, style, and export — one unified workspace",
+          "ws.eyebrow": "Workspace",
+          "ws.title": "Three panes. No tab hopping.",
+          "ws.lede":
+            "IconMaker’s Search and Editor tabs are merged into one flow: find, refine, export.",
+          "ws.left.label": "Left · Library",
+          "ws.left.title": "Categories & favorites",
+          "ws.left.body":
+            "Game-ready categories plus a ★ Favorites smart view. Drag between folders and export category sprites.",
+          "ws.center.label": "Center · Search",
+          "ws.center.title": "Full Iconify search",
+          "ws.center.body":
+            "All / curated packs / single collection. Korean queries expand to English tags. Virtualized grid scrolls smoothly.",
+          "ws.right.label": "Right · Detail",
+          "ws.right.title": "Style & quick export",
+          "ws.right.body":
+            "SVG, PNG, clipboard PNG, ICO/ICNS. Save styled favorites with color, outline, glow, and bevel.",
+          "feat.eyebrow": "Features",
+          "feat.title": "Built for real shipping work",
+          "feat.search.title": "Search, then ★ to keep",
+          "feat.search.body":
+            "Browse Lucide, Tabler, MDI, Game-icons and more. Star an icon to drop it into Uncategorized favorites — including the style you’re previewing.",
+          "feat.search.li1": "Korean → English Iconify tag expansion",
+          "feat.search.li2": "Infinite scroll · adjustable columns",
+          "feat.search.li3": "Source link · license badge",
+          "feat.style.title": "Per-icon style memory",
+          "feat.style.body":
+            "Original / mono / duotone / gradient / raised. Tune outline, shadow, glow, emboss — then Reapply. Selecting a favorite restores that icon’s sidebar settings.",
+          "feat.style.li1": "108 swatches + HEX · custom presets",
+          "feat.style.li2": "Unsaved edits discard when you switch icons",
+          "feat.style.li3": "Copy SVG / HTML / CSS / React / Vue snippets",
+          "feat.export.title": "Batch at every density",
+          "feat.export.body":
+            "Export a selection or a whole category. Presets for @1x/@2x/@3x, Android mipmap, iOS AppIcon, plus SVG sprites. Set a default save folder once in Settings.",
+          "feat.export.li1": "PNG clipboard paste into Figma or Slack",
+          "feat.export.li2": "ICO / ICNS app icons",
+          "feat.export.li3": "11 UI languages · Light / Dark / System",
+          "install.eyebrow": "Install",
+          "install.title": "About two minutes to install",
+          "install.lede":
+            "Grab the build for your OS from GitHub Releases. Later updates are prompted from Releases inside the app.",
+          "install.cta": "Get it on Releases",
+          "install.mac.1":
+            "Download <code>IconFinder_*_universal.dmg</code> (Intel and Apple Silicon).",
+          "install.mac.2": "Open the DMG and drag <strong>IconFinder</strong> into Applications.",
+          "install.mac.3":
+            "If Gatekeeper blocks the first launch, allow it under <strong>System Settings → Privacy & Security</strong>.",
+          "install.win.1":
+            "Download <code>*_x64-setup.exe</code> (recommended) or <code>*_x64_en-US.msi</code>.",
+          "install.win.2": "Finish the installer, then launch IconFinder from the Start menu.",
+          "install.win.3": "If SmartScreen appears, choose More info → Run anyway.",
+          "install.note":
+            "<strong>Note:</strong> Official binaries are macOS and Windows only for now. No Linux packages, Homebrew, or winget yet. Developers can build with <code>npm run tauri build</code>.",
+          "guide.eyebrow": "Quick start",
+          "guide.title": "Five-minute tour",
+          "guide.1.title": "Search icons",
+          "guide.1.body":
+            "Type English or Korean in the center search field. Narrow with Game / UI/HUD and other scope chips.",
+          "guide.2.title": "Try a style",
+          "guide.2.body":
+            "Click a result to open preview and style controls. Star it to save the icon with that style snapshot.",
+          "guide.3.title": "Export",
+          "guide.3.body":
+            "Use SVG/PNG download, PNG copy, or ICO/ICNS. For code, copy SVG, HTML, CSS, React, or Vue snippets.",
+          "guide.4.title": "Organize in Favorites",
+          "guide.4.body":
+            "Switch to Favorites, sort into categories, then batch export or SVG sprite. Set a default save folder in Settings for speed.",
+          "guide.keys.title": "Shortcuts",
+          "guide.keys.action": "Action",
+          "guide.keys.key": "Keys",
+          "guide.keys.search": "Focus search",
+          "guide.keys.export": "Quick export",
+          "guide.keys.fav": "Toggle favorite",
+          "lic.eyebrow": "License",
+          "lic.title": "Check each icon’s license",
+          "lic.lede":
+            "IconFinder loads icons via the Iconify API. <strong>Licenses follow each collection</strong>. Before shipping commercially, use the in-app License button and source links.",
+          "lic.col.set": "Set (examples)",
+          "lic.col.license": "License",
+          "lic.note":
+            "“All” search includes many more sets. Unlisted license or trademark issues are possible — verify sources. This is not legal advice.",
+          "footer.tag": "A desktop workspace for Iconify icons · Successor to IconMaker",
+        },
+      };
+
+      function applyLang(lang) {
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          const text = copy[lang][key];
+          if (text != null) el.innerHTML = text;
+        });
+        document.querySelectorAll(".lang-toggle button").forEach((btn) => {
+          btn.setAttribute("aria-pressed", String(btn.dataset.lang === lang));
+        });
+        try {
+          localStorage.setItem("iconfinder-pages-lang", lang);
+        } catch (_) {}
+      }
+
+      document.querySelectorAll(".lang-toggle button").forEach((btn) => {
+        btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+      });
+
+      let start = "ko";
+      try {
+        const saved = localStorage.getItem("iconfinder-pages-lang");
+        if (saved === "en" || saved === "ko") start = saved;
+        else if (navigator.language && !navigator.language.toLowerCase().startsWith("ko")) start = "en";
+      } catch (_) {}
+      applyLang(start);
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("is-in");
+          });
+        },
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

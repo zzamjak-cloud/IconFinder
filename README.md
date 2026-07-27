@@ -2,6 +2,8 @@
 
 **English** · [한국어](README.ko.md)
 
+**Website:** [zzamjak-cloud.github.io/IconFinder](https://zzamjak-cloud.github.io/IconFinder/) — product overview, install guide, and feature walkthrough (KO/EN).
+
 A desktop icon workspace: search 275,000+ Iconify icons, organize them into a library, style them, and export as SVG/PNG — all in one screen.
 
 > IconFinder is the successor to [IconMaker](https://github.com/zzamjak-cloud/IconMaker), merging its separate Search and Editor tabs into a single unified workspace.
@@ -42,6 +44,11 @@ One three-pane screen instead of tabs:
 - **Backend**: Rust + resvg (SVG→PNG)
 - **Persistence**: Tauri Store Plugin
 
+## Download
+
+- **macOS / Windows:** [GitHub Releases](https://github.com/zzamjak-cloud/IconFinder/releases/latest)
+- Install steps (Gatekeeper / SmartScreen): [Website → Install](https://zzamjak-cloud.github.io/IconFinder/#install)
+
 ## Development
 
 ```bash
@@ -50,6 +57,10 @@ npm run tauri dev      # run in development
 npm run tauri build    # production build
 npx tsc --noEmit       # type check
 ```
+
+## GitHub Pages
+
+The public site lives in [`docs/`](./docs/) and is published from the `main` branch `/docs` folder.
 
 ## License
 

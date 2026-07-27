@@ -2,6 +2,8 @@
 
 [English](README.md) · **한국어**
 
+**웹사이트:** [zzamjak-cloud.github.io/IconFinder](https://zzamjak-cloud.github.io/IconFinder/) — 제품 소개, 설치 가이드, 기능 안내 (한/영).
+
 데스크톱 아이콘 워크스페이스 — Iconify 아이콘 275,000+개를 검색하고, 보관함으로 정리하고, 스타일을 입혀 SVG/PNG로 내보내는 것까지 한 화면에서.
 
 > IconFinder는 [IconMaker](https://github.com/zzamjak-cloud/IconMaker)의 후속 프로젝트로, 분리되어 있던 검색/에디터 두 탭을 하나의 통합 워크스페이스로 합쳤습니다.
@@ -42,6 +44,11 @@
 - **백엔드**: Rust + resvg (SVG→PNG)
 - **영속성**: Tauri Store Plugin
 
+## 다운로드
+
+- **macOS / Windows:** [GitHub Releases](https://github.com/zzamjak-cloud/IconFinder/releases/latest)
+- 설치 절차 (Gatekeeper / SmartScreen): [웹사이트 → 설치](https://zzamjak-cloud.github.io/IconFinder/#install)
+
 ## 개발
 
 ```bash
@@ -50,6 +57,10 @@ npm run tauri dev      # 개발 실행
 npm run tauri build    # 프로덕션 빌드
 npx tsc --noEmit       # 타입 체크
 ```
+
+## GitHub Pages
+
+공개 사이트는 [`docs/`](./docs/)에 있으며, `main` 브랜치의 `/docs` 폴더에서 게시됩니다.
 
 ## 라이선스
 
